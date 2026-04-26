@@ -1,0 +1,6 @@
+@use "../../../../shared/styles/variables.scss" as *;
+
+.lifetimeContainer {
+    display: flex;
+    gap: $spacing-xs;
+}

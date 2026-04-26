@@ -46,6 +46,10 @@ import {
     rgbStringToHex,
 } from "../../../shared/lib/hexToRgbString";
 import { SimpleWidgetShape } from "../../../shared/widgets/SimpleWidgetShape/SimpleWidgetShape";
+import { SettingSwitch } from "./SettingSwitch/SettingSwitch";
+import { SettingSlider } from "./SettingSlider/SettingSlider";
+import { SettingApplyInput } from "./SettingApplyInput/SettingApplyInput";
+import { SettingColorPicker } from "./SettingsColorPicker/SettingColorPicker";
 
 export const ChatSettings = () => {
     const [link, setLink] = useState("");
@@ -139,6 +143,22 @@ export const ChatSettings = () => {
         dispatch(setServiceIcon(serviceIconLocal));
     }, [serviceIconLocal]);
 
+    const onChangeLifeTime = (e) => {
+        const value = e.target.value;
+        if (value === "") {
+            setLifetime(0);
+            return;
+        }
+        if (
+            value.length <= 3 &&
+            !isNaN(value) &&
+            !isNaN(parseFloat(value)) &&
+            isFinite(value)
+        ) {
+            setLifetime(parseFloat(value) * 1000);
+        }
+    };
+
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(link);
@@ -208,204 +228,65 @@ export const ChatSettings = () => {
                 titleStyles={{ fontSize: "1rem" }}
             />
 
-            <div className={`${s.borderContainer} ${s.container}`}>
-                <DefaultTitle
-                    paddingTop={"0"}
-                    paddingBottom={"0"}
-                    paddingLeft={"0"}
-                    paddingRight={"0"}
-                    title={"Обводка"}
-                    titleStyles={{ fontSize: "1rem" }}
-                    fontWeight={"400"}
-                />
-                <DefaultSwitch
-                    state={messageBorderLocal}
-                    onSwitch={setMessageBorderLocal}
-                />
-            </div>
+            <SettingSwitch
+                title={"Обводка"}
+                state={messageBorderLocal}
+                onSwitch={setMessageBorderLocal}
+            />
 
-            <div className={`${s.serviceIconContainer} ${s.container}`}>
-                <DefaultTitle
-                    paddingTop={"0"}
-                    paddingBottom={"0"}
-                    paddingLeft={"0"}
-                    paddingRight={"0"}
-                    title={"Значок сервиса"}
-                    titleStyles={{ fontSize: "1rem" }}
-                    fontWeight={"400"}
-                />
-                <DefaultSwitch
-                    state={serviceIconLocal}
-                    onSwitch={setServiceIconLocal}
-                />
-            </div>
+            <SettingSwitch
+                title={"Значок сервиса"}
+                state={serviceIconLocal}
+                onSwitch={setServiceIconLocal}
+            />
 
             <div className={`${s.colorContainer} ${s.container}`}>
-                <div className={s.colorPickBlock}>
-                    <DefaultTitle
-                        paddingTop={"0"}
-                        paddingBottom={"0"}
-                        paddingLeft={"0"}
-                        paddingRight={"0"}
-                        title={"Цвет фона"}
-                        titleStyles={{ fontSize: "0.9rem" }}
-                        fontWeight={"400"}
-                        alignContent={"center"}
-                    />
-                    <input
-                        className={s.colorPicker}
-                        value={rgbStringToHex(currentMessageBackgroundColor)}
-                        type="color"
-                        onChange={handlePickBackgroundColor}
-                    />
-                </div>
-                <div className={s.colorPickBlock}>
-                    <DefaultTitle
-                        paddingTop={"0"}
-                        paddingBottom={"0"}
-                        paddingLeft={"0"}
-                        paddingRight={"0"}
-                        title={"Цвет текста"}
-                        titleStyles={{ fontSize: "0.9rem" }}
-                        fontWeight={"400"}
-                        alignContent={"center"}
-                    />
-                    <input
-                        className={s.colorPicker}
-                        value={rgbStringToHex(currentMessageTextColor)}
-                        type="color"
-                        onChange={handlePickTextColor}
-                    />
-                </div>
+                <SettingColorPicker
+                    title={"Цвет фона"}
+                    value={rgbStringToHex(currentMessageBackgroundColor)}
+                    onChange={handlePickBackgroundColor}
+                />
+                <SettingColorPicker
+                    title={"Цвет текста"}
+                    value={rgbStringToHex(currentMessageTextColor)}
+                    onChange={handlePickTextColor}
+                />
             </div>
 
-            <SimpleWidgetShape>
-                <DefaultTitle
-                    paddingTop={"0"}
-                    paddingBottom={"8px"}
-                    paddingLeft={"0"}
-                    paddingRight={"0"}
-                    title={"Размер шрифта"}
-                    titleStyles={{ fontSize: "1rem" }}
-                    fontWeight={"400"}
-                />
-                <DefaultSlider
-                    selector={selectFontSize}
-                    dispatcher={setFontSize}
-                    width="100%"
-                    height="32px"
-                    postfix="px"
-                    min={12}
-                    max={32}
-                />
-            </SimpleWidgetShape>
+            <SettingSlider
+                title={"Прозрачность фона"}
+                selector={selectMessageBackgroundOpacity}
+                dispatcher={setMessageBackgroundOpacity}
+                min={0}
+                max={32}
+                isCoefficient
+            />
 
-            <SimpleWidgetShape>
-                <DefaultTitle
-                    paddingTop={"0"}
-                    paddingBottom={"8px"}
-                    paddingLeft={"0"}
-                    paddingRight={"0"}
-                    title={"Прозрачность фона"}
-                    titleStyles={{ fontSize: "1rem" }}
-                    fontWeight={"400"}
-                />
-                <DefaultSlider
-                    selector={selectMessageBackgroundOpacity}
-                    dispatcher={setMessageBackgroundOpacity}
-                    width="100%"
-                    height="32px"
-                    isCoefficient
-                />
-            </SimpleWidgetShape>
+            <SettingSlider
+                title={"Размер шрифта"}
+                selector={selectFontSize}
+                dispatcher={setFontSize}
+                postfix={"px"}
+                min={12}
+                max={32}
+            />
 
-            <SimpleWidgetShape>
-                <DefaultTitle
-                    paddingTop={"0"}
-                    paddingBottom={"8px"}
-                    paddingLeft={"0"}
-                    paddingRight={"0"}
-                    title={"Исчезнут через (с)"}
-                    titleStyles={{ fontSize: "1rem" }}
-                    fontWeight={"400"}
-                />
-                <div className={s.lifetimeContainer}>
-                    <DefaultInput
-                        placeholder="Время в секундах"
-                        height={"32px"}
-                        value={lifetime / 1000}
-                        align={"center"}
-                        width={"72px"}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            // Если поле пустое, устанавливаем 0
-                            if (value === "") {
-                                setLifetime(0);
-                                return;
-                            }
-                            // Проверяем, что ввод - валидное число и не превышает 3 символа
-                            if (
-                                value.length <= 3 &&
-                                !isNaN(value) &&
-                                !isNaN(parseFloat(value)) &&
-                                isFinite(value)
-                            ) {
-                                setLifetime(parseFloat(value) * 1000);
-                            }
-                        }}
-                    />
-                    <DefaultButton
-                        height="32px"
-                        title={"Применить"}
-                        flex={1}
-                        onClick={handleChangeLifeTime}
-                    />
-                </div>
-            </SimpleWidgetShape>
+            <SettingSlider
+                title={"Расстояние между сообщениями"}
+                selector={selectMessageGap}
+                dispatcher={setMessageGap}
+                postfix={"px"}
+                min={0}
+                max={32}
+            />
 
-            <SimpleWidgetShape>
-                <DefaultTitle
-                    paddingTop={"0"}
-                    paddingBottom={"8px"}
-                    paddingLeft={"0"}
-                    paddingRight={"0"}
-                    title={"Расстояние между (px)"}
-                    titleStyles={{ fontSize: "1rem" }}
-                    fontWeight={"400"}
-                />
-                <div className={s.lifetimeContainer}>
-                    <DefaultInput
-                        placeholder="Расстояние в пикселях"
-                        height={"32px"}
-                        value={messageGapLocal}
-                        align={"center"}
-                        width={"72px"}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            // Если поле пустое, устанавливаем 0
-                            if (value === "") {
-                                setMessageGapLocal(0);
-                                return;
-                            }
-                            // Проверяем, что ввод - валидное число и не превышает 2 символа
-                            if (
-                                value.length <= 2 &&
-                                !isNaN(value) &&
-                                !isNaN(parseFloat(value)) &&
-                                isFinite(value)
-                            ) {
-                                setMessageGapLocal(parseFloat(value));
-                            }
-                        }}
-                    />
-                    <DefaultButton
-                        height="32px"
-                        title={"Применить"}
-                        flex={1}
-                        onClick={handleChangeGap}
-                    />
-                </div>
-            </SimpleWidgetShape>
+            <SettingApplyInput
+                title={"Исчезнут через (с)"}
+                placeholder={"Время в секундах"}
+                value={lifetime / 1000}
+                onChange={onChangeLifeTime}
+                dispatcher={handleChangeLifeTime}
+            />
         </div>
     );
 };

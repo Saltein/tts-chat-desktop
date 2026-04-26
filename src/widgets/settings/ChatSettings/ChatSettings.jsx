@@ -30,6 +30,7 @@ import {
     selectMessageBorder,
     selectMessageGap,
     selectMessageLifeTime,
+    selectMessageNameBackground,
     selectMessageTextColor,
     selectServiceIcon,
     setFontSize,
@@ -38,6 +39,7 @@ import {
     setMessageBorder,
     setMessageGap,
     setMessageLifeTime,
+    setMessageNameBackground,
     setMessageTextColor,
     setServiceIcon,
 } from "../../../entities/message/model/slice";
@@ -73,6 +75,9 @@ export const ChatSettings = () => {
     const currentMessageBackgroundColor = useSelector(selectMessageBackground);
     const currentMessageBackgroundOpacity = useSelector(
         selectMessageBackgroundOpacity,
+    );
+    const currentMessageNameBackground = useSelector(
+        selectMessageNameBackground,
     );
     const currentMessageTextColor = useSelector(selectMessageTextColor);
     const currentFontSize = useSelector(selectFontSize);
@@ -226,6 +231,16 @@ export const ChatSettings = () => {
                 paddingRight={"0"}
                 title={"Сообщения"}
                 titleStyles={{ fontSize: "1rem" }}
+            />
+
+            <SettingSwitch
+                title={"Фон имени"}
+                state={currentMessageNameBackground}
+                onSwitch={() =>
+                    dispatch(
+                        setMessageNameBackground(!currentMessageNameBackground),
+                    )
+                }
             />
 
             <SettingSwitch

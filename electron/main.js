@@ -102,11 +102,15 @@ ipcMain.handle("vk-connect", async (_, channel) => {
 
         client.on("message", (ctx) => {
             if (vkConnectionId !== connectionId) return;
+            console.log("-------------------------------------message", ctx);
 
             mainWindow?.webContents.send("vk-message", {
                 id: ctx.message.id,
                 user: ctx.user?.name,
                 text: ctx.message?.text,
+                color: ctx.user?.nickColor,
+                isModerator: ctx.user?.isChatModerator || ctx.user?.isChannelModerator,
+                isOwner: ctx.user?.isOwner,
             });
         });
 

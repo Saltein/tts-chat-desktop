@@ -29,6 +29,12 @@
     margin-right: $spacing-xxs;
     box-shadow: $shadow-sm;
     white-space: nowrap;
+
+    &.noBackground {
+        background-color: transparent;
+        border: none;
+        box-shadow: none;
+    }
 }
 
 .message {

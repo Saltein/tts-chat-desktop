@@ -1,30 +1,32 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
 
 let initialState = {
-    messageBackground: '',
+    messageBackground: "",
     messageBackgroundOpacity: 1,
+    messageNameBackground: true,
     messageBorder: true,
-    messageTextColor: '',
+    messageTextColor: "",
     messageLifeTime: 30000,
-    messageGap: '8',
+    messageGap: "8",
     serviceIcon: true,
     fontSize: 16,
-}
+};
 
 // Загружаем параметры из localStorage
 try {
-    const saved = JSON.parse(localStorage.getItem('chatCustomization'))
+    const saved = JSON.parse(localStorage.getItem("chatCustomization"));
     if (saved) {
         initialState = {
-            messageBackground: saved.messageBackground ?? '',
+            messageBackground: saved.messageBackground ?? "",
             messageBackgroundOpacity: saved.messageBackgroundOpacity ?? 1,
+            messageNameBackground: saved.messageNameBackground ?? true,
             messageBorder: saved.messageBorder ?? true,
-            messageTextColor: saved.messageTextColor ?? '',
+            messageTextColor: saved.messageTextColor ?? "",
             messageLifeTime: saved.messageLifeTime ?? 30000,
-            messageGap: saved.messageGap ?? '8',
+            messageGap: saved.messageGap ?? "8",
             serviceIcon: saved.serviceIcon ?? true,
-            fontSize: saved.fontSize ?? '16px',
-        }
+            fontSize: saved.fontSize ?? "16px",
+        };
     }
 } catch {
     // просто игнорируем ошибку
@@ -32,67 +34,81 @@ try {
 
 // Сохраняем localStorage
 const saveToLocalStorage = (state) => {
-    localStorage.setItem('chatCustomization', JSON.stringify(state))
-}
+    localStorage.setItem("chatCustomization", JSON.stringify(state));
+};
 
 const messageCustomizationSlice = createSlice({
-    name: 'messageCustomization',
+    name: "messageCustomization",
     initialState,
     reducers: {
         setMessageBackground: (state, action) => {
-            state.messageBackground = action.payload
-            saveToLocalStorage(state)
+            state.messageBackground = action.payload;
+            saveToLocalStorage(state);
         },
         setMessageBackgroundOpacity: (state, action) => {
-            state.messageBackgroundOpacity = action.payload
-            saveToLocalStorage(state)
+            state.messageBackgroundOpacity = action.payload;
+            saveToLocalStorage(state);
+        },
+        setMessageNameBackground: (state, action) => {
+            state.messageNameBackground = action.payload;
+            saveToLocalStorage(state);
         },
         setMessageBorder: (state, action) => {
-            state.messageBorder = action.payload
-            saveToLocalStorage(state)
+            state.messageBorder = action.payload;
+            saveToLocalStorage(state);
         },
         setMessageTextColor: (state, action) => {
-            state.messageTextColor = action.payload
-            saveToLocalStorage(state)
+            state.messageTextColor = action.payload;
+            saveToLocalStorage(state);
         },
         setMessageLifeTime: (state, action) => {
-            state.messageLifeTime = action.payload
-            saveToLocalStorage(state)
+            state.messageLifeTime = action.payload;
+            saveToLocalStorage(state);
         },
         setMessageGap: (state, action) => {
-            state.messageGap = action.payload
-            saveToLocalStorage(state)
+            state.messageGap = action.payload;
+            saveToLocalStorage(state);
         },
         setServiceIcon: (state, action) => {
-            state.serviceIcon = action.payload
-            saveToLocalStorage(state)
+            state.serviceIcon = action.payload;
+            saveToLocalStorage(state);
         },
-        setFontSize: (state,action) => {
-            state.fontSize = action.payload
-            saveToLocalStorage(state)
-        }
-    }
-})
+        setFontSize: (state, action) => {
+            state.fontSize = action.payload;
+            saveToLocalStorage(state);
+        },
+    },
+});
 
 export const {
     setMessageBackground,
     setMessageBackgroundOpacity,
+    setMessageNameBackground,
     setMessageBorder,
     setMessageTextColor,
     setMessageLifeTime,
     setMessageGap,
     setServiceIcon,
-    setFontSize
-} = messageCustomizationSlice.actions
+    setFontSize,
+} = messageCustomizationSlice.actions;
 
-export default messageCustomizationSlice.reducer
+export default messageCustomizationSlice.reducer;
 
 // Селекторы
-export const selectMessageBackground = (state) => state.messageCustomization.messageBackground
-export const selectMessageBackgroundOpacity = (state) => state.messageCustomization.messageBackgroundOpacity
-export const selectMessageBorder = (state) => state.messageCustomization.messageBorder
-export const selectMessageTextColor = (state) => state.messageCustomization.messageTextColor
-export const selectMessageLifeTime = (state) => state.messageCustomization.messageLifeTime
-export const selectMessageGap = (state) => state.messageCustomization.messageGap
-export const selectServiceIcon = (state) => state.messageCustomization.serviceIcon
-export const selectFontSize = (state) => state.messageCustomization.fontSize
+export const selectMessageBackground = (state) =>
+    state.messageCustomization.messageBackground;
+export const selectMessageBackgroundOpacity = (state) =>
+    state.messageCustomization.messageBackgroundOpacity;
+export const selectMessageNameBackground = (state) =>
+    state.messageCustomization.messageNameBackground;
+export const selectMessageBorder = (state) =>
+    state.messageCustomization.messageBorder;
+export const selectMessageTextColor = (state) =>
+    state.messageCustomization.messageTextColor;
+export const selectMessageLifeTime = (state) =>
+    state.messageCustomization.messageLifeTime;
+export const selectMessageGap = (state) =>
+    state.messageCustomization.messageGap;
+export const selectServiceIcon = (state) =>
+    state.messageCustomization.serviceIcon;
+export const selectFontSize = (state) => state.messageCustomization.fontSize;

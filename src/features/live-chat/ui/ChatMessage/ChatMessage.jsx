@@ -6,6 +6,7 @@ import {
     selectMessageBackground,
     selectMessageBackgroundOpacity,
     selectMessageBorder,
+    selectMessageNameBackground,
     selectMessageTextColor,
     selectServiceIcon,
     setMessageBackground,
@@ -23,7 +24,10 @@ import VkVideoIcon from "../../../../shared/assets/icons/vk-video-logo.svg?react
 import TTSChatIcon from "../../../../shared/assets/icons/ttschat-logo.svg?react";
 import WrenchIcon from "../../../../shared/assets/icons/wrench.svg?react";
 
-import { generateColorFromUsername } from "../../../../shared/lib/generateColorFromUsername";
+import {
+    generateColorFromUsername,
+    nameColors,
+} from "../../../../shared/lib/generateColorFromUsername";
 
 export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     const [visible, setVisible] = useState(true);
@@ -32,6 +36,7 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     const dispatch = useDispatch();
     const theme = useTheme().theme;
 
+    const messageNameBackground = useSelector(selectMessageNameBackground);
     const messageBorder = useSelector(selectMessageBorder);
     const serviceIcon = useSelector(selectServiceIcon);
     const messageBackgroundOpacity = useSelector(
@@ -44,6 +49,7 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
         message.tags?.["is-moderator"] ||
         message?.raw?.push?.pub?.data?.data?.user?.isChannelModerator ||
         message?.raw?.push?.pub?.data?.data?.user?.isChatModerator ||
+        message?.isModerator ||
         null;
 
     const isSponsor =
@@ -51,12 +57,18 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
         message.tags?.["is-sponsor"] ||
         null;
 
-    const isOwner = message?.raw?.push?.pub?.data?.data?.user?.isOwner;
+    const isOwner =
+        message?.raw?.push?.pub?.data?.data?.user?.isOwner ||
+        message?.isOwner ||
+        null;
 
     let nameColor;
     let borderColor;
     console.log("🦆🐈🍳 message", message);
-    if (message.tags ? message.tags["color"] !== "#FFFFFF" : false) {
+    if (message.color) {
+        console.log("color", message.color);
+        nameColor = nameColors[message.color];
+    } else if (message.tags ? message.tags["color"] !== "#FFFFFF" : false) {
         nameColor = message.tags["color"];
     } else {
         nameColor = message.tags
@@ -70,6 +82,9 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     if (isModerator === "1" || isModerator === true) {
         nameColor = "var(--color-moderator)";
         borderColor = "var(--color-moderator)";
+    }
+    if (isOwner) {
+        borderColor = "var(--color-owner)";
     }
 
     let messageTextColor = useSelector(selectMessageTextColor);
@@ -101,7 +116,7 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
 
     const nameStyles = {
         color: nameColor,
-        borderColor: isModerator || isSponsor ? borderColor : undefined,
+        borderColor: isModerator || isSponsor || isOwner ? borderColor : undefined,
         fontSize: fontSize + "px",
     };
 
@@ -153,7 +168,10 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
             className={`${s.wrapper} ${isFading ? s.fadeOut : ""}`}
             style={wrapperStyles}
         >
-            <div className={s.name} style={nameStyles}>
+            <div
+                className={`${s.name} ${messageNameBackground ? "" : s.noBackground}`}
+                style={nameStyles}
+            >
                 {serviceIcon && (
                     <Icon
                         className={s.icon}
@@ -162,6 +180,7 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
                     />
                 )}
                 {message.tags ? message.tags["display-name"] : message?.user}
+                {!messageNameBackground && " :"}
                 {isModerator && (
                     <WrenchIcon
                         className={s.wrenchIcon}

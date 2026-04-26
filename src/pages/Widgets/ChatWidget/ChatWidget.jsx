@@ -37,6 +37,7 @@ import {
     disconnectVk,
     initVkChatListener,
 } from "../../../services/vkService";
+import { getTwitchChannelName } from "../../../shared/lib/getTwitchChannelName";
 
 export const ChatWidget = () => {
     const twitchBotName = import.meta.env.VITE_TWITCH_BOT_NAME;
@@ -154,13 +155,15 @@ export const ChatWidget = () => {
             return;
         }
 
+        const chatChannelName = getTwitchChannelName(twitchChatChannelName);
+
         setTwitchConnectionTimeout();
 
         const client = connectTwitchClient(
             {
                 token: twitchBotToken,
                 botNick: twitchBotName,
-                channel: { chatChannelName: twitchChatChannelName },
+                channel: chatChannelName,
             },
             dispatch,
         );

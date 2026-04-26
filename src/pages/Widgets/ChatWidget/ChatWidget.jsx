@@ -32,6 +32,11 @@ import {
     setMessageTextColor,
     setServiceIcon,
 } from "../../../entities/message/model/slice";
+import {
+    connectVk,
+    disconnectVk,
+    initVkChatListener,
+} from "../../../services/vkService";
 
 export const ChatWidget = () => {
     const twitchBotName = import.meta.env.VITE_TWITCH_BOT_NAME;
@@ -71,7 +76,7 @@ export const ChatWidget = () => {
     const vkConnectionStatus =
         searchParams.get("vkConnectionStatus") === "true";
 
-    // Разделяем рефы для клиентов
+    // Рефы для клиентов
     const twitchClientRef = useRef(null);
     const youtubeClientRef = useRef(null);
 
@@ -104,6 +109,11 @@ export const ChatWidget = () => {
         serviceIcon,
         fontSize,
     ]);
+
+    // Инициализация VK слушателей (только для Electron)
+    useEffect(() => {
+        initVkChatListener();
+    }, []);
 
     // Функция для установки таймаута подключения Twitch
     const setTwitchConnectionTimeout = () => {
@@ -268,7 +278,7 @@ export const ChatWidget = () => {
         youtubeClientRef.current = null;
     };
 
-    // Функция подключения к VK (упрощённая, аналогичная ConnectionSwitch)
+    // Функция подключения к VK
     const handleVkConnect = async () => {
         if (!vkConnectionStatus || !vkChannelId) return;
 
@@ -283,17 +293,13 @@ export const ChatWidget = () => {
                     "VK connection timeout – no connected event received",
                 );
                 dispatch(setVkConnectionStatus(false));
-                if (window.electronAPI?.vk) {
-                    window.electronAPI.vk.disconnect();
-                }
+                disconnectVk();
             }
         }, 10000);
 
         try {
-            const success = await window.electronAPI.vk.connect(vkChannelId);
-            if (!success) {
-                throw new Error("VK connect failed – method returned false");
-            }
+            await connectVk(vkChannelId);
+            vkJoinedRef.current = true;
             console.log("VK connect initiated successfully");
         } catch (error) {
             console.error("VK connection error:", error);
@@ -307,18 +313,15 @@ export const ChatWidget = () => {
     const handleVkDisconnect = async () => {
         if (vkConnectTimeoutRef.current)
             clearTimeout(vkConnectTimeoutRef.current);
-        if (window.electronAPI?.vk) {
-            await window.electronAPI.vk.disconnect();
-        }
+        await disconnectVk();
         dispatch(setVkConnectionStatus(false));
         vkJoinedRef.current = false;
     };
 
-    // Синхронизация локального рефа с глобальным статусом VK (аналогично ConnectionSwitch)
+    // Синхронизация локального рефа с глобальным статусом VK
     useEffect(() => {
         if (vkConnectionStatus) {
             vkJoinedRef.current = true;
-            // Если таймаут ещё активен, сбрасываем его, т.к. подключение успешно
             if (vkConnectTimeoutRef.current)
                 clearTimeout(vkConnectTimeoutRef.current);
         } else {
@@ -365,10 +368,7 @@ export const ChatWidget = () => {
             // Отключаем все сервисы
             disconnectTwitchClient();
             disconnectYouTubeClient();
-
-            if (window.electronAPI?.vk) {
-                window.electronAPI.vk.disconnect();
-            }
+            disconnectVk();
         };
     }, [twitchConnectionStatus, youtubeConnectionStatus, vkConnectionStatus]);
 

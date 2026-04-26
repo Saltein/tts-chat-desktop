@@ -1,70 +1,96 @@
-# Getting Started with Create React App
+# TTS Chat Desctop
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**TTS Chat Desktop** — это десктопное приложение на базе Electron, которое озвучивает сообщения из стриминговых чатов (Twitch, YouTube, VK Live) с использованием Text-to-Speech.
 
-## Available Scripts
+Приложение предназначено для стримеров и контент-мейкеров, которые хотят автоматически озвучивать сообщения зрителей.
 
-In the project directory, you can run:
+## 🚀 Возможности
 
-### `yarn start`
+- 🔊 Озвучивание сообщений из чата (TTS)
+- 💬 Чат с нескольких платформ в одном окне
+- 🎞️ Виджет чата для obs
+- 📺 Поддержка платформ:
+    - Twitch
+    - YouTube
+    - VK Live
+- ⚙️ Гибкая настройка внешнего вида, голосов и параметров речи
+- 🖥️ Удобный UI на React + Redux
+- 🔄 Подключение/отключение чатов в реальном времени
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🛠️ Технологии
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Electron — десктопное приложение
+- React — интерфейс
+- Redux — управление состоянием
+- Node.js — серверная логика внутри приложения
+- VK Live Message Client / Twitch API / YouTube API — работа с чатами
 
-### `yarn test`
+## 📦 Установка
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Перейдите в раздел [Releases](https://github.com/your-username/tts-chat-desktop/releases)
+2. Скачайте последнюю версию приложения:
+    - `TTS Electron App Setup 0.0.0.exe`
+3. Запустите установщик
+4. После этого появится ярлык на рабочем столе и приложение сразу запустится
 
-### `yarn build`
+### 🧑‍💻 Для разработчиков
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. `git clone https://github.com/Saltein/tts-electron-version.git`
+2. `cd tts-chat-desktop`
+3. `npm install`
+4. ▶️ Запуск
+    - В режиме разработки:
+        - `npm run dev`
+    - Сборка приложения:
+        - `npm run build`
+    - Запуск собранного приложения:
+        - `npm start`
+    - Сборка `.exe` файла:
+        - `npm run build:electron`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+#### 🔑 Переменные окружения
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Создай файл .env в корне проекта:
 
-### `yarn eject`
+```
+VITE_TWITCH_BOT_NAME=имя_бота
+VITE_TWITCH_BOT_TOKEN=токен_бота
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+VITE_BASE_URL_API=http://localhost:5001
+VITE_BASE_URL_WEBSOCKET=ws://localhost:6789
+VITE_BASE_URL_WIDGET=http://127.0.0.1:3030
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+VITE_GOOGLE_CLIENT_ID=id_десктоп_приложения_в_твоем_проекте_Google_Console
+VITE_GOOGLE_CLIENT_SECRET=secret_десктоп_приложения_в_твоем_проекте_Google_Console
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+VITE_GOOGLE_REDIRECT_URI=http://localhost:5173/oauth2callback
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+VITE_GOOGLE_API_KEY=api_ключ_проекта_Google_Console
+VITE_GOOGLE_API_KEYS=api_ключ_проекта_Google_Console1 api_ключ_проекта_Google_Console2 api_ключ_проекта_Google_Console3
 
-## Learn More
+VITE_GOOGLE_TIMEOUT=5000
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+VITE_BETA_ACCESS_PASSWORD=aboba1337
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### ⚠️ Важно: не публикуй .env в репозитории
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🧩 Планы на будущее
+- более гибкая настройка внешнего вида сообщений
+- выбор какие сообщения озвучивать (например за баллы канала)
+- возможность загрузки своей модели для озвучки
+- цензура сообщений и черный список слов
 
-### Analyzing the Bundle Size
+## 🤝 Контрибьюция
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### PR и идеи приветствуются!
+### Создавай issue или форкай репозиторий.
 
-### Making a Progressive Web App
+📄 Лицензия
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+MIT License
 
-### Advanced Configuration
+👤 Автор
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+SalteiN

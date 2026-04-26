@@ -1,5 +1,4 @@
-// TTSPage.tsx
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     selectSpeechVolume,
@@ -7,7 +6,7 @@ import {
     selectTwitchVoice,
     setSpeechVolume,
     setTwitchTTSOn,
-    setTwitchVoice, // Добавьте этот импорт
+    setTwitchVoice,
 } from "../../../features/tts-chat/model/slice";
 import {
     DefaultOption,
@@ -21,62 +20,15 @@ import s from "./TTSPage.module.scss";
 
 export const TTSPage = () => {
     const dispatch = useDispatch();
+
     const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
     const twitchVoice = useSelector(selectTwitchVoice);
     const speechVolume = useSelector(selectSpeechVolume);
 
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
     const [optionList, setOptionList] = useState([]);
-    const [switchDisabled, setSwitchDisabled] = useState(false);
-    const prevIsTwitchTTSOn = useRef(isTwitchTTSOn);
 
-    // Синхронизация с сервером при изменении состояния
-    useEffect(() => {
-        if (prevIsTwitchTTSOn.current !== isTwitchTTSOn) {
-            prevIsTwitchTTSOn.current = isTwitchTTSOn;
-            setSwitchDisabled(true);
-            setTimeout(() => {
-                setSwitchDisabled(false);
-            }, 5000);
-
-            // Синхронизация с сервером
-            syncTTSServer(isTwitchTTSOn);
-        }
-    }, [isTwitchTTSOn]);
-
-    const syncTTSServer = async (enabled) => {
-        if (!window.electronAPI) return;
-
-        try {
-            if (enabled) {
-                await window.electronAPI.startTTSServer();
-            } else {
-                await window.electronAPI.stopTTSServer();
-            }
-        } catch (error) {
-            console.error("Ошибка синхронизации TTS сервера:", error);
-        }
-    };
-
-    // При монтировании: синхронизация с сервером
-    useEffect(() => {
-        if (isTwitchTTSOn) {
-            syncTTSServer(true);
-        }
-
-        let unsubscribe;
-        if (window.electronAPI?.onTTSError) {
-            const errorHandler = (error) =>
-                console.error("TTS Server Error:", error);
-            unsubscribe = window.electronAPI.onTTSError(errorHandler);
-        }
-
-        return () => {
-            if (unsubscribe) unsubscribe();
-        };
-    }, []);
-
-    // Загрузка списка голосов
+    // 🔥 Только загрузка голосов (никакого запуска сервера)
     useEffect(() => {
         const fetchSpeakers = async () => {
             try {
@@ -86,13 +38,15 @@ export const TTSPage = () => {
                     console.error("Ошибка TTS:", error);
                     return;
                 }
+
                 const data = await res.json();
-                // Убедитесь, что данные - массив строк
+
                 const speakers = Array.isArray(data.speakers)
                     ? data.speakers.map((s) =>
                           typeof s === "string" ? s : s.name,
                       )
                     : [];
+
                 setOptionList(speakers);
             } catch (err) {
                 console.error("Ошибка запроса к TTS серверу:", err);
@@ -102,13 +56,12 @@ export const TTSPage = () => {
         fetchSpeakers();
     }, [baseUrl]);
 
-    const handleSwitch = async () => {
-        const newState = !isTwitchTTSOn;
-        dispatch(setTwitchTTSOn(newState)); // Redux сам сохранит в localStorage
+    const handleSwitch = () => {
+        dispatch(setTwitchTTSOn(!isTwitchTTSOn));
     };
 
     const handleVoiceSelect = (option) => {
-        dispatch(setTwitchVoice(option)); // Redux сам сохранит в localStorage
+        dispatch(setTwitchVoice(option));
     };
 
     return (
@@ -129,20 +82,19 @@ export const TTSPage = () => {
                         <InfoQuestion
                             info={
                                 <>
-                                    <span>
-                                        Эта функция требует повышенного расхода
-                                    </span>
+                                    <span>Эта функция требует повышенного расхода</span>
                                     <span>оперативной памяти</span>
                                 </>
                             }
                         />
                     </div>
+
                     <DefaultSwitch
                         state={isTwitchTTSOn}
                         onSwitch={handleSwitch}
-                        disabled={switchDisabled}
                     />
                 </DefaultOption>
+
                 <div className={s.settingsBlock}>
                     <DefaultWidgetShape
                         title="Громкость сообщений"
@@ -158,6 +110,7 @@ export const TTSPage = () => {
                             selector={selectSpeechVolume}
                         />
                     </DefaultWidgetShape>
+
                     <DefaultWidgetShape
                         title="Голос"
                         width={"fit-content"}

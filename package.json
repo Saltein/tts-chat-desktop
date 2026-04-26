@@ -24,22 +24,13 @@
         },
         "asar": true,
         "asarUnpack": [
-            "electron/tts_server/**/*"
+            "electron/tts_server/**"
         ],
-        "extraResources": [
-            {
-                "from": "electron/tts_server",
-                "to": "electron/tts_server",
-                "filter": [
-                    "**/*"
-                ]
-            }
-        ],
+        "extraResources": [],
         "files": [
             "dist/**/*",
             "electron/**/*",
-            "package.json",
-            "!electron/tts_server/**/*"
+            "package.json"
         ],
         "win": {
             "target": "nsis",

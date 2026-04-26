@@ -36,6 +36,7 @@ async function createWindow() {
             contextIsolation: true,
             nodeIntegration: false,
             devTools: isDev,
+            // devTools: true,
         },
     });
 
@@ -196,7 +197,9 @@ ipcMain.handle("tts-start", async () => {
     return new Promise((resolve, reject) => {
         try {
             const serverPath = path.join(
-                __dirname,
+                process.resourcesPath,
+                "app.asar.unpacked",
+                "electron",
                 "tts_server",
                 "tts-chat-server.exe",
             );
@@ -235,7 +238,10 @@ ipcMain.handle("tts-stop", async () => {
 });
 
 // ================= WINDOW CONTROLS =================
-ipcMain.on("window-close", (e) => e.sender.getOwnerBrowserWindow().close());
+ipcMain.on("window-close", (e) => {
+    const win = e.sender.getOwnerBrowserWindow();
+    win.close(); // это вызовет quit → will-quit
+});
 ipcMain.on("window-minimize", (e) =>
     e.sender.getOwnerBrowserWindow().minimize(),
 );
@@ -249,14 +255,53 @@ ipcMain.on("open-external", (_, url) => shell.openExternal(url));
 // ================= LIFECYCLE =================
 app.whenReady().then(createWindow);
 
-app.on("before-quit", async () => {
-    if (vkClient) destroyVkClient(vkClient);
-
-    await stopTTSServer?.();
-    await stopOAuthServer?.();
-    await stopWidgetServer?.();
+app.on("will-quit", async (e) => {
+    e.preventDefault();
+    await shutdown();
+    app.exit(0);
 });
 
-app.on("window-all-closed", async () => {
-    if (process.platform !== "darwin") app.quit();
+app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+        app.quit();
+    }
 });
+
+async function shutdown() {
+    console.log("[APP] shutting down...");
+
+    try {
+        if (vkClient) {
+            destroyVkClient(vkClient);
+            vkClient = null;
+        }
+
+        // ✅ TTS kill
+        if (ttsServerProcess) {
+            await new Promise((res) => {
+                try {
+                    if (process.platform === "win32") {
+                        exec(
+                            `taskkill /pid ${ttsServerProcess.pid} /f /t`,
+                            () => res(),
+                        );
+                    } else {
+                        ttsServerProcess.kill("SIGKILL");
+                        res();
+                    }
+                } catch {
+                    res();
+                }
+            });
+
+            ttsServerProcess = null;
+        }
+
+        await stopOAuthServer?.();
+        await stopWidgetServer?.();
+
+        console.log("[APP] shutdown complete");
+    } catch (e) {
+        console.error("[APP] shutdown error:", e);
+    }
+}

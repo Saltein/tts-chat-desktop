@@ -2,7 +2,7 @@
 
 .wrapper {
     border: 1px solid var(--color-border);
-    padding: $spacing-xxs;
+    padding: $spacing-xxs $spacing-xs;
     border-radius: $border-radius-lg;
     background-color: var(--color-items);
     line-height: $spacing-lg;
@@ -22,6 +22,7 @@
     width: fit-content;
     height: 32px;
     position: relative;
+    left: -$spacing-xxs;
     border: 1px solid var(--color-border);
     border-radius: $border-radius-md;
     padding: $spacing-xxs $spacing-xs;
@@ -29,17 +30,20 @@
     margin-right: $spacing-xxs;
     box-shadow: $shadow-sm;
     white-space: nowrap;
+    user-select: text;
 
     &.noBackground {
+        left: 0;
         background-color: transparent;
         border: none;
         box-shadow: none;
+        padding: 0 $spacing-xs 0 0;
     }
 }
 
 .message {
     position: relative;
-    left: 2px;
+    
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
     user-select: text;
 }

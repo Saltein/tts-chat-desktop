@@ -112,23 +112,25 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     const wrapperStyles = {
         backgroundColor: `rgba(${messageBackground}, ${messageBackgroundOpacity})`,
         border: messageBorder === false ? `1px solid #00000000` : undefined,
+        paddingBottom: serviceIcon ? "2px" : undefined,
     };
 
     const nameStyles = {
         color: nameColor,
-        borderColor: isModerator || isSponsor || isOwner ? borderColor : undefined,
+        borderColor:
+            isModerator || isSponsor || isOwner ? borderColor : undefined,
         fontSize: fontSize + "px",
     };
 
     const textStyles = {
         color: rgbStringToHex(messageTextColor),
         fontSize: fontSize + "px",
-        top: `${((fontSize - 12) / 16) * -2 - 2}px`,
+        top: serviceIcon ? `${((fontSize - 12) / 16) * -4}px` : 0,
     };
 
     const iconStyles = {
-        height: `${fontSize}px`,
-        width: `${fontSize}px`,
+        height: `${fontSize - 2}px`,
+        width: `${fontSize - 2}px`,
         left: `${-((fontSize - 16) / 2) - 1}px`,
     };
 
@@ -169,7 +171,8 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
             style={wrapperStyles}
         >
             <div
-                className={`${s.name} ${messageNameBackground ? "" : s.noBackground}`}
+                className={`${s.name} 
+                ${messageNameBackground ? "" : s.noBackground}`}
                 style={nameStyles}
             >
                 {serviceIcon && (

@@ -38,6 +38,7 @@ import {
     initVkChatListener,
 } from "../../../services/vkService";
 import { getTwitchChannelName } from "../../../shared/lib/getTwitchChannelName";
+import { getYoutubeVideoId } from "../../../shared/lib/getYoutubeVideoId";
 
 export const ChatWidget = () => {
     const twitchBotName = import.meta.env.VITE_TWITCH_BOT_NAME;
@@ -217,9 +218,9 @@ export const ChatWidget = () => {
         if (!youtubeConnectionStatus || !youtubeVideoId || !youtubeAccessToken)
             return;
 
-        // Проверяем, уже ли подключены
+        // если уже есть активный клиент — не пересоздаём
         const existingClient = getYouTubeClient();
-        if (existingClient && existingClient.isConnected) {
+        if (existingClient?.isConnected) {
             youtubeClientRef.current = existingClient;
             youtubeJoinedRef.current = true;
             dispatch(setYoutubeConnectionStatus(true));
@@ -228,29 +229,37 @@ export const ChatWidget = () => {
 
         setYouTubeConnectionTimeout();
 
-        try {
-            const callbacks = {
-                onChatMessage: (msg) => {
-                    dispatch(setNewYoutubeMessage(msg));
-                },
-                onConnected: () => {
-                    youtubeJoinedRef.current = true;
-                    dispatch(setYoutubeConnectionStatus(true));
-                    if (youtubeTimeoutRef.current)
-                        clearTimeout(youtubeTimeoutRef.current);
-                },
-                onDisconnected: () => {
-                    youtubeJoinedRef.current = false;
-                    dispatch(setYoutubeConnectionStatus(false));
-                    if (youtubeTimeoutRef.current)
-                        clearTimeout(youtubeTimeoutRef.current);
-                },
-            };
+        const callbacks = {
+            onChatMessage: (msg) => {
+                dispatch(setNewYoutubeMessage(msg));
+            },
 
+            onConnected: () => {
+                youtubeJoinedRef.current = true;
+                dispatch(setYoutubeConnectionStatus(true));
+
+                if (youtubeTimeoutRef.current) {
+                    clearTimeout(youtubeTimeoutRef.current);
+                }
+            },
+
+            onDisconnected: () => {
+                youtubeJoinedRef.current = false;
+                dispatch(setYoutubeConnectionStatus(false));
+
+                if (youtubeTimeoutRef.current) {
+                    clearTimeout(youtubeTimeoutRef.current);
+                }
+            },
+        };
+
+        const videoId = getYoutubeVideoId(youtubeVideoId);
+
+        try {
             const client = await connectYouTubeClient(
                 {
-                    videoId: youtubeVideoId,
                     accessToken: youtubeAccessToken,
+                    videoId: videoId,
                 },
                 callbacks,
                 dispatch,
@@ -259,26 +268,32 @@ export const ChatWidget = () => {
             if (client) {
                 youtubeClientRef.current = client;
             } else {
-                console.error("❌ Не удалось создать YouTube клиент");
-                dispatch(setYoutubeConnectionStatus(false));
-                if (youtubeTimeoutRef.current)
-                    clearTimeout(youtubeTimeoutRef.current);
+                throw new Error("Failed to create YouTube client");
             }
         } catch (error) {
-            console.error("Ошибка подключения к YouTube:", error);
+            console.error("YouTube connection error:", error);
+
             dispatch(setYoutubeConnectionStatus(false));
-            if (youtubeTimeoutRef.current)
+            youtubeJoinedRef.current = false;
+
+            if (youtubeTimeoutRef.current) {
                 clearTimeout(youtubeTimeoutRef.current);
+            }
         }
     };
 
     // Функция отключения от YouTube
     const handleYouTubeDisconnect = () => {
-        if (youtubeTimeoutRef.current) clearTimeout(youtubeTimeoutRef.current);
+        if (youtubeTimeoutRef.current) {
+            clearTimeout(youtubeTimeoutRef.current);
+        }
+
         disconnectYouTubeClient();
-        dispatch(setYoutubeConnectionStatus(false));
+
         youtubeJoinedRef.current = false;
         youtubeClientRef.current = null;
+
+        dispatch(setYoutubeConnectionStatus(false));
     };
 
     // Функция подключения к VK

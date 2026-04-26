@@ -40,7 +40,7 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
         <div
             className={`${s.megaWrapper} ${isFullScreened ? s.fullscreen : ""}`}
         >
-            <div
+            {!isWidget && <div
                 className={`${s.header} ${isFullScreened ? s.fullscreen : ""}`}
             >
                 <div className={s.draggable} />
@@ -51,7 +51,7 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
                         <FullscreenIcon className={s.icon} />
                     )}
                 </div>
-            </div>
+            </div>}
 
             <div
                 className={s.wrapper}

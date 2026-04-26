@@ -6,12 +6,15 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { QRWidget } from "../pages/Widgets/QRWidget/QRWidget";
 import TgLogo from "../shared/assets/icons/telegram-logo-filled.svg";
 import { NoticeStack } from "../features/in-app-notices";
+import { initVkChatListener } from "../features/live-chat/lib/vk/vkChatListener";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function App() {
     const location = useLocation();
     const starts = (path) => location.pathname.startsWith(path);
+
+    initVkChatListener();
 
     const text = (
         <div>

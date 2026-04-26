@@ -10,7 +10,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     onGoogleOAuthCode: (callback) => {
         const handler = (event, code) => callback(code);
         ipcRenderer.on("google-oauth-code", handler);
-        // Возвращаем функцию для отписки
         return () => ipcRenderer.removeListener("google-oauth-code", handler);
     },
     removeAllListeners: (channel) => {
@@ -23,5 +22,28 @@ contextBridge.exposeInMainWorld("electronAPI", {
         const handler = (event, error) => callback(error);
         ipcRenderer.on("tts-server-error", handler);
         return () => ipcRenderer.removeListener("tts-server-error", handler);
+    },
+
+    vk: {
+        connect: (channel) => ipcRenderer.invoke("vk-connect", channel),
+        disconnect: () => ipcRenderer.invoke("vk-disconnect"),
+
+        onMessage: (callback) => {
+            const handler = (_, data) => callback(data);
+            ipcRenderer.on("vk-message", handler);
+            return () => ipcRenderer.removeListener("vk-message", handler);
+        },
+
+        onConnected: (callback) => {
+            const handler = () => callback();
+            ipcRenderer.on("vk-connected", handler);
+            return () => ipcRenderer.removeListener("vk-connected", handler);
+        },
+
+        onDisconnected: (callback) => {
+            const handler = () => callback();
+            ipcRenderer.on("vk-disconnected", handler);
+            return () => ipcRenderer.removeListener("vk-disconnected", handler);
+        },
     },
 });

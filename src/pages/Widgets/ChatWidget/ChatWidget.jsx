@@ -1,132 +1,381 @@
-import { useSearchParams } from 'react-router-dom'
-import { LiveChat } from '../../../features/live-chat/ui/LiveChat/LiveChat'
-import s from './ChatWidget.module.scss'
-import { useEffect, useRef } from 'react'
-import { useDispatch } from 'react-redux'
-import { connectTwitchClient } from '../../../features/live-chat/lib/twitchClientSingleton'
-import { setNewTwitchMessage, setNewVkMessage, setNewYoutubeMessage } from '../../../entities/connection/model/slice'
-import { TTSChat } from '../../../features/tts-chat/TTSChat/TTSChat'
-import { useTheme } from '../../../shared/context/theme/ThemeContext'
-import { connectYouTubeClient } from '../../../features/live-chat/lib/youtube/youtubeClientSingleton'
-import { setFontSize, setMessageBackground, setMessageBackgroundOpacity, setMessageBorder, setMessageLifeTime, setMessageTextColor, setServiceIcon } from '../../../entities/message/model/slice'
-import WebSocketRoom from '../../../features/ws-lobby/ui/LobbyBlock/WebSocketRoom'
-import { connectVkPlayClient } from '../../../features/live-chat/lib/vk/vkClientSingleton'
+import { useSearchParams } from "react-router-dom";
+import { LiveChat } from "../../../features/live-chat/ui/LiveChat/LiveChat";
+import s from "./ChatWidget.module.scss";
+import { useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
+import {
+    connectTwitchClient,
+    disconnectTwitchClient,
+    getTwitchClient,
+} from "../../../features/live-chat/lib/twitchClientSingleton";
+import {
+    setNewTwitchMessage,
+    setNewVkMessage,
+    setNewYoutubeMessage,
+    setTwitchConnectionStatus,
+    setYoutubeConnectionStatus,
+    setVkConnectionStatus,
+} from "../../../entities/connection/model/slice";
+import { TTSChat } from "../../../features/tts-chat/TTSChat/TTSChat";
+import { useTheme } from "../../../shared/context/theme/ThemeContext";
+import {
+    connectYouTubeClient,
+    disconnectYouTubeClient,
+    getYouTubeClient,
+} from "../../../features/live-chat/lib/youtube/youtubeClientSingleton";
+import {
+    setFontSize,
+    setMessageBackground,
+    setMessageBackgroundOpacity,
+    setMessageBorder,
+    setMessageLifeTime,
+    setMessageTextColor,
+    setServiceIcon,
+} from "../../../entities/message/model/slice";
 
 export const ChatWidget = () => {
-    const twitchBotName = import.meta.env.VITE_TWITCH_BOT_NAME
-    const twitchBotToken = import.meta.env.VITE_TWITCH_BOT_TOKEN
+    const twitchBotName = import.meta.env.VITE_TWITCH_BOT_NAME;
+    const twitchBotToken = import.meta.env.VITE_TWITCH_BOT_TOKEN;
 
-    const [searchParams] = useSearchParams()
-    const dispatch = useDispatch()
-    const { setTheme } = useTheme()
+    const [searchParams] = useSearchParams();
+    const dispatch = useDispatch();
+    const { setTheme } = useTheme();
 
-    const voiceVolume = searchParams.get('volume') || 1
-    const twitchVoice = searchParams.get('twitchVoice') || 'random'
-    const targetTheme = searchParams.get('theme') || 'dark'
+    const voiceVolume = searchParams.get("volume") || 1;
+    const twitchVoice = searchParams.get("twitchVoice") || "random";
+    const targetTheme = searchParams.get("theme") || "dark";
 
-    const messageBackgroundColor = searchParams.get('messageBackgroundColor')
-    const messageBackgroundOpacity = searchParams.get('messageBackgroundOpacity')
-    const messageTextColor = searchParams.get('messageTextColor')
-    const messageLifeTime = searchParams.get('messageLifeTime')
-    const messageBorder = searchParams.get('messageBorder') === 'false' ? false : true
-    const serviceIcon = searchParams.get('serviceIcon') === 'false' ? false : true
-    const fontSize = searchParams.get('fontSize')
+    const messageBackgroundColor = searchParams.get("messageBackgroundColor");
+    const messageBackgroundOpacity = searchParams.get(
+        "messageBackgroundOpacity",
+    );
+    const messageTextColor = searchParams.get("messageTextColor");
+    const messageLifeTime = searchParams.get("messageLifeTime");
+    const messageBorder =
+        searchParams.get("messageBorder") === "false" ? false : true;
+    const serviceIcon =
+        searchParams.get("serviceIcon") === "false" ? false : true;
+    const fontSize = searchParams.get("fontSize");
 
-    const twitchChatChannelName = searchParams.get('twitchChatChannelName') || ''
-    const twitchConnectionStatus = searchParams.get('twitchConnectionStatus') === 'true'
+    const twitchChatChannelName =
+        searchParams.get("twitchChatChannelName") || "";
+    const twitchConnectionStatus =
+        searchParams.get("twitchConnectionStatus") === "true";
 
-    const youtubeVideoId = searchParams.get('youtubeVideoId') || ''
-    const youtubeAccessToken = searchParams.get('youtubeAccessToken') || ''
-    const youtubeConnectionStatus = searchParams.get('youtubeConnectionStatus') === 'true'
+    const youtubeVideoId = searchParams.get("youtubeVideoId") || "";
+    const youtubeAccessToken = searchParams.get("youtubeAccessToken") || "";
+    const youtubeConnectionStatus =
+        searchParams.get("youtubeConnectionStatus") === "true";
 
-    const vkAccessToken = searchParams.get('vkAccessToken') || ''
-    const vkChannelId = searchParams.get('vkChannelId') || ''
-    const vkConnectionStatus = searchParams.get('vkConnectionStatus') || false
+    const vkChannelId = searchParams.get("vkChannelId") || "";
+    const vkConnectionStatus =
+        searchParams.get("vkConnectionStatus") === "true";
 
-    // Разделяем рефы для Twitch и YouTube
-    const twitchClientRef = useRef(null)
-    const youtubeClientRef = useRef(null)
-    const vkClientRef = useRef(null)
+    // Разделяем рефы для клиентов
+    const twitchClientRef = useRef(null);
+    const youtubeClientRef = useRef(null);
 
-    dispatch(setMessageBackground(messageBackgroundColor))
-    dispatch(setMessageBackgroundOpacity(messageBackgroundOpacity))
-    dispatch(setMessageTextColor(messageTextColor))
-    dispatch(setMessageLifeTime(messageLifeTime))
-    dispatch(setMessageBorder(messageBorder))
-    dispatch(setServiceIcon(serviceIcon))
-    dispatch(setFontSize(fontSize))
+    // Рефы для отслеживания состояния подключения
+    const twitchJoinedRef = useRef(false);
+    const youtubeJoinedRef = useRef(false);
+    const vkJoinedRef = useRef(false);
 
+    // Таймеры для обработки таймаутов подключения
+    const twitchTimeoutRef = useRef(null);
+    const youtubeTimeoutRef = useRef(null);
+    const vkConnectTimeoutRef = useRef(null);
+
+    // Настройка UI параметров
+    useEffect(() => {
+        dispatch(setMessageBackground(messageBackgroundColor));
+        dispatch(setMessageBackgroundOpacity(messageBackgroundOpacity));
+        dispatch(setMessageTextColor(messageTextColor));
+        dispatch(setMessageLifeTime(messageLifeTime));
+        dispatch(setMessageBorder(messageBorder));
+        dispatch(setServiceIcon(serviceIcon));
+        dispatch(setFontSize(fontSize));
+    }, [
+        dispatch,
+        messageBackgroundColor,
+        messageBackgroundOpacity,
+        messageTextColor,
+        messageLifeTime,
+        messageBorder,
+        serviceIcon,
+        fontSize,
+    ]);
+
+    // Функция для установки таймаута подключения Twitch
+    const setTwitchConnectionTimeout = () => {
+        if (twitchTimeoutRef.current) clearTimeout(twitchTimeoutRef.current);
+        twitchTimeoutRef.current = setTimeout(() => {
+            if (!twitchJoinedRef.current) {
+                console.error("❌ Таймаут подключения к Twitch");
+                disconnectTwitchClient();
+                dispatch(setTwitchConnectionStatus(false));
+                twitchJoinedRef.current = false;
+            }
+        }, 10000);
+    };
+
+    // Функция для установки таймаута подключения YouTube
+    const setYouTubeConnectionTimeout = () => {
+        if (youtubeTimeoutRef.current) clearTimeout(youtubeTimeoutRef.current);
+        youtubeTimeoutRef.current = setTimeout(() => {
+            if (!youtubeJoinedRef.current) {
+                console.error("❌ Таймаут подключения к YouTube");
+                disconnectYouTubeClient();
+                dispatch(setYoutubeConnectionStatus(false));
+                youtubeJoinedRef.current = false;
+            }
+        }, 10000);
+    };
+
+    // Функция подключения к Twitch
     const handleTwitchConnect = () => {
-        if (!twitchConnectionStatus || twitchClientRef.current) return
+        if (!twitchConnectionStatus) return;
 
-        const client = connectTwitchClient({
-            token: twitchBotToken,
-            botNick: twitchBotName,
-            channel: { chatChannelName: twitchChatChannelName },
-        })
+        // Проверяем, уже ли подключены
+        const existingClient = getTwitchClient();
+        if (existingClient && existingClient.isConnected) {
+            twitchClientRef.current = existingClient;
+            twitchJoinedRef.current = true;
+            dispatch(setTwitchConnectionStatus(true));
+            return;
+        }
+
+        setTwitchConnectionTimeout();
+
+        const client = connectTwitchClient(
+            {
+                token: twitchBotToken,
+                botNick: twitchBotName,
+                channel: { chatChannelName: twitchChatChannelName },
+            },
+            dispatch,
+        );
 
         if (client) {
-            twitchClientRef.current = client
+            twitchClientRef.current = client;
+
             client.on("message", (channel, tags, message, self) => {
-                dispatch(setNewTwitchMessage({ channel, tags, message, self }))
-            })
-        }
-    }
+                dispatch(setNewTwitchMessage({ channel, tags, message, self }));
+            });
 
+            client.on("notice", (error) => {
+                console.error("Twitch error:", error);
+                twitchJoinedRef.current = false;
+                dispatch(setTwitchConnectionStatus(false));
+                if (twitchTimeoutRef.current)
+                    clearTimeout(twitchTimeoutRef.current);
+            });
+
+            client.on("join", () => {
+                twitchJoinedRef.current = true;
+                dispatch(setTwitchConnectionStatus(true));
+                if (twitchTimeoutRef.current)
+                    clearTimeout(twitchTimeoutRef.current);
+            });
+
+            client.on("disconnected", () => {
+                twitchJoinedRef.current = false;
+                dispatch(setTwitchConnectionStatus(false));
+                if (twitchTimeoutRef.current)
+                    clearTimeout(twitchTimeoutRef.current);
+            });
+        } else {
+            dispatch(setTwitchConnectionStatus(false));
+            if (twitchTimeoutRef.current)
+                clearTimeout(twitchTimeoutRef.current);
+        }
+    };
+
+    // Функция отключения от Twitch
+    const handleTwitchDisconnect = () => {
+        if (twitchTimeoutRef.current) clearTimeout(twitchTimeoutRef.current);
+        disconnectTwitchClient();
+        dispatch(setTwitchConnectionStatus(false));
+        twitchJoinedRef.current = false;
+        twitchClientRef.current = null;
+    };
+
+    // Функция подключения к YouTube
     const handleYouTubeConnect = async () => {
-        if (!youtubeConnectionStatus || !youtubeVideoId || !youtubeAccessToken || youtubeClientRef.current) return
+        if (!youtubeConnectionStatus || !youtubeVideoId || !youtubeAccessToken)
+            return;
 
-        try {
-            const callbacks = {
-                onChatMessage: (msg) => dispatch(setNewYoutubeMessage(msg)),
-                onConnected: () => console.log('✅ YouTube чат подключен'),
-                onDisconnected: () => console.log('❌ YouTube чат отключен'),
-            }
-
-            const client = await connectYouTubeClient(
-                { videoId: youtubeVideoId, accessToken: youtubeAccessToken },
-                callbacks
-            )
-
-            if (client) youtubeClientRef.current = client
-        } catch (error) {
-            console.error('Ошибка подключения к YouTube:', error)
+        // Проверяем, уже ли подключены
+        const existingClient = getYouTubeClient();
+        if (existingClient && existingClient.isConnected) {
+            youtubeClientRef.current = existingClient;
+            youtubeJoinedRef.current = true;
+            dispatch(setYoutubeConnectionStatus(true));
+            return;
         }
-    }
 
-    const handleVkConnect = () => {
-        if (!vkConnectionStatus || !vkAccessToken || !vkChannelId || vkClientRef.current) return
+        setYouTubeConnectionTimeout();
 
         try {
             const callbacks = {
                 onChatMessage: (msg) => {
-                    console.log("💬 VK Play сообщение:", msg)
-                    dispatch(setNewVkMessage(msg))
+                    dispatch(setNewYoutubeMessage(msg));
                 },
+                onConnected: () => {
+                    youtubeJoinedRef.current = true;
+                    dispatch(setYoutubeConnectionStatus(true));
+                    if (youtubeTimeoutRef.current)
+                        clearTimeout(youtubeTimeoutRef.current);
+                },
+                onDisconnected: () => {
+                    youtubeJoinedRef.current = false;
+                    dispatch(setYoutubeConnectionStatus(false));
+                    if (youtubeTimeoutRef.current)
+                        clearTimeout(youtubeTimeoutRef.current);
+                },
+            };
+
+            const client = await connectYouTubeClient(
+                {
+                    videoId: youtubeVideoId,
+                    accessToken: youtubeAccessToken,
+                },
+                callbacks,
+                dispatch,
+            );
+
+            if (client) {
+                youtubeClientRef.current = client;
+            } else {
+                console.error("❌ Не удалось создать YouTube клиент");
+                dispatch(setYoutubeConnectionStatus(false));
+                if (youtubeTimeoutRef.current)
+                    clearTimeout(youtubeTimeoutRef.current);
             }
-
-            const client = connectVkPlayClient({
-                channelId: vkChannelId,
-                token: vkAccessToken,
-            }, callbacks)
-
-            if (client) vkClientRef.current = client
         } catch (error) {
-            console.error('Ошибка подключения к Vk:', error)
+            console.error("Ошибка подключения к YouTube:", error);
+            dispatch(setYoutubeConnectionStatus(false));
+            if (youtubeTimeoutRef.current)
+                clearTimeout(youtubeTimeoutRef.current);
         }
-    }
+    };
 
+    // Функция отключения от YouTube
+    const handleYouTubeDisconnect = () => {
+        if (youtubeTimeoutRef.current) clearTimeout(youtubeTimeoutRef.current);
+        disconnectYouTubeClient();
+        dispatch(setYoutubeConnectionStatus(false));
+        youtubeJoinedRef.current = false;
+        youtubeClientRef.current = null;
+    };
+
+    // Функция подключения к VK (упрощённая, аналогичная ConnectionSwitch)
+    const handleVkConnect = async () => {
+        if (!vkConnectionStatus || !vkChannelId) return;
+
+        // Очищаем предыдущий таймаут, если есть
+        if (vkConnectTimeoutRef.current)
+            clearTimeout(vkConnectTimeoutRef.current);
+
+        // Устанавливаем новый таймаут на 10 секунд
+        vkConnectTimeoutRef.current = setTimeout(() => {
+            if (!vkJoinedRef.current && vkConnectionStatus) {
+                console.warn(
+                    "VK connection timeout – no connected event received",
+                );
+                dispatch(setVkConnectionStatus(false));
+                if (window.electronAPI?.vk) {
+                    window.electronAPI.vk.disconnect();
+                }
+            }
+        }, 10000);
+
+        try {
+            const success = await window.electronAPI.vk.connect(vkChannelId);
+            if (!success) {
+                throw new Error("VK connect failed – method returned false");
+            }
+            console.log("VK connect initiated successfully");
+        } catch (error) {
+            console.error("VK connection error:", error);
+            if (vkConnectTimeoutRef.current)
+                clearTimeout(vkConnectTimeoutRef.current);
+            dispatch(setVkConnectionStatus(false));
+        }
+    };
+
+    // Функция отключения от VK
+    const handleVkDisconnect = async () => {
+        if (vkConnectTimeoutRef.current)
+            clearTimeout(vkConnectTimeoutRef.current);
+        if (window.electronAPI?.vk) {
+            await window.electronAPI.vk.disconnect();
+        }
+        dispatch(setVkConnectionStatus(false));
+        vkJoinedRef.current = false;
+    };
+
+    // Синхронизация локального рефа с глобальным статусом VK (аналогично ConnectionSwitch)
     useEffect(() => {
-        handleTwitchConnect()
-        handleYouTubeConnect()
-        handleVkConnect()
-        setTheme(targetTheme)
-    }, [])
+        if (vkConnectionStatus) {
+            vkJoinedRef.current = true;
+            // Если таймаут ещё активен, сбрасываем его, т.к. подключение успешно
+            if (vkConnectTimeoutRef.current)
+                clearTimeout(vkConnectTimeoutRef.current);
+        } else {
+            vkJoinedRef.current = false;
+        }
+    }, [vkConnectionStatus]);
+
+    // Основной эффект для управления подключениями
+    useEffect(() => {
+        // Twitch
+        if (twitchConnectionStatus) {
+            handleTwitchConnect();
+        } else {
+            handleTwitchDisconnect();
+        }
+
+        // YouTube
+        if (youtubeConnectionStatus && youtubeVideoId && youtubeAccessToken) {
+            handleYouTubeConnect();
+        } else {
+            handleYouTubeDisconnect();
+        }
+
+        // VK
+        if (vkConnectionStatus && vkChannelId) {
+            handleVkConnect();
+        } else {
+            handleVkDisconnect();
+        }
+
+        // Установка темы
+        setTheme(targetTheme);
+
+        // Cleanup при размонтировании
+        return () => {
+            // Очищаем все таймауты
+            if (twitchTimeoutRef.current)
+                clearTimeout(twitchTimeoutRef.current);
+            if (youtubeTimeoutRef.current)
+                clearTimeout(youtubeTimeoutRef.current);
+            if (vkConnectTimeoutRef.current)
+                clearTimeout(vkConnectTimeoutRef.current);
+
+            // Отключаем все сервисы
+            disconnectTwitchClient();
+            disconnectYouTubeClient();
+
+            if (window.electronAPI?.vk) {
+                window.electronAPI.vk.disconnect();
+            }
+        };
+    }, [twitchConnectionStatus, youtubeConnectionStatus, vkConnectionStatus]);
 
     return (
         <div className={s.wrapper}>
             <TTSChat volume={voiceVolume} twitchVoiceProp={twitchVoice} />
-            <LiveChat backgroundColor={'transparent'} isWidget />
+            <LiveChat backgroundColor={"transparent"} isWidget />
         </div>
-    )
-}
+    );
+};

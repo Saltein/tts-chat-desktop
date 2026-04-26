@@ -5,6 +5,7 @@ import { startOAuthServer, stopOAuthServer } from "./oauthServer.js";
 import { spawn, exec } from "child_process";
 import fs from "fs";
 import { startWidgetServer, stopWidgetServer } from "./widgetServer.js";
+import VKPLMessageClient from "vklive-message-client";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -222,6 +223,90 @@ async function createWindow() {
         mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
     }
 }
+
+// ===== VK VIDEO LIVE =====
+
+let vkClient = null;
+let vkConnectionId = 0; // Уникальный ID для каждого подключения
+let vkClients = [];
+
+ipcMain.handle("vk-connect", async (_, channel) => {
+    console.log(`[VK] Connecting to channel: ${channel}`);
+    try {
+        // Создаём новый ID для этого подключения
+        const currentConnectionId = ++vkConnectionId;
+
+        // ВАЖНО: Не пытаемся закрыть старый клиент - просто создаём новый
+        // Старый клиент останется в памяти, но его сообщения будут игнорироваться
+
+        const newClient = new VKPLMessageClient({
+            auth: "readonly",
+            channels: [channel],
+            debugLog: true,
+        });
+
+        vkClients.push(newClient);
+
+        newClient.on("message", (ctx) => {
+            // Отправляем сообщение ТОЛЬКО если это текущий активный клиент
+            if (vkConnectionId === currentConnectionId && mainWindow) {
+                mainWindow.webContents.send("vk-message", {
+                    id: ctx.message.id,
+                    user: ctx.user?.name,
+                    text: ctx.message?.text,
+                });
+            } else {
+                console.log(
+                    `[VK] Ignoring message from old connection (ID: ${currentConnectionId}, current: ${vkConnectionId})`,
+                );
+            }
+        });
+
+        newClient.on("error", (err) => {
+            console.error("[VK] Client error:", err);
+            if (vkConnectionId === currentConnectionId) {
+                mainWindow?.webContents.send("vk-disconnected");
+            }
+        });
+
+        newClient.on("close", () => {
+            console.log("[VK] Connection closed");
+            if (vkConnectionId === currentConnectionId) {
+                mainWindow?.webContents.send("vk-disconnected");
+            }
+        });
+
+        await newClient.connect();
+
+        // Сохраняем клиент и ID только после успешного подключения
+        vkClient = newClient;
+        vkConnectionId = currentConnectionId;
+
+        console.log(
+            `[VK] Connected successfully (Connection ID: ${vkConnectionId})`,
+        );
+        mainWindow?.webContents.send("vk-connected");
+
+        return true;
+    } catch (error) {
+        console.error("[VK] Connect error:", error);
+        mainWindow?.webContents.send("vk-disconnected");
+        return false;
+    }
+});
+
+ipcMain.handle("vk-disconnect", async () => {
+    vkClients.forEach((client) => {
+        try {
+            if (client.removeAllListeners) client.removeAllListeners();
+            if (client.disconnect) client.disconnect();
+        } catch (e) {}
+    });
+    vkClients = [];
+    vkConnectionId++;
+    vkClient = null;
+    return true;
+});
 
 // включение - выключение TTS сервера
 ipcMain.handle("tts-start", async (event) => {

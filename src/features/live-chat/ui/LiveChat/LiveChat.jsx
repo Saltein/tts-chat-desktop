@@ -81,7 +81,7 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
 
                 {messages.map((item) => (
                     <ChatMessage
-                        key={item.time + item.message}
+                        key={item.time + item.message + Date.now()}
                         message={item}
                         timeBeforeDisappear={timeBeforeDisappear}
                     />

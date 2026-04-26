@@ -22,10 +22,6 @@ import {
     getTwitchClient,
 } from "../../../../features/live-chat/lib/twitchClientSingleton";
 import {
-    connectVkPlayClient,
-    disconnectVkPlayClient,
-} from "../../../../features/live-chat/lib/vk/vkClientSingleton";
-import {
     connectYouTubeClient,
     disconnectYouTubeClient,
     getYouTubeClient,
@@ -66,9 +62,11 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
     const [isSwitchLoading, setIsSwitchLoading] = useState(false);
     const [twitchJoined, setTwitchJoined] = useState(false);
     const [youtubeJoined, setYoutubeJoined] = useState(false);
+    // vkJoined больше не нужен, т.к. статус приходит через Redux, но оставим для единообразия с таймаутом
     const [vkJoined, setVkJoined] = useState(false);
 
     const clientRef = useRef(null);
+    const connectTimeoutRef = useRef(null);
 
     // Эффект для синхронизации состояния переключателя с реальным статусом подключения
     useEffect(() => {
@@ -91,10 +89,19 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
         }
     }, [serviceName, getConnectionStatus()]);
 
+    // Очистка таймаута при размонтировании
     useEffect(() => {
-        let timer;
+        return () => {
+            if (connectTimeoutRef.current) {
+                clearTimeout(connectTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Таймер для отключения при зависании
+    useEffect(() => {
         if (isSwitchLoading) {
-            timer = setTimeout(() => {
+            connectTimeoutRef.current = setTimeout(() => {
                 if (!twitchJoined && serviceName === "Twitch") {
                     setIsSwitchLoading(false);
                     disconnectTwitchClient();
@@ -119,7 +126,7 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
                 }
                 if (!vkJoined && serviceName === "VK Видео Live") {
                     setIsSwitchLoading(false);
-                    disconnectVkPlayClient();
+                    window.electronAPI.vk.disconnect();
                     dispatch(
                         addNotice({
                             id: genRandStr(),
@@ -128,21 +135,33 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
                         }),
                     );
                 }
-            }, 10000);
+            }, 15000);
         }
-        return () => clearTimeout(timer);
-    }, [isSwitchLoading]);
+        return () => {
+            if (connectTimeoutRef.current) {
+                clearTimeout(connectTimeoutRef.current);
+            }
+        };
+    }, [
+        isSwitchLoading,
+        twitchJoined,
+        youtubeJoined,
+        vkJoined,
+        serviceName,
+        dispatch,
+    ]);
 
     const handleConnect = async () => {
         if (getConnectionStatus()) {
             // Отключение
-            // Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch Twitch
             if (serviceName === "Twitch") {
                 disconnectTwitchClient();
                 dispatch(setTwitchConnectionStatus(false));
                 setIsSwitchLoading(false);
             } else if (serviceName === "VK Видео Live") {
-                disconnectVkPlayClient();
+                await window.electronAPI.vk.disconnect();
+                // Статус обновится через глобальный onDisconnected, но для уверенности сбросим локально
+                setVkJoined(false);
                 dispatch(setVkConnectionStatus(false));
                 setIsSwitchLoading(false);
             } else if (serviceName === "YouTube") {
@@ -201,55 +220,71 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
                     setIsSwitchLoading(false);
                 }
             } else if (serviceName === "VK Видео Live") {
-                // VK Видео Live VK Видео Live VK Видео Live VK Видео Live VK Видео Live VK Видео Live VK Видео Live VK Видео Live VK Видео Live
                 setIsSwitchLoading(true);
 
-                const callbacks = {
-                    onChatMessage: (msg) => {
-                        dispatch(setNewVkMessage(msg));
-                    },
-                    onConnected: () => {
-                        setIsSwitchLoading(false);
-                        dispatch(setVkConnectionStatus(true));
-                        setVkJoined(true);
-                    },
-                    onDisconnected: () => {
-                        dispatch(setVkConnectionStatus(false));
-                        setIsSwitchLoading(false);
-                        setVkJoined(false);
-                    },
-                };
+                const channel = vkConnectionData?.vkChannelId;
+
+                if (!channel) {
+                    setIsSwitchLoading(false);
+                    dispatch(
+                        addNotice({
+                            id: genRandStr(),
+                            type: "error",
+                            message: "Введите канал VK",
+                        }),
+                    );
+                    return;
+                }
 
                 try {
-                    const client = connectVkPlayClient(
-                        {
-                            channelId: vkConnectionData?.vkChannelId,
-                            token: vkConnectionData?.token,
-                        },
-                        callbacks,
-                        dispatch,
-                    );
+                    // ВАЖНО: Все подписки на сообщения и статус уже установлены глобально (например, в App.tsx).
+                    // Здесь мы только подключаемся к VK. Статус подключения обновится через глобальный onConnected.
+                    const success =
+                        await window.electronAPI.vk.connect(channel);
 
-                    if (!client) {
-                        setIsSwitchLoading(false);
-                        dispatch(setVkConnectionStatus(false));
-                        dispatch(
-                            addNotice({
-                                id: genRandStr(),
-                                type: "error",
-                                message:
-                                    "Не удалось подключиться к VK Видео Live",
-                            }),
+                    if (!success) {
+                        throw new Error(
+                            "VK connect failed - method returned false",
                         );
                     }
+
+                    console.log("VK connect initiated successfully");
+
+                    // Таймаут для снятия индикации загрузки, если не пришло событие connected
+                    setTimeout(() => {
+                        if (
+                            getConnectionStatus() === false &&
+                            isSwitchLoading
+                        ) {
+                            console.log(
+                                "VK connection timeout - no connected event received",
+                            );
+                            setIsSwitchLoading(false);
+                            setVkJoined(false);
+                            dispatch(setVkConnectionStatus(false));
+                            dispatch(
+                                addNotice({
+                                    id: genRandStr(),
+                                    type: "error",
+                                    message: "Таймаут подключения к VK",
+                                }),
+                            );
+                        }
+                    }, 10000);
                 } catch (error) {
-                    const errorText = error?.message || String(error);
+                    console.error("VK error:", error);
                     setIsSwitchLoading(false);
+                    setVkJoined(false);
                     dispatch(setVkConnectionStatus(false));
-                    console.error("❌ VK ошибка:", errorText);
+                    dispatch(
+                        addNotice({
+                            id: genRandStr(),
+                            type: "error",
+                            message: `Ошибка подключения к VK: ${error.message || "Неизвестная ошибка"}`,
+                        }),
+                    );
                 }
             } else if (serviceName === "YouTube") {
-                // YouTube YouTube YouTube YouTube YouTube YouTube YouTube YouTube YouTube YouTube YouTube YouTube YouTube YouTube YouTube YouTube
                 setIsSwitchLoading(true);
 
                 const callbacks = {
@@ -308,6 +343,18 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
             }
         }
     };
+
+    // Эффект для отслеживания глобального статуса VK (чтобы синхронизировать vkJoined и снять загрузку)
+    useEffect(() => {
+        if (serviceName === "VK Видео Live") {
+            if (vkConnectionStatus) {
+                setVkJoined(true);
+                setIsSwitchLoading(false);
+            } else {
+                setVkJoined(false);
+            }
+        }
+    }, [serviceName, vkConnectionStatus]);
 
     return (
         <div

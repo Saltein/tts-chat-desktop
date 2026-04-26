@@ -55,10 +55,13 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
 
     let nameColor;
     let borderColor;
-    if (message.tags["color"] !== "#FFFFFF") {
+    console.log("🦆🐈🍳 message", message);
+    if (message.tags ? message.tags["color"] !== "#FFFFFF" : false) {
         nameColor = message.tags["color"];
     } else {
-        nameColor = generateColorFromUsername(message?.tags["display-name"]);
+        nameColor = message.tags
+            ? generateColorFromUsername(message?.tags["display-name"])
+            : generateColorFromUsername(message?.user);
     }
     if (isSponsor) {
         borderColor = "var(--color-sponsor)";
@@ -158,7 +161,7 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
                         style={iconStyles}
                     />
                 )}
-                {message.tags["display-name"]}
+                {message.tags ? message.tags["display-name"] : message?.user}
                 {isModerator && (
                     <WrenchIcon
                         className={s.wrenchIcon}
@@ -167,7 +170,7 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
                 )}
             </div>
             <span className={s.message} style={textStyles}>
-                {message.message}
+                {message.message ? message.message : message?.text}
             </span>
         </div>
     );

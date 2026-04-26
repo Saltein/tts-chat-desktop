@@ -30,6 +30,7 @@ import { getTwitchChannelName } from "../../../lib/getTwitchChannelName";
 import { getYoutubeVideoId } from "../../../lib/getYoutubeVideoId";
 import { addNotice } from "../../../../features/in-app-notices/model/slice";
 import { genRandStr } from "../../../lib/genRandStr";
+import { getVkChannelName } from "../../../lib/getVkChannelName";
 
 export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
     const dispatch = useDispatch();
@@ -222,7 +223,7 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
             } else if (serviceName === "VK Видео Live") {
                 setIsSwitchLoading(true);
 
-                const channel = vkConnectionData?.vkChannelId;
+                const channel = getVkChannelName(vkConnectionData?.vkChannelId);
 
                 if (!channel) {
                     setIsSwitchLoading(false);
@@ -355,6 +356,16 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
             }
         }
     }, [serviceName, vkConnectionStatus]);
+
+    useEffect(() => {
+        let unsubscribe;
+        if (serviceName === "VK Видео Live") {
+            unsubscribe = window.electronAPI.vk.onNotice((notice) => {
+                dispatch(addNotice(notice));
+            });
+        }
+        return () => unsubscribe?.();
+    }, [dispatch]);
 
     return (
         <div

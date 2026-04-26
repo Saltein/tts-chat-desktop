@@ -67,7 +67,6 @@ export const ConnectionCard = ({
         } else if (title === "VK Видео Live") {
             setFormData({
                 vkChannelId: vkData.vkChannelId,
-                token: vkData.token,
             });
         }
     }, [twitchData, youtubeData, title]);

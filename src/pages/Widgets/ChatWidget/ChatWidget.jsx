@@ -39,6 +39,7 @@ import {
 } from "../../../services/vkService";
 import { getTwitchChannelName } from "../../../shared/lib/getTwitchChannelName";
 import { getYoutubeVideoId } from "../../../shared/lib/getYoutubeVideoId";
+import { getVkChannelName } from "../../../shared/lib/getVkChannelName";
 
 export const ChatWidget = () => {
     const twitchBotName = import.meta.env.VITE_TWITCH_BOT_NAME;
@@ -315,8 +316,10 @@ export const ChatWidget = () => {
             }
         }, 10000);
 
+        const vkChannelName = getVkChannelName(vkChannelId);
+
         try {
-            await connectVk(vkChannelId);
+            await connectVk(vkChannelName);
             vkJoinedRef.current = true;
             console.log("VK connect initiated successfully");
         } catch (error) {

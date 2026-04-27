@@ -43,13 +43,11 @@ async function createWindow() {
     await startOAuthServer(mainWindow);
     try {
         await startWidgetServer((type, message) => {
-            if (mainWindow) {
-                mainWindow.webContents.send("notice", {
-                    id: genRandStr(),
-                    type: type,
-                    message: message,
-                });
-            }
+            mainWindow?.webContents.send("notice", {
+                id: genRandStr(),
+                type: type,
+                message: message,
+            });
         });
     } catch (e) {
         console.error(e);
@@ -229,8 +227,8 @@ ipcMain.handle("tts-start", async () => {
             ttsServerProcess.on("spawn", () => {
                 mainWindow?.webContents.send("notice", {
                     id: genRandStr(),
-                    type: "success",
-                    message: `TTS сервер запущен`,
+                    type: "info",
+                    message: `Запуск TTS сервера...`,
                 });
                 console.log("[TTS] started");
                 resolve(true);

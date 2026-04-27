@@ -33,10 +33,11 @@ import {
     nameColors,
 } from "../../../../shared/lib/generateColorFromUsername";
 import { isBright } from "../../../../shared/lib/isBright";
+import { deleteMessageById } from "../../../../entities/connection/model/slice";
 
 export const ChatMessage = ({ message, timeBeforeDisappear }) => {
-    const [visible, setVisible] = useState(true);
     const [isFading, setIsFading] = useState(false);
+    console.log("🦆🐈🍳 message", message);
 
     const dispatch = useDispatch();
     const theme = useTheme().theme;
@@ -165,7 +166,7 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
         );
         // через timeBeforeDisappear + 300 скрываем полностью
         const removeTimeout = setTimeout(
-            () => setVisible(false),
+            () => dispatch(deleteMessageById(message.id)),
             timeBeforeDisappear + 300,
         );
 
@@ -173,9 +174,7 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
             clearTimeout(fadeTimeout);
             clearTimeout(removeTimeout);
         };
-    }, [timeBeforeDisappear]);
-
-    if (!visible) return null;
+    }, [timeBeforeDisappear, message.id, dispatch]);
 
     let Icon;
     if (message?.service === "twitch") {

@@ -357,16 +357,6 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
         }
     }, [serviceName, vkConnectionStatus]);
 
-    useEffect(() => {
-        let unsubscribe;
-        if (serviceName === "VK Видео Live") {
-            unsubscribe = window.electronAPI.vk.onNotice((notice) => {
-                dispatch(addNotice(notice));
-            });
-        }
-        return () => unsubscribe?.();
-    }, [dispatch]);
-
     return (
         <div
             className={`${s.wrapper} ${isSwitchLoading ? s.loading : ""} ${getConnectionStatus() ? s.on : ""}`}

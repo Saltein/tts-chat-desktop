@@ -11,6 +11,7 @@ import WebSocketRoom from "../../../ws-lobby/ui/LobbyBlock/WebSocketRoom";
 import FullscreenIcon from "../../../../shared/assets/icons/fullscreen.svg?react";
 import FullscreenExitIcon from "../../../../shared/assets/icons/fullscreen-exit.svg?react";
 import { createPortal } from "react-dom";
+import { genRandStr } from "../../../../shared/lib/genRandStr";
 
 export const LiveChat = ({ backgroundColor, isWidget }) => {
     const [isFullScreened, setIsFullScreened] = useState(false);
@@ -40,18 +41,23 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
         <div
             className={`${s.megaWrapper} ${isFullScreened ? s.fullscreen : ""}`}
         >
-            {!isWidget && <div
-                className={`${s.header} ${isFullScreened ? s.fullscreen : ""}`}
-            >
-                <div className={s.draggable} />
-                <div className={s.fullscreenButton} onClick={toggleFullscreen}>
-                    {isFullScreened ? (
-                        <FullscreenExitIcon className={s.icon} />
-                    ) : (
-                        <FullscreenIcon className={s.icon} />
-                    )}
+            {!isWidget && (
+                <div
+                    className={`${s.header} ${isFullScreened ? s.fullscreen : ""}`}
+                >
+                    <div className={s.draggable} />
+                    <div
+                        className={s.fullscreenButton}
+                        onClick={toggleFullscreen}
+                    >
+                        {isFullScreened ? (
+                            <FullscreenExitIcon className={s.icon} />
+                        ) : (
+                            <FullscreenIcon className={s.icon} />
+                        )}
+                    </div>
                 </div>
-            </div>}
+            )}
 
             <div
                 className={s.wrapper}
@@ -81,7 +87,7 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
 
                 {messages.map((item) => (
                     <ChatMessage
-                        key={item.time + item.message + Date.now()}
+                        key={item.time + item.message + item.id}
                         message={item}
                         timeBeforeDisappear={timeBeforeDisappear}
                     />

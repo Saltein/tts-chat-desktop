@@ -10,14 +10,11 @@ const __dirname = path.dirname(__filename);
 
 let widgetServer = null;
 let wss = null;
-let sendNoticeCallback = null;
 
 const WIDGET_PORT = 3030;
-const WS_PORT = 3031;
+const WS_PORT = 3036;
 
 export function startWidgetServer(sendNotice) {
-    sendNoticeCallback = sendNotice;
-
     return new Promise((resolve, reject) => {
         const app = express();
         const DIST_PATH = path.join(__dirname, "../dist");
@@ -34,202 +31,287 @@ export function startWidgetServer(sendNotice) {
         });
 
         widgetServer = createServer(app);
-        widgetServer.listen(WIDGET_PORT, () => {
+        widgetServer.listen(WIDGET_PORT, async () => {
             console.log(
                 `Widget server running on http://127.0.0.1:${WIDGET_PORT}`,
             );
 
-            // Запускаем WebSocket сервер для VK
-            startVkWebSocketServer();
+            // Запускаем WebSocket сервер и ЖДЕМ его готовности
+            await startVkWebSocketServer(sendNotice);
 
-            resolve(WIDGET_PORT);
+            // Только после полной готовности WebSocket сервера,
+            // отправляем сигнал для запуска TTS сервера
+            console.log(
+                "WebSocket server is ready, signaling TTS server to start...",
+            );
+            sendNotice("info", "WebSocket сервер готов, запуск TTS...");
+
+            // Даем небольшую задержку для уверенности, что WebSocket сервер полностью инициализирован
+            setTimeout(() => {
+                resolve(WIDGET_PORT);
+            }, 500);
         });
         widgetServer.on("error", reject);
     });
 }
 
-function sendNotice(type, message) {
-    if (sendNoticeCallback) {
-        sendNoticeCallback(type, message);
-    }
-}
+function startVkWebSocketServer(sendNotice) {
+    return new Promise((resolve, reject) => {
+        wss = new WebSocketServer({ port: WS_PORT });
 
-function startVkWebSocketServer() {
-    wss = new WebSocketServer({ port: WS_PORT });
+        // Ждем, пока сервер реально начнет слушать порт
+        wss.on("listening", () => {
+            console.log(
+                `VK WebSocket server running on ws://127.0.0.1:${WS_PORT}`,
+            );
 
-    console.log(`VK WebSocket server running on ws://127.0.0.1:${WS_PORT}`);
+            // Отправляем уведомление о готовности WebSocket сервера
+            sendNotice(
+                "success",
+                `WebSocket сервер запущен на порту ${WS_PORT}`,
+            );
 
-    wss.on("connection", (ws) => {
-        console.log("[VK WebSocket] Client connected");
-        let vkClient = null;
-        let connectionTimeout = null;
+            resolve();
+        });
 
-        ws.on("message", async (data) => {
-            try {
-                const msg = JSON.parse(data);
+        wss.on("error", (error) => {
+            console.error("WebSocket server error:", error);
+            sendNotice(
+                "error",
+                `Ошибка запуска WebSocket сервера: ${error.message}`,
+            );
+            reject(error);
+        });
 
-                if (msg.type === "vk-connect") {
+        const activePythonClients = new Set();
+
+        // Настройка обработчиков (остальной код)
+        wss.on("connection", (ws, req) => {
+            let vkClient = null;
+            let connectionTimeout = null;
+            if (req.headers["user-agent"]?.includes("Python")) {
+                const clientIp = req.socket.remoteAddress;
+
+                // Очищаем мертвые соединения
+                for (const clientWs of activePythonClients) {
+                    if (clientWs.readyState !== WebSocket.OPEN) {
+                        activePythonClients.delete(clientWs);
+                    }
+                }
+
+                if (activePythonClients.size >= 4) {
                     console.log(
-                        `[VK WebSocket] Connecting to channel: ${msg.channel}`,
+                        `Python agent from ${clientIp} rejected - already connected`,
                     );
+                    ws.close(1008, "Only one Python agent allowed");
+                    return;
+                }
 
-                    // Очищаем предыдущий клиент если есть
-                    if (vkClient) {
+                // Сохраняем САМ ОБЪЕКТ WebSocket, а не строку
+                activePythonClients.add(ws);
+                const connectionId = `${clientIp}-${Date.now()}`;
+                console.log(
+                    `Python agent connected: ${connectionId}. Active: ${activePythonClients.size}`,
+                );
+
+                ws.on("close", () => {
+                    activePythonClients.delete(ws);
+                    console.log(
+                        `Python agent disconnected: ${connectionId}. Active: ${activePythonClients.size}`,
+                    );
+                });
+
+                ws.on("error", (error) => {
+                    console.error(`Python agent error: ${connectionId}`, error);
+                    activePythonClients.delete(ws);
+                });
+            }
+
+            console.log(
+                "[VK WebSocket] Client connected: ",
+                req.headers["sec-websocket-key"],
+            );
+
+            ws.on("message", async (data) => {
+                try {
+                    const msg = JSON.parse(data);
+
+                    if (msg.type === "vk-connect") {
+                        console.log(
+                            `[VK WebSocket] Connecting to channel: ${msg.channel}`,
+                        );
+
+                        // Очищаем предыдущий клиент если есть
+                        if (vkClient) {
+                            try {
+                                vkClient.disconnect();
+                            } catch (e) {
+                                console.error(
+                                    "[VK WebSocket] Error disconnecting old client:",
+                                    e,
+                                );
+                            }
+                        }
+
                         try {
-                            vkClient.disconnect();
-                        } catch (e) {
+                            vkClient = new VKPLMessageClient({
+                                auth: "readonly",
+                                channels: [msg.channel],
+                                debugLog: true,
+                            });
+
+                            vkClient.on("message", (ctx) => {
+                                if (ws.readyState === WebSocket.OPEN) {
+                                    ws.send(
+                                        JSON.stringify({
+                                            type: "vk-message",
+                                            data: {
+                                                id: ctx.message.id,
+                                                user: ctx.user?.name,
+                                                text: ctx.message?.text,
+                                            },
+                                        }),
+                                    );
+                                }
+                            });
+
+                            vkClient.on("error", (err) => {
+                                console.error(
+                                    "[VK WebSocket] Client error:",
+                                    err,
+                                );
+                                if (ws.readyState === WebSocket.OPEN) {
+                                    ws.send(
+                                        JSON.stringify({
+                                            type: "vk-error",
+                                            error:
+                                                err.message || "Unknown error",
+                                        }),
+                                    );
+                                }
+                            });
+
+                            vkClient.on("close", () => {
+                                console.log("[VK WebSocket] Connection closed");
+                                if (ws.readyState === WebSocket.OPEN) {
+                                    ws.send(
+                                        JSON.stringify({
+                                            type: "vk-disconnected",
+                                        }),
+                                    );
+                                }
+                            });
+
+                            await vkClient.connect();
+
+                            console.log(
+                                "[VK WebSocket] Connected successfully",
+                            );
+                            ws.send(JSON.stringify({ type: "vk-connected" }));
+
+                            // Сбрасываем таймаут если он был
+                            if (connectionTimeout) {
+                                clearTimeout(connectionTimeout);
+                                connectionTimeout = null;
+                            }
+                        } catch (error) {
                             console.error(
-                                "[VK WebSocket] Error disconnecting old client:",
-                                e,
+                                "[VK WebSocket] Connection error:",
+                                error,
+                            );
+                            ws.send(
+                                JSON.stringify({
+                                    type: "vk-error",
+                                    error: error.message || "Connection failed",
+                                }),
+                            );
+                        }
+                    } else if (msg.type === "vk-disconnect") {
+                        console.log("[VK WebSocket] Disconnecting VK client");
+                        if (vkClient) {
+                            try {
+                                vkClient.disconnect();
+                            } catch (e) {
+                                console.error(
+                                    "[VK WebSocket] Error during disconnect:",
+                                    e,
+                                );
+                            }
+                            vkClient = null;
+                        }
+                        ws.send(JSON.stringify({ type: "vk-disconnected" }));
+                    } else if (msg.type === "tts-server-ready") {
+                        console.log("[TTS WebSocket] TTS server ready");
+                        sendNotice("success", "Сервер TTS запущен");
+                    } else if (msg.type === "tts-server-error") {
+                        console.error("[TTS WebSocket] TTS server error:", msg);
+                        sendNotice("error", `Ошибка TTS: ${msg.message}`);
+                    } else if (msg.type === "tts-server-fatal") {
+                        console.error("[TTS WebSocket] TTS server fatal:", msg);
+                        sendNotice(
+                            "error",
+                            `Критическая ошибка: ${msg.data?.message}`,
+                        );
+                    } else if (msg.type === "tts-download") {
+                        const status = msg.data?.status;
+                        if (status === "downloading") {
+                            console.log("[TTS WebSocket] TTS downloading...");
+                            sendNotice("info", "Загрузка голосовой модели...");
+                        } else if (status === "success") {
+                            console.log("[TTS WebSocket] TTS downloaded");
+                            sendNotice(
+                                "success",
+                                "Голосовая модель успешно загружена",
                             );
                         }
                     }
-
-                    try {
-                        vkClient = new VKPLMessageClient({
-                            auth: "readonly",
-                            channels: [msg.channel],
-                            debugLog: true,
-                        });
-
-                        vkClient.on("message", (ctx) => {
-                            if (ws.readyState === WebSocket.OPEN) {
-                                ws.send(
-                                    JSON.stringify({
-                                        type: "vk-message",
-                                        data: {
-                                            id: ctx.message.id,
-                                            user: ctx.user?.name,
-                                            text: ctx.message?.text,
-                                        },
-                                    }),
-                                );
-                            }
-                        });
-
-                        vkClient.on("error", (err) => {
-                            console.error("[VK WebSocket] Client error:", err);
-                            if (ws.readyState === WebSocket.OPEN) {
-                                ws.send(
-                                    JSON.stringify({
-                                        type: "vk-error",
-                                        error: err.message || "Unknown error",
-                                    }),
-                                );
-                            }
-                        });
-
-                        vkClient.on("close", () => {
-                            console.log("[VK WebSocket] Connection closed");
-                            if (ws.readyState === WebSocket.OPEN) {
-                                ws.send(
-                                    JSON.stringify({ type: "vk-disconnected" }),
-                                );
-                            }
-                        });
-
-                        await vkClient.connect();
-
-                        console.log("[VK WebSocket] Connected successfully");
-                        ws.send(JSON.stringify({ type: "vk-connected" }));
-
-                        // Сбрасываем таймаут если он был
-                        if (connectionTimeout) {
-                            clearTimeout(connectionTimeout);
-                            connectionTimeout = null;
-                        }
-                    } catch (error) {
-                        console.error(
-                            "[VK WebSocket] Connection error:",
-                            error,
-                        );
+                } catch (error) {
+                    console.error(
+                        "[VK WebSocket] Error processing message:",
+                        error,
+                    );
+                    if (ws.readyState === WebSocket.OPEN) {
                         ws.send(
                             JSON.stringify({
                                 type: "vk-error",
-                                error: error.message || "Connection failed",
+                                error: "Failed to process message",
                             }),
                         );
                     }
-                } else if (msg.type === "vk-disconnect") {
-                    console.log("[VK WebSocket] Disconnecting VK client");
-                    if (vkClient) {
-                        try {
-                            vkClient.disconnect();
-                        } catch (e) {
-                            console.error(
-                                "[VK WebSocket] Error during disconnect:",
-                                e,
-                            );
-                        }
-                        vkClient = null;
-                    }
-                    ws.send(JSON.stringify({ type: "vk-disconnected" }));
-                } else if (msg.type === "tts-server-ready") {
-                    sendNotice("success", "Сервер TTS запущен");
-                } else if (msg.type === "tts-server-error") {
-                    sendNotice("error", `Ошибка TTS: ${msg.message}`);
-                } else if (msg.type === "tts-server-fatal") {
-                    sendNotice(
-                        "error",
-                        `Критическая ошибка: ${msg.data?.message}`,
-                    );
-                } else if (msg.type === "tts-download") {
-                    const status = msg.data?.status;
-                    if (status === "downloading") {
-                        sendNotice("info", "Загрузка голосовой модели...");
-                    } else if (status === "success") {
-                        sendNotice(
-                            "success",
-                            "Голосовая модель успешно загружена",
+                }
+            });
+
+            ws.on("close", () => {
+                console.log("[VK WebSocket] Client disconnected");
+                if (vkClient) {
+                    try {
+                        vkClient.disconnect();
+                    } catch (e) {
+                        console.error(
+                            "[VK WebSocket] Error disconnecting client on close:",
+                            e,
                         );
                     }
+                    vkClient = null;
                 }
-            } catch (error) {
-                console.error(
-                    "[VK WebSocket] Error processing message:",
-                    error,
-                );
-                if (ws.readyState === WebSocket.OPEN) {
-                    ws.send(
-                        JSON.stringify({
-                            type: "vk-error",
-                            error: "Failed to process message",
-                        }),
-                    );
+                if (connectionTimeout) {
+                    clearTimeout(connectionTimeout);
+                    connectionTimeout = null;
                 }
-            }
-        });
+            });
 
-        ws.on("close", () => {
-            console.log("[VK WebSocket] Client disconnected");
-            if (vkClient) {
-                try {
-                    vkClient.disconnect();
-                } catch (e) {
-                    console.error(
-                        "[VK WebSocket] Error disconnecting client on close:",
-                        e,
-                    );
-                }
-                vkClient = null;
-            }
-            if (connectionTimeout) {
-                clearTimeout(connectionTimeout);
-                connectionTimeout = null;
-            }
-        });
+            ws.on("error", (error) => {
+                console.error("[VK WebSocket] WebSocket error:", error);
+            });
 
-        ws.on("error", (error) => {
-            console.error("[VK WebSocket] WebSocket error:", error);
+            // Отправляем подтверждение подключения
+            ws.send(
+                JSON.stringify({
+                    type: "connected",
+                    message: "WebSocket connection established",
+                }),
+            );
         });
-
-        // Отправляем подтверждение подключения
-        ws.send(
-            JSON.stringify({
-                type: "connected",
-                message: "WebSocket connection established",
-            }),
-        );
     });
 }
 

@@ -9,10 +9,11 @@
     width: 100%;
 
     opacity: 1;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 
     &.fadeOut {
         opacity: 0;
+        transform: scale(0.97);
     }
 }
 

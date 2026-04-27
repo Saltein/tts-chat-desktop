@@ -23,6 +23,7 @@ import {
 
 import TwitchIcon from "../../../../shared/assets/icons/twitch-logo.svg?react";
 import YoutubeIcon from "../../../../shared/assets/icons/youtube-logo.svg?react";
+import YoutubeIcon2 from "../../../../shared/assets/icons/youtube-logo2.svg?react";
 import VkVideoIcon from "../../../../shared/assets/icons/vk-video-logo.svg?react";
 import TTSChatIcon from "../../../../shared/assets/icons/ttschat-logo.svg?react";
 import WrenchIcon from "../../../../shared/assets/icons/wrench.svg?react";
@@ -31,6 +32,7 @@ import {
     generateColorFromUsername,
     nameColors,
 } from "../../../../shared/lib/generateColorFromUsername";
+import { isBright } from "../../../../shared/lib/isBright";
 
 export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     const [visible, setVisible] = useState(true);
@@ -131,8 +133,11 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     };
     const nameBackgroundStyles = {
         borderColor:
-            messageNameBorder === false ? "#00000000" :
-            isModerator || isSponsor || isOwner ? borderColor : undefined,
+            messageNameBorder === false
+                ? "#00000000"
+                : isModerator || isSponsor || isOwner
+                  ? borderColor
+                  : undefined,
         backgroundColor: messageNameBackground
             ? `rgba(${hexToRgbString(messageNameBackgroundColor)}, ${messageNameBackgroundOpacity})`
             : "transparent",
@@ -176,7 +181,11 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     if (message?.service === "twitch") {
         Icon = TwitchIcon;
     } else if (message?.service === "youtube") {
-        Icon = YoutubeIcon;
+        if (isBright(messageNameBackgroundColor)) {
+            Icon = YoutubeIcon2;
+        } else {
+            Icon = YoutubeIcon;
+        }
     } else if (message?.service === "vk") {
         Icon = VkVideoIcon;
     } else if (message?.service === "ttschat") {
@@ -191,15 +200,16 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
             <div
                 className={`${s.name} 
                 ${messageNameBackground ? "" : s.noBackground}`}
-                style={nameBackgroundStyles}
+                style={{ ...nameBackgroundStyles }}
             >
                 {serviceIcon && (
                     <Icon
                         height={fontSize - 2}
                         width={fontSize - 2}
                         className={s.icon}
-                        color={"var(--color-text)"}
-                        style={iconStyles}
+                        style={{
+                            ...iconStyles,
+                        }}
                     />
                 )}
                 <span className={s.nameText} style={nameStyles}>

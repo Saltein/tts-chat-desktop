@@ -85,6 +85,36 @@ function destroyVkClient(client) {
     }
 }
 
+// ================= TTS CLEAN DESTROY =================
+function clearTempFolder() {
+    const tts_temp_files = path.join(
+        __dirname,
+        "tts_server",
+        "tts_temp",
+        "sounds",
+    );
+    try {
+        if (fs.existsSync(tts_temp_files)) {
+            const files = fs.readdirSync(tts_temp_files);
+
+            files.forEach((file) => {
+                const filePath = path.join(tts_temp_files, file);
+                try {
+                    fs.unlinkSync(filePath);
+                } catch (err) {
+                    console.error(`Не удалось удалить ${filePath}:`, err);
+                }
+            });
+
+            console.log(`Удалено ${files.length} файлов`);
+        } else {
+            console.log("Папка не существует");
+        }
+    } catch (error) {
+        console.error("Ошибка:", error);
+    }
+}
+
 // ================= VK CONNECT =================
 ipcMain.handle("vk-connect", async (_, channel) => {
     console.log(`[VK] Connecting to channel: ${channel}`);
@@ -206,6 +236,15 @@ ipcMain.handle("tts-start", async () => {
     const isDev = !app.isPackaged;
     if (ttsServerProcess && !ttsServerProcess.killed) return true;
 
+    const tts_temp_files = path.join(
+        __dirname,
+        "tts_server",
+        "tts_temp",
+        "sounds",
+    );
+
+    clearTempFolder();
+
     return new Promise((resolve, reject) => {
         try {
             const serverPath = isDev
@@ -287,6 +326,7 @@ ipcMain.on("open-external", (_, url) => shell.openExternal(url));
 app.whenReady().then(createWindow);
 
 app.on("will-quit", async (e) => {
+    clearTempFolder();
     e.preventDefault();
     await shutdown();
     app.exit(0);

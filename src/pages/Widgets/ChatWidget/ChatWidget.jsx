@@ -29,6 +29,10 @@ import {
     setMessageBackgroundOpacity,
     setMessageBorder,
     setMessageLifeTime,
+    setMessageNameBackground,
+    setMessageNameBackgroundColor,
+    setMessageNameBackgroundOpacity,
+    setMessageNameBorder,
     setMessageTextColor,
     setServiceIcon,
 } from "../../../entities/message/model/slice";
@@ -52,6 +56,24 @@ export const ChatWidget = () => {
     const voiceVolume = searchParams.get("volume") || 1;
     const twitchVoice = searchParams.get("twitchVoice") || "random";
     const targetTheme = searchParams.get("theme") || "dark";
+
+    const messageNameBackground =
+        searchParams.get("messageNameBackground") === "false" ? false : true;
+    const messageNameBackgroundColor = searchParams.get(
+        "messageNameBackgroundColor",
+    );
+    const messageNameBackgroundOpacity = searchParams.get(
+        "messageNameBackgroundOpacity",
+    );
+    const messageNameBorder =
+        searchParams.get("messageNameBorder") === "false" ? false : true;
+
+    console.log("messageName", {
+        messageNameBackground,
+        messageNameBackgroundColor,
+        messageNameBackgroundOpacity,
+        messageNameBorder,
+    });
 
     const messageBackgroundColor = searchParams.get("messageBackgroundColor");
     const messageBackgroundOpacity = searchParams.get(
@@ -95,6 +117,11 @@ export const ChatWidget = () => {
 
     // Настройка UI параметров
     useEffect(() => {
+        dispatch(setMessageNameBackground(messageNameBackground));
+        dispatch(setMessageNameBackgroundColor(messageNameBackgroundColor));
+        dispatch(setMessageNameBackgroundOpacity(messageNameBackgroundOpacity));
+        dispatch(setMessageNameBorder(messageNameBorder));
+
         dispatch(setMessageBackground(messageBackgroundColor));
         dispatch(setMessageBackgroundOpacity(messageBackgroundOpacity));
         dispatch(setMessageTextColor(messageTextColor));

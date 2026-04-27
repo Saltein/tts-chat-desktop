@@ -29,7 +29,6 @@
     margin-right: $spacing-xxs;
     box-shadow: $shadow-sm;
     white-space: nowrap;
-    user-select: text;
     gap: 0;
 
     &.noBackground {
@@ -40,6 +39,11 @@
         padding: 0 $spacing-xs 0 $spacing-xxs;
         gap: $spacing-xxs;
     }
+}
+
+.nameText {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    user-select: text;
 }
 
 .message {

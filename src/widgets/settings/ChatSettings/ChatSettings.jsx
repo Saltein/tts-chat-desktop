@@ -88,6 +88,9 @@ export const ChatSettings = () => {
     const currentMessageNameBackgroundColor = useSelector(
         selectMessageNameBackgroundColor,
     );
+    const currentMessageNameBackgroundOpacity = useSelector(
+        selectMessageNameBackgroundOpacity,
+    );
     const currentMessageNameBorder = useSelector(selectMessageNameBorder);
 
     const currentMessageTextColor = useSelector(selectMessageTextColor);
@@ -114,12 +117,18 @@ export const ChatSettings = () => {
         volume: volume,
     };
     const chatCustomizationQueryParamObj = {
+        messageNameBackground: String(currentMessageNameBackground),
+        messageNameBackgroundColor: currentMessageNameBackgroundColor,
+        messageNameBackgroundOpacity: currentMessageNameBackgroundOpacity,
+        messageNameBorder: String(currentMessageNameBorder),
+        serviceIcon: String(serviceIconLocal),
+
         messageBackgroundColor: currentMessageBackgroundColor,
         messageBackgroundOpacity: currentMessageBackgroundOpacity,
         messageTextColor: currentMessageTextColor,
+
         messageLifeTime: lifetime,
         messageBorder: String(messageBorderLocal),
-        serviceIcon: String(serviceIconLocal),
         fontSize: String(currentFontSize),
     };
     const twitchQueryParamObj = {

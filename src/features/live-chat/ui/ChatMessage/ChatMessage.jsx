@@ -202,7 +202,7 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
                         style={iconStyles}
                     />
                 )}
-                <span style={nameStyles}>
+                <span className={s.nameText} style={nameStyles}>
                     {message.tags
                         ? message.tags["display-name"]
                         : message?.user}

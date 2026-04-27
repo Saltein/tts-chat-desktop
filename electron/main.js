@@ -87,12 +87,19 @@ function destroyVkClient(client) {
 
 // ================= TTS CLEAN DESTROY =================
 function clearTempFolder() {
-    const tts_temp_files = path.join(
-        __dirname,
-        "tts_server",
-        "tts_temp",
-        "sounds",
-    );
+    const isDev = !app.isPackaged;
+
+    const tts_temp_files = isDev
+        ? path.join(__dirname, "tts_server", "tts_temp", "sounds")
+        : path.join(
+              process.resourcesPath,
+              "app.asar.unpacked",
+              "electron",
+              "tts_server",
+              "tts_temp",
+              "sounds",
+          );
+
     try {
         if (fs.existsSync(tts_temp_files)) {
             const files = fs.readdirSync(tts_temp_files);
@@ -280,6 +287,13 @@ ipcMain.handle("tts-start", async () => {
                     message: `Ошибка запуска TTS сервера`,
                 });
                 reject();
+            });
+
+            ttsServerProcess.stdout.on("data", (data) => {
+                console.log(`[TTS stdout] ${data}`);
+            });
+            ttsServerProcess.stderr.on("data", (data) => {
+                console.error(`[TTS stderr] ${data}`);
             });
         } catch (e) {
             mainWindow?.webContents.send("notice", {

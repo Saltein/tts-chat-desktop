@@ -83,49 +83,10 @@ function startVkWebSocketServer(sendNotice) {
             reject(error);
         });
 
-        const activePythonClients = new Set();
-
         // Настройка обработчиков (остальной код)
         wss.on("connection", (ws, req) => {
             let vkClient = null;
             let connectionTimeout = null;
-            if (req.headers["user-agent"]?.includes("Python")) {
-                const clientIp = req.socket.remoteAddress;
-
-                // Очищаем мертвые соединения
-                for (const clientWs of activePythonClients) {
-                    if (clientWs.readyState !== WebSocket.OPEN) {
-                        activePythonClients.delete(clientWs);
-                    }
-                }
-
-                if (activePythonClients.size >= 4) {
-                    console.log(
-                        `Python agent from ${clientIp} rejected - already connected`,
-                    );
-                    ws.close(1008, "Only one Python agent allowed");
-                    return;
-                }
-
-                // Сохраняем САМ ОБЪЕКТ WebSocket, а не строку
-                activePythonClients.add(ws);
-                const connectionId = `${clientIp}-${Date.now()}`;
-                console.log(
-                    `Python agent connected: ${connectionId}. Active: ${activePythonClients.size}`,
-                );
-
-                ws.on("close", () => {
-                    activePythonClients.delete(ws);
-                    console.log(
-                        `Python agent disconnected: ${connectionId}. Active: ${activePythonClients.size}`,
-                    );
-                });
-
-                ws.on("error", (error) => {
-                    console.error(`Python agent error: ${connectionId}`, error);
-                    activePythonClients.delete(ws);
-                });
-            }
 
             console.log(
                 "[VK WebSocket] Client connected: ",

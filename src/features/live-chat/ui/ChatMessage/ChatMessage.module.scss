@@ -31,19 +31,21 @@
     box-shadow: $shadow-sm;
     white-space: nowrap;
     user-select: text;
+    gap: 0;
 
     &.noBackground {
         left: 0;
         background-color: transparent;
         border: none;
         box-shadow: none;
-        padding: 0 $spacing-xs 0 0;
+        padding: 0 $spacing-xs 0 $spacing-xxs;
+        gap: $spacing-xxs;
     }
 }
 
 .message {
     position: relative;
-    
+
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
     user-select: text;
 }

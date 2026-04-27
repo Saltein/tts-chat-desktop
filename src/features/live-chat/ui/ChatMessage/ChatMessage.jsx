@@ -112,7 +112,6 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     const wrapperStyles = {
         backgroundColor: `rgba(${messageBackground}, ${messageBackgroundOpacity})`,
         border: messageBorder === false ? `1px solid #00000000` : undefined,
-        paddingBottom: serviceIcon ? "2px" : undefined,
     };
 
     const nameStyles = {
@@ -131,7 +130,7 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     const iconStyles = {
         height: `${fontSize - 2}px`,
         width: `${fontSize - 2}px`,
-        left: `${-((fontSize - 16) / 2) - 1}px`,
+        left: messageNameBackground ? `${- 2}px` : 0,
     };
 
     useEffect(() => {
@@ -182,14 +181,18 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
                         style={iconStyles}
                     />
                 )}
-                {message.tags ? message.tags["display-name"] : message?.user}
-                {!messageNameBackground && " :"}
-                {isModerator && (
-                    <WrenchIcon
-                        className={s.wrenchIcon}
-                        fill="var(--color-moderator)"
-                    />
-                )}
+                <span style={nameStyles}>
+                    {message.tags
+                        ? message.tags["display-name"]
+                        : message?.user}
+                    {!messageNameBackground && " :"}
+                    {isModerator && (
+                        <WrenchIcon
+                            className={s.wrenchIcon}
+                            fill="var(--color-moderator)"
+                        />
+                    )}
+                </span>
             </div>
             <span className={s.message} style={textStyles}>
                 {message.message ? message.message : message?.text}

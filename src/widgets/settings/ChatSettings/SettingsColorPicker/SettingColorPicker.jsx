@@ -1,7 +1,7 @@
 import { DefaultTitle } from "../../../../shared/ui";
 import s from "./SettingColorPicker.module.scss";
 
-export const SettingColorPicker = ({ title, value, onChange }) => {
+export const SettingColorPicker = ({ title, value, onChange, alignContent="center" }) => {
     return (
         <div className={s.colorPickBlock}>
             <DefaultTitle
@@ -12,7 +12,7 @@ export const SettingColorPicker = ({ title, value, onChange }) => {
                 title={title}
                 titleStyles={{ fontSize: "0.9rem" }}
                 fontWeight={"400"}
-                alignContent={"center"}
+                alignContent={alignContent}
             />
             <input
                 className={s.colorPicker}

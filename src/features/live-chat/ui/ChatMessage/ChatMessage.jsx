@@ -7,6 +7,9 @@ import {
     selectMessageBackgroundOpacity,
     selectMessageBorder,
     selectMessageNameBackground,
+    selectMessageNameBackgroundColor,
+    selectMessageNameBackgroundOpacity,
+    selectMessageNameBorder,
     selectMessageTextColor,
     selectServiceIcon,
     setMessageBackground,
@@ -37,6 +40,14 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     const theme = useTheme().theme;
 
     const messageNameBackground = useSelector(selectMessageNameBackground);
+    const messageNameBackgroundColor = useSelector(
+        selectMessageNameBackgroundColor,
+    );
+    const messageNameBackgroundOpacity = useSelector(
+        selectMessageNameBackgroundOpacity,
+    );
+    const messageNameBorder = useSelector(selectMessageNameBorder);
+
     const messageBorder = useSelector(selectMessageBorder);
     const serviceIcon = useSelector(selectServiceIcon);
     const messageBackgroundOpacity = useSelector(
@@ -90,10 +101,10 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     let messageTextColor = useSelector(selectMessageTextColor);
     if (messageTextColor === "") {
         if (theme === "dark") {
-            messageTextColor = hexToRgbString("#f3f4f6");
+            messageTextColor = "#f3f4f6";
             dispatch(setMessageTextColor(messageTextColor));
         } else {
-            messageTextColor = hexToRgbString("#111827");
+            messageTextColor = "#111827";
             dispatch(setMessageTextColor(messageTextColor));
         }
     }
@@ -110,27 +121,35 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     }
 
     const wrapperStyles = {
-        backgroundColor: `rgba(${messageBackground}, ${messageBackgroundOpacity})`,
+        backgroundColor: `rgba(${hexToRgbString(messageBackground)}, ${messageBackgroundOpacity})`,
         border: messageBorder === false ? `1px solid #00000000` : undefined,
     };
 
     const nameStyles = {
         color: nameColor,
-        borderColor:
-            isModerator || isSponsor || isOwner ? borderColor : undefined,
         fontSize: fontSize + "px",
     };
+    const nameBackgroundStyles = {
+        borderColor:
+            messageNameBorder === false ? "#00000000" :
+            isModerator || isSponsor || isOwner ? borderColor : undefined,
+        backgroundColor: messageNameBackground
+            ? `rgba(${hexToRgbString(messageNameBackgroundColor)}, ${messageNameBackgroundOpacity})`
+            : "transparent",
+    };
+    console.log(
+        "🦆🐈🍳 name color",
+        `${hexToRgbString(messageNameBackgroundColor)}, ${messageNameBackgroundOpacity}`,
+    );
 
     const textStyles = {
-        color: rgbStringToHex(messageTextColor),
+        color: messageTextColor,
         fontSize: fontSize + "px",
         top: serviceIcon ? `${((fontSize - 12) / 16) * -4}px` : 0,
     };
 
     const iconStyles = {
-        height: `${fontSize - 2}px`,
-        width: `${fontSize - 2}px`,
-        left: messageNameBackground ? `${- 2}px` : 0,
+        left: messageNameBackground ? `${-2}px` : 0,
     };
 
     useEffect(() => {
@@ -172,10 +191,12 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
             <div
                 className={`${s.name} 
                 ${messageNameBackground ? "" : s.noBackground}`}
-                style={nameStyles}
+                style={nameBackgroundStyles}
             >
                 {serviceIcon && (
                     <Icon
+                        height={fontSize - 2}
+                        width={fontSize - 2}
                         className={s.icon}
                         color={"var(--color-text)"}
                         style={iconStyles}

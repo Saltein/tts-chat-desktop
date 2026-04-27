@@ -26,7 +26,6 @@
     border: 1px solid var(--color-border);
     border-radius: $border-radius-md;
     padding: $spacing-xxs $spacing-xs;
-    background-color: var(--color-surface);
     margin-right: $spacing-xxs;
     box-shadow: $shadow-sm;
     white-space: nowrap;
@@ -46,7 +45,7 @@
 .message {
     position: relative;
 
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
     user-select: text;
 }
 

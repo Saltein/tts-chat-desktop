@@ -1,26 +1,34 @@
-import { useEffect, useState } from 'react'
-import s from './DefaultDivider.module.scss'
+import { useEffect, useState } from "react";
+import s from "./DefaultDivider.module.scss";
 
-export const DefaultDivider = ({ direction = 'horizontal', color }) => {
-    const [directionValid, setDirectionValid] = useState('horizontal')
+export const DefaultDivider = ({
+    direction = "horizontal",
+    color,
+    width = "1px",
+}) => {
+    const [directionValid, setDirectionValid] = useState("horizontal");
     const styles = {
         backgroundColor: color && color,
-    }
+        height: directionValid === "horizontal" ? width : undefined,
+        width: directionValid === "vertical" ? width : undefined,
+    };
 
     useEffect(() => {
-        if (direction === 'horizontal' || direction === 'vertical') {
-            setDirectionValid(direction)
-            return
+        if (direction === "horizontal" || direction === "vertical") {
+            setDirectionValid(direction);
+            return;
+        } else {
+            setDirectionValid("horizontal");
+            console.error(
+                'Invalid DefaultDivider direction (use "horizontal" or "vertical" only)',
+            );
         }
-        else {
-            setDirectionValid('horizontal')
-            console.error('Invalid DefaultDivider direction (use "horizontal" or "vertical" only)')
-        }
-    }, [direction])
+    }, [direction]);
 
     return (
-        <div className={`${s.wrapper} ${directionValid === 'horizontal' ? s.h : ''} ${directionValid === 'vertical' ? s.v : ''}`}
+        <div
+            className={`${s.wrapper} ${directionValid === "horizontal" ? s.h : ""} ${directionValid === "vertical" ? s.v : ""}`}
             style={styles}
         />
-    )
-}
+    );
+};

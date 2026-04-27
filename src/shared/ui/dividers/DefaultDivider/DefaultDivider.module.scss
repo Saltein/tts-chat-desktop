@@ -3,6 +3,7 @@
 .wrapper {
     display: block;
     background-color: var(--color-border);
+    flex-shrink: 0;
 
     &.h {
         height: 1px;

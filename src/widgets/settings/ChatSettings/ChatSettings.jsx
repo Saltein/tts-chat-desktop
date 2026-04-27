@@ -31,6 +31,9 @@ import {
     selectMessageGap,
     selectMessageLifeTime,
     selectMessageNameBackground,
+    selectMessageNameBackgroundColor,
+    selectMessageNameBackgroundOpacity,
+    selectMessageNameBorder,
     selectMessageTextColor,
     selectServiceIcon,
     setFontSize,
@@ -40,6 +43,9 @@ import {
     setMessageGap,
     setMessageLifeTime,
     setMessageNameBackground,
+    setMessageNameBackgroundColor,
+    setMessageNameBackgroundOpacity,
+    setMessageNameBorder,
     setMessageTextColor,
     setServiceIcon,
 } from "../../../entities/message/model/slice";
@@ -79,6 +85,11 @@ export const ChatSettings = () => {
     const currentMessageNameBackground = useSelector(
         selectMessageNameBackground,
     );
+    const currentMessageNameBackgroundColor = useSelector(
+        selectMessageNameBackgroundColor,
+    );
+    const currentMessageNameBorder = useSelector(selectMessageNameBorder);
+
     const currentMessageTextColor = useSelector(selectMessageTextColor);
     const currentFontSize = useSelector(selectFontSize);
 
@@ -181,12 +192,16 @@ export const ChatSettings = () => {
         }
     };
 
+    const handlePickNameBackgroundColor = (e) => {
+        dispatch(setMessageNameBackgroundColor(e.target.value));
+    };
+
     const handlePickBackgroundColor = (e) => {
-        dispatch(setMessageBackground(hexToRgbString(e.target.value)));
+        dispatch(setMessageBackground(e.target.value));
     };
 
     const handlePickTextColor = (e) => {
-        dispatch(setMessageTextColor(hexToRgbString(e.target.value)));
+        dispatch(setMessageTextColor(e.target.value));
     };
 
     const handleChangeLifeTime = () => {
@@ -229,7 +244,7 @@ export const ChatSettings = () => {
                 paddingBottom={"0"}
                 paddingLeft={"0"}
                 paddingRight={"0"}
-                title={"Сообщения"}
+                title={"Имя"}
                 titleStyles={{ fontSize: "1rem" }}
             />
 
@@ -243,11 +258,33 @@ export const ChatSettings = () => {
                 }
             />
 
-            <SettingSwitch
-                title={"Обводка"}
-                state={messageBorderLocal}
-                onSwitch={setMessageBorderLocal}
-            />
+            {currentMessageNameBackground && (
+                <>
+                    <SettingSwitch
+                        title={"Обводка имени"}
+                        state={currentMessageNameBorder}
+                        onSwitch={() =>
+                            dispatch(
+                                setMessageNameBorder(!currentMessageNameBorder),
+                            )
+                        }
+                    />
+                    <div className={`${s.colorContainer} ${s.container}`}>
+                        <SettingColorPicker
+                            title={"Цвет фона имени"}
+                            value={currentMessageNameBackgroundColor}
+                            onChange={handlePickNameBackgroundColor}
+                            alignContent="start"
+                        />
+                    </div>
+                    <SettingSlider
+                        title={"Прозрачность фона имени"}
+                        selector={selectMessageNameBackgroundOpacity}
+                        dispatcher={setMessageNameBackgroundOpacity}
+                        isCoefficient
+                    />
+                </>
+            )}
 
             <SettingSwitch
                 title={"Значок сервиса"}
@@ -255,15 +292,32 @@ export const ChatSettings = () => {
                 onSwitch={setServiceIconLocal}
             />
 
+            <DefaultDivider />
+
+            <DefaultTitle
+                paddingTop={"0"}
+                paddingBottom={"0"}
+                paddingLeft={"0"}
+                paddingRight={"0"}
+                title={"Сообщение"}
+                titleStyles={{ fontSize: "1rem" }}
+            />
+
+            <SettingSwitch
+                title={"Обводка"}
+                state={messageBorderLocal}
+                onSwitch={setMessageBorderLocal}
+            />
+
             <div className={`${s.colorContainer} ${s.container}`}>
                 <SettingColorPicker
                     title={"Цвет фона"}
-                    value={rgbStringToHex(currentMessageBackgroundColor)}
+                    value={currentMessageBackgroundColor}
                     onChange={handlePickBackgroundColor}
                 />
                 <SettingColorPicker
                     title={"Цвет текста"}
-                    value={rgbStringToHex(currentMessageTextColor)}
+                    value={currentMessageTextColor}
                     onChange={handlePickTextColor}
                 />
             </div>
@@ -272,9 +326,18 @@ export const ChatSettings = () => {
                 title={"Прозрачность фона"}
                 selector={selectMessageBackgroundOpacity}
                 dispatcher={setMessageBackgroundOpacity}
-                min={0}
-                max={32}
                 isCoefficient
+            />
+
+            <DefaultDivider />
+
+            <DefaultTitle
+                paddingTop={"0"}
+                paddingBottom={"0"}
+                paddingLeft={"0"}
+                paddingRight={"0"}
+                title={"Общее"}
+                titleStyles={{ fontSize: "1rem" }}
             />
 
             <SettingSlider

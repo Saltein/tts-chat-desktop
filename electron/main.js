@@ -196,11 +196,12 @@ ipcMain.handle("vk-disconnect", async () => {
 
 // ================= TTS =================
 ipcMain.handle("tts-start", async () => {
+    const isDev = !app.isPackaged;
     if (ttsServerProcess && !ttsServerProcess.killed) return true;
 
     return new Promise((resolve, reject) => {
         try {
-            const serverPath = path.join(
+            const serverPath = isDev ? path.join(__dirname,"tts_server/tts-chat-server.exe") : path.join(
                 process.resourcesPath,
                 "app.asar.unpacked",
                 "electron",

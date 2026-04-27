@@ -17,6 +17,8 @@ import {
 } from "../../../shared/ui";
 import { DefaultWidgetShape } from "../../../shared/widgets/DefaultWidgetShape/DefaultWidgetShape";
 import s from "./TTSPage.module.scss";
+import { addNotice } from "../../../features/in-app-notices/model/slice";
+import { genRandStr } from "../../../shared/lib/genRandStr";
 
 export const TTSPage = () => {
     const dispatch = useDispatch();
@@ -57,6 +59,16 @@ export const TTSPage = () => {
     }, [baseUrl]);
 
     const handleSwitch = () => {
+        dispatch(
+            addNotice({
+                id: genRandStr(),
+                type: "info",
+                message: !isTwitchTTSOn
+                    ? "Запуск TTS сервера..."
+                    : "Остановка TTS сервера...",
+            }),
+        );
+
         dispatch(setTwitchTTSOn(!isTwitchTTSOn));
     };
 
@@ -82,7 +94,9 @@ export const TTSPage = () => {
                         <InfoQuestion
                             info={
                                 <>
-                                    <span>Эта функция требует повышенного расхода</span>
+                                    <span>
+                                        Эта функция требует повышенного расхода
+                                    </span>
                                     <span>оперативной памяти</span>
                                 </>
                             }

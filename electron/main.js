@@ -42,7 +42,15 @@ async function createWindow() {
 
     await startOAuthServer(mainWindow);
     try {
-        await startWidgetServer();
+        await startWidgetServer((type, message) => {
+            if (mainWindow) {
+                mainWindow.webContents.send("notice", {
+                    id: genRandStr(),
+                    type: type,
+                    message: message,
+                });
+            }
+        });
     } catch (e) {
         console.error(e);
     }
@@ -109,7 +117,8 @@ ipcMain.handle("vk-connect", async (_, channel) => {
                 user: ctx.user?.name,
                 text: ctx.message?.text,
                 color: ctx.user?.nickColor,
-                isModerator: ctx.user?.isChatModerator || ctx.user?.isChannelModerator,
+                isModerator:
+                    ctx.user?.isChatModerator || ctx.user?.isChannelModerator,
                 isOwner: ctx.user?.isOwner,
             });
         });
@@ -201,13 +210,15 @@ ipcMain.handle("tts-start", async () => {
 
     return new Promise((resolve, reject) => {
         try {
-            const serverPath = isDev ? path.join(__dirname,"tts_server/tts-chat-server.exe") : path.join(
-                process.resourcesPath,
-                "app.asar.unpacked",
-                "electron",
-                "tts_server",
-                "tts-chat-server.exe",
-            );
+            const serverPath = isDev
+                ? path.join(__dirname, "tts_server/tts-chat-server.exe")
+                : path.join(
+                      process.resourcesPath,
+                      "app.asar.unpacked",
+                      "electron",
+                      "tts_server",
+                      "tts-chat-server.exe",
+                  );
 
             ttsServerProcess = spawn(serverPath, [], {
                 cwd: path.dirname(serverPath),
@@ -216,12 +227,29 @@ ipcMain.handle("tts-start", async () => {
             });
 
             ttsServerProcess.on("spawn", () => {
+                mainWindow?.webContents.send("notice", {
+                    id: genRandStr(),
+                    type: "success",
+                    message: `TTS сервер запущен`,
+                });
                 console.log("[TTS] started");
                 resolve(true);
             });
 
-            ttsServerProcess.on("error", reject);
+            ttsServerProcess.on("error", () => {
+                mainWindow?.webContents.send("notice", {
+                    id: genRandStr(),
+                    type: "error",
+                    message: `Ошибка запуска TTS сервера`,
+                });
+                reject();
+            });
         } catch (e) {
+            mainWindow?.webContents.send("notice", {
+                id: genRandStr(),
+                type: "error",
+                message: `Ошибка запуска TTS сервера: ${e.message}`,
+            });
             reject(e);
         }
     });

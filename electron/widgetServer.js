@@ -10,11 +10,14 @@ const __dirname = path.dirname(__filename);
 
 let widgetServer = null;
 let wss = null;
+let sendNoticeCallback = null;
 
 const WIDGET_PORT = 3030;
 const WS_PORT = 3031;
 
-export function startWidgetServer() {
+export function startWidgetServer(sendNotice) {
+    sendNoticeCallback = sendNotice;
+
     return new Promise((resolve, reject) => {
         const app = express();
         const DIST_PATH = path.join(__dirname, "../dist");
@@ -43,6 +46,12 @@ export function startWidgetServer() {
         });
         widgetServer.on("error", reject);
     });
+}
+
+function sendNotice(type, message) {
+    if (sendNoticeCallback) {
+        sendNoticeCallback(type, message);
+    }
 }
 
 function startVkWebSocketServer() {
@@ -155,6 +164,25 @@ function startVkWebSocketServer() {
                         vkClient = null;
                     }
                     ws.send(JSON.stringify({ type: "vk-disconnected" }));
+                } else if (msg.type === "tts-server-ready") {
+                    sendNotice("success", "Сервер TTS запущен");
+                } else if (msg.type === "tts-server-error") {
+                    sendNotice("error", `Ошибка TTS: ${msg.message}`);
+                } else if (msg.type === "tts-server-fatal") {
+                    sendNotice(
+                        "error",
+                        `Критическая ошибка: ${msg.data?.message}`,
+                    );
+                } else if (msg.type === "tts-download") {
+                    const status = msg.data?.status;
+                    if (status === "downloading") {
+                        sendNotice("info", "Загрузка голосовой модели...");
+                    } else if (status === "success") {
+                        sendNotice(
+                            "success",
+                            "Голосовая модель успешно загружена",
+                        );
+                    }
                 }
             } catch (error) {
                 console.error(

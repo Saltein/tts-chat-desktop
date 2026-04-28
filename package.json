@@ -1,7 +1,7 @@
 {
     "name": "tts-electron",
     "private": true,
-    "version": "0.0.0",
+    "version": "0.1.1",
     "type": "module",
     "main": "electron/main.js",
     "scripts": {
@@ -14,7 +14,7 @@
         "postinstall": "electron-builder install-app-deps"
     },
     "build": {
-        "productName": "TTS Electron App",
+        "productName": "TTS Chat Desktop",
         "appId": "com.tts.electron",
         "directories": {
             "output": "release"

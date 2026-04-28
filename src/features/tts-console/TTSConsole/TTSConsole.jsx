@@ -23,7 +23,7 @@ export const TTSConsole = () => {
         const container = containerRef.current;
         if (!container) return true;
 
-        const threshold = 8; // Порог в пикселях
+        const threshold = 24; // Порог в пикселях
         const atBottom =
             container.scrollHeight -
                 container.scrollTop -

@@ -8,6 +8,7 @@ import { startWidgetServer, stopWidgetServer } from "./widgetServer.js";
 import VKPLMessageClient from "vklive-message-client";
 import { genRandStr } from "./shared/genRandStr.js";
 import { TTSLogParser } from "./classes/TTSLogParser.js";
+import { cleanupMeiFoldersAsync, cleanupMeiOnExit, startPeriodicMeiCleanup } from "./shared/cleanupMeiFolders.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -346,9 +347,16 @@ ipcMain.on("window-maximize", (e) => {
 ipcMain.on("open-external", (_, url) => shell.openExternal(url));
 
 // ================= LIFECYCLE =================
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+    createWindow();
+
+    cleanupMeiFoldersAsync(0.005); // Удаляем папки старше 1 часа
+    startPeriodicMeiCleanup(0.02, 0.005); // Каждые 6 часов удаляем папки старше 1 часа
+    cleanupMeiOnExit(); // Очищаем при выходе из приложения
+});
 
 app.on("will-quit", async (e) => {
+    cleanupMeiFoldersAsync(0.005);
     clearTempFolder();
     e.preventDefault();
     await shutdown();

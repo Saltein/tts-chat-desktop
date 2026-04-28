@@ -8,14 +8,17 @@ import TgLogo from "../shared/assets/icons/telegram-logo-filled.svg";
 import { NoticeStack } from "../features/in-app-notices";
 import { initVkChatListener } from "../features/live-chat/lib/vk/vkChatListener";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectTwitchTTSOn } from "../features/tts-chat/model/slice";
 import { initTTSConsoleListener } from "../features/tts-console/lib/ttsConsoleListener";
+import { addNotice } from "../features/in-app-notices/model/slice";
+import { genRandStr } from "../shared/lib/genRandStr";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function App() {
     const location = useLocation();
+    const dispatch = useDispatch();
     const starts = (path) => location.pathname.startsWith(path);
 
     const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
@@ -31,11 +34,41 @@ function App() {
                     await window.electronAPI.stopTTSServer();
                 }
             } catch (e) {
-                console.error("Ошибка запуска TTS сервера:", e);
+                window.electronAPI.vk.onNotice(() => {
+                    dispatch(
+                        addNotice({
+                            id: genRandStr(),
+                            type: "error",
+                            message: "Ошибка запуска TTS сервера: " + e.message,
+                        }),
+                    );
+                });
             }
         };
 
         sync();
+    }, [isTwitchTTSOn]);
+
+    useEffect(() => {
+        let interval;
+        let timeout;
+
+        if (isTwitchTTSOn) {
+            interval = setInterval(() => {
+                window.electronAPI.stopTTSServer();
+                timeout = setTimeout(() => {
+                    window.electronAPI.startTTSServer();
+                }, 500);
+            }, 180000);
+        } else {
+            clearInterval(interval);
+            clearTimeout(timeout);
+        }
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timeout);
+        };
     }, [isTwitchTTSOn]);
 
     initVkChatListener();

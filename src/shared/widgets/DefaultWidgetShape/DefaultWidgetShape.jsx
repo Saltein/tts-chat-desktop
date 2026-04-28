@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { DefaultTitle } from "../../ui";
 import s from "./DefaultWidgetShape.module.scss";
+import { useDispatch } from "react-redux";
 
 export const DefaultWidgetShape = ({
     onClick,
@@ -35,10 +37,18 @@ export const DefaultWidgetShape = ({
     flex,
     overflowBlock,
     isMobile = false, // важно
+    minimizable = false,
+    initialStateMinimized = true,
+    globalStateMinimized,
+    dispatcherStateMinimized,
 }) => {
+    const [widgetOpen, setWidgetOpen] = useState(globalStateMinimized !== undefined ? globalStateMinimized : initialStateMinimized);
+
+    const dispatch = useDispatch();
+
     const wrapperStyles = {
         width: isMobile ? "fit-content" : width,
-        height: height,
+        height: height || isMobile ? height : widgetOpen ? height : "54px",
         paddingLeft: paddingLeft,
         paddingTop: paddingTop ?? undefined,
         ...(padding &&
@@ -56,7 +66,7 @@ export const DefaultWidgetShape = ({
         backgroundColor: backgroundColor,
         boxShadow:
             shadow && `0 ${shadow}px ${shadow * 1.5}px rgba(0, 0, 0, 0.15)`,
-        flex: flex ?? undefined,
+        flex: !widgetOpen ? undefined : (flex ?? undefined),
         cursor: onClick ? "pointer" : "default",
     };
 
@@ -95,13 +105,21 @@ export const DefaultWidgetShape = ({
     return (
         <div
             className={`${s.wrapper} ${animated ? s.animated : ""}`}
-            style={{...wrapperStyles, minWidth: 0,}}
+            style={{ ...wrapperStyles, minWidth: 0 }}
         >
             {!noTitle && (
                 <DefaultTitle
                     title={title}
                     titleStyles={titleStyles}
-                    onClick={onClick}
+                    cursor={minimizable ? "pointer" : "default"}
+                    onClick={() => {
+                        onClick?.();
+                        if (minimizable) {
+                            setWidgetOpen(!widgetOpen);
+                            if (dispatcherStateMinimized)
+                                dispatch(dispatcherStateMinimized(!widgetOpen));
+                        }
+                    }}
                 />
             )}
 

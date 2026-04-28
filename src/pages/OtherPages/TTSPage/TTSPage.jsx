@@ -18,6 +18,12 @@ import {
 import { DefaultWidgetShape } from "../../../shared/widgets/DefaultWidgetShape/DefaultWidgetShape";
 import s from "./TTSPage.module.scss";
 import { genRandStr } from "../../../shared/lib/genRandStr";
+import { TTSConsole } from "../../../features/tts-console/TTSConsole/TTSConsole";
+import {
+    clearConsoleMessages,
+    selectConsoleWidgetOpen,
+    setConsoleWidgetOpen,
+} from "../../../features/tts-console/model/slice";
 
 export const TTSPage = () => {
     const dispatch = useDispatch();
@@ -25,6 +31,7 @@ export const TTSPage = () => {
     const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
     const twitchVoice = useSelector(selectTwitchVoice);
     const speechVolume = useSelector(selectSpeechVolume);
+    const consoleWidgetOpen = useSelector(selectConsoleWidgetOpen);
 
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
     const [optionList, setOptionList] = useState([]);
@@ -59,6 +66,7 @@ export const TTSPage = () => {
 
     const handleSwitch = () => {
         dispatch(setTwitchTTSOn(!isTwitchTTSOn));
+        isTwitchTTSOn && dispatch(clearConsoleMessages());
     };
 
     const handleVoiceSelect = (option) => {
@@ -85,6 +93,7 @@ export const TTSPage = () => {
                                 <>
                                     <span>
                                         Эта функция требует повышенного расхода
+                                        памяти (от 0.5 Гб)
                                     </span>
                                     <span>оперативной памяти</span>
                                 </>
@@ -130,6 +139,23 @@ export const TTSPage = () => {
                         />
                     </DefaultWidgetShape>
                 </div>
+            </DefaultWidgetShape>
+            <DefaultWidgetShape
+                marginLeft={"0"}
+                marginTop={"0"}
+                marginBottom={"0"}
+                padding={"0"}
+                title="Консоль TTS сервера"
+                paddingBlock={"16px"}
+                flexDirection={"column"}
+                display={"flex"}
+                minimizable
+                initialStateMinimized={false}
+                flex={1}
+                globalStateMinimized={consoleWidgetOpen}
+                dispatcherStateMinimized={setConsoleWidgetOpen}
+            >
+                <TTSConsole />
             </DefaultWidgetShape>
         </div>
     );

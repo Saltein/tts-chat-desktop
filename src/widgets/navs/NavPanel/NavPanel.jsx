@@ -31,7 +31,6 @@ export const NavPanel = () => {
     const [hasAccess, setHasAccess] = useState(useSelector(selectAccessStatus));
     const [password, setPassword] = useState("");
     const [isRoomWidgetOpen, setIsRoomWidgetOpen] = useState(false);
-    const [isNavWidgetOpen, setIsNavWidgetOpen] = useState(true);
 
     const isMobile = useMediaQuery({ maxWidth: mobileBreakpoint });
 
@@ -44,10 +43,6 @@ export const NavPanel = () => {
 
     const handleOpenRoomWidget = () => {
         setIsRoomWidgetOpen((prev) => !prev);
-    };
-
-    const handleOpenNavWidget = () => {
-        setIsNavWidgetOpen((prev) => !prev);
     };
 
     const infoBetaText = (
@@ -63,13 +58,12 @@ export const NavPanel = () => {
         <div className={`${s.wrapper} ${isMobile ? s.mobile : ""}`}>
             <DefaultWidgetShape
                 width={"256px"}
-                height={isNavWidgetOpen ? "fit-content" : "56px"}
                 backgroundColor={"transparent"}
                 padding={"0"}
                 title={"TTS Chat"}
                 noTitle={isMobile}
-                onClick={handleOpenNavWidget}
                 isMobile={isMobile}
+                minimizable
             >
                 <NavButton
                     title={"Подключения"}

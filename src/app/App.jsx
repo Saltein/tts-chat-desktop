@@ -10,6 +10,7 @@ import { initVkChatListener } from "../features/live-chat/lib/vk/vkChatListener"
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectTwitchTTSOn } from "../features/tts-chat/model/slice";
+import { initTTSConsoleListener } from "../features/tts-console/lib/ttsConsoleListener";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -38,6 +39,7 @@ function App() {
     }, [isTwitchTTSOn]);
 
     initVkChatListener();
+    initTTSConsoleListener();
 
     const text = (
         <div>

@@ -14,7 +14,7 @@ $text-color: var(--color-text);
 :root {
     --color-moderator: rgb(91, 153, 255);
     --color-sponsor: #2ba640;
-    --color-owner: #F8B301;
+    --color-owner: #f8b301;
 
     --color-yellow: #f97316;
     --color-red: #10b981;
@@ -71,6 +71,14 @@ $text-color: var(--color-text);
 
     --brightness-hover: 0.8;
     --brightness-active: 0.6;
+
+    // Оформление консоли
+    --color-console-hover: #e6ebf5;
+    
+    --color-text-console-info: #617484;
+    --color-text-console-error: #d74848;
+    --color-text-console-warning: #e87d32;
+    --color-text-console-system: #215acd;
 }
 
 [data-theme="dark"] {
@@ -117,6 +125,19 @@ $text-color: var(--color-text);
 
     --brightness-hover: 1.4;
     --brightness-active: 1.8;
+
+    // Оформление консоли
+    --color-console-hover: #32363f;
+
+    --color-text-console-info: #c2ddf3;
+    --color-text-console-error: #d74848;
+    --color-text-console-warning: #e87d32;
+    --color-text-console-system: #709df8;
+
+    --color-background-console-info: transparent;
+    --color-background-console-error: #d7484811;
+    --color-background-console-warning: #e87d3211;
+    --color-background-console-system: #709df811;
 }
 
 // ================================

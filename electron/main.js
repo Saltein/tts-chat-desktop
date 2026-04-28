@@ -7,6 +7,7 @@ import fs from "fs";
 import { startWidgetServer, stopWidgetServer } from "./widgetServer.js";
 import VKPLMessageClient from "vklive-message-client";
 import { genRandStr } from "./shared/genRandStr.js";
+import { TTSLogParser } from "./classes/TTSLogParser.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -289,11 +290,19 @@ ipcMain.handle("tts-start", async () => {
                 reject();
             });
 
+            const consoleParser = new TTSLogParser();
+
             ttsServerProcess.stdout.on("data", (data) => {
-                console.log(`[TTS stdout] ${data}`);
+                const parsedItems = consoleParser.parse(data);
+                parsedItems.forEach((item) => {
+                    mainWindow?.webContents.send("tts-console-message", item);
+                });
             });
             ttsServerProcess.stderr.on("data", (data) => {
-                console.error(`[TTS stderr] ${data}`);
+                const parsedItems = consoleParser.parse(data);
+                parsedItems.forEach((item) => {
+                    mainWindow?.webContents.send("tts-console-message", item);
+                });
             });
         } catch (e) {
             mainWindow?.webContents.send("notice", {

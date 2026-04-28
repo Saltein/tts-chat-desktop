@@ -40,8 +40,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
             return () => ipcRenderer.removeListener("vk-connected", handler);
         },
 
-        onNotice: (cb) => {
-            const handler = (_, data) => cb(data);
+        onNotice: (callback) => {
+            const handler = (_, data) => callback(data);
             ipcRenderer.on("notice", handler);
 
             return () => ipcRenderer.removeListener("notice", handler);
@@ -51,6 +51,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
             const handler = () => callback();
             ipcRenderer.on("vk-disconnect", handler);
             return () => ipcRenderer.removeListener("vk-disconnected", handler);
+        },
+    },
+
+    ttsConsole: {
+        onMessage: (callback) => {
+            const handler = (_, data) => callback(data);
+            ipcRenderer.on("tts-console-message", handler);
+            return () =>
+                ipcRenderer.removeListener("tts-console-message", handler);
         },
     },
 });

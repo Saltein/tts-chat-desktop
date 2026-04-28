@@ -1,0 +1,92 @@
+@use "../../../shared/styles/variables.scss" as *;
+
+.wrapper {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 56px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.infoStr {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.consoleContainer {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%);
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent,
+        black 5%,
+        black 95%
+    );
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: transparent;
+        border-radius: 4px;
+        border: none;
+    }
+
+    &:hover {
+        &::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: #2d2d2d;
+            border-radius: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+            border: none;
+
+            &:hover {
+                background: #666;
+            }
+        }
+    }
+}
+
+.scrollButton {
+    position: fixed;
+    bottom: 48px;
+    right: 54px;
+    width: 44px;
+    height: 32px;
+    border-radius: $border-radius-md;
+    background: var(--color-accent);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        filter: brightness(var(--brightness-hover));
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}

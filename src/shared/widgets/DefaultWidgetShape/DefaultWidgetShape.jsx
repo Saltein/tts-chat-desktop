@@ -100,6 +100,7 @@ export const DefaultWidgetShape = ({
 
     const titleStyles = {
         textAlign: justifyTitle,
+        backgroundColor: widgetOpen ? "transparent" : "var(--color-surface)",
     };
 
     return (

@@ -1,6 +1,19 @@
-import s from './DefaultTitle.module.scss'
+import s from "./DefaultTitle.module.scss";
 
-export const DefaultTitle = ({ title, margin, padding, paddingLeft, paddingRight, paddingTop, paddingBottom, alignContent, titleStyles = {}, fontWeight, onClick, cursor }) => {
+export const DefaultTitle = ({
+    title,
+    margin,
+    padding,
+    paddingLeft,
+    paddingRight,
+    paddingTop,
+    paddingBottom,
+    alignContent,
+    titleStyles = {},
+    fontWeight,
+    onClick,
+    cursor,
+}) => {
     const styles = {
         margin: margin && margin,
         padding: padding && padding,
@@ -11,10 +24,12 @@ export const DefaultTitle = ({ title, margin, padding, paddingLeft, paddingRight
         fontWeight: fontWeight ?? undefined,
         textAlign: alignContent && alignContent,
         cursor: cursor && cursor,
-        ...titleStyles
-    }
+        ...titleStyles,
+    };
 
     return (
-        <h2 className={s.title} style={styles} onClick={onClick}>{title}</h2>
-    )
-}
+        <h2 className={s.title} style={styles} onClick={onClick}>
+            {title}
+        </h2>
+    );
+};

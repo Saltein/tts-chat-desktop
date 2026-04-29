@@ -21,6 +21,7 @@ import {
     selectYoutubeAccessToken,
     selectYoutubeConnectionStatus,
     selectYoutubeVideoId,
+    setWidgetMessage,
 } from "../../../entities/connection/model/slice";
 import { convertObjToStr } from "../../../shared/lib/convertObjToStr";
 import {
@@ -49,15 +50,15 @@ import {
     setMessageTextColor,
     setServiceIcon,
 } from "../../../entities/message/model/slice";
-import {
-    hexToRgbString,
-    rgbStringToHex,
-} from "../../../shared/lib/hexToRgbString";
 import { SimpleWidgetShape } from "../../../shared/widgets/SimpleWidgetShape/SimpleWidgetShape";
 import { SettingSwitch } from "./SettingSwitch/SettingSwitch";
 import { SettingSlider } from "./SettingSlider/SettingSlider";
 import { SettingApplyInput } from "./SettingApplyInput/SettingApplyInput";
 import { SettingColorPicker } from "./SettingsColorPicker/SettingColorPicker";
+import { addNotice } from "../../../features/in-app-notices/model/slice";
+import { genRandStr } from "../../../shared/lib/genRandStr";
+import { getRandomInt } from "../../../shared/lib/getRandomInt";
+import { nameColors } from "../../../shared/lib/generateColorFromUsername";
 
 export const ChatSettings = () => {
     const [link, setLink] = useState("");
@@ -71,9 +72,6 @@ export const ChatSettings = () => {
     );
     const [serviceIconLocal, setServiceIconLocal] = useState(
         useSelector(selectServiceIcon),
-    );
-    const [messageGapLocal, setMessageGapLocal] = useState(
-        useSelector(selectMessageGap),
     );
 
     const dispatch = useDispatch();
@@ -148,6 +146,7 @@ export const ChatSettings = () => {
     };
 
     const baseUrl = import.meta.env.VITE_BASE_URL_WIDGET || "";
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const queryParamList = [
         generalQueryParamObj,
         chatCustomizationQueryParamObj,
@@ -157,16 +156,18 @@ export const ChatSettings = () => {
     ];
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLink(`${baseUrl}/#/widget/chat?${convertObjToStr(queryParamList)}`);
-    }, queryParamList);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [...queryParamList, baseUrl, queryParamList]);
 
     useEffect(() => {
         dispatch(setMessageBorder(messageBorderLocal));
-    }, [messageBorderLocal]);
+    }, [messageBorderLocal, dispatch]);
 
     useEffect(() => {
         dispatch(setServiceIcon(serviceIconLocal));
-    }, [serviceIconLocal]);
+    }, [serviceIconLocal, dispatch]);
 
     const onChangeLifeTime = (e) => {
         const value = e.target.value;
@@ -217,8 +218,9 @@ export const ChatSettings = () => {
         dispatch(setMessageLifeTime(lifetime));
     };
 
-    const handleChangeGap = () => {
-        dispatch(setMessageGap(messageGapLocal));
+    const getRandomService = () => {
+        const services = ["vk", "twitch", "youtube", "ttschat"];
+        return services[getRandomInt(0, services.length - 1)];
     };
 
     return (
@@ -373,6 +375,27 @@ export const ChatSettings = () => {
                 value={lifetime / 1000}
                 onChange={onChangeLifeTime}
                 dispatcher={handleChangeLifeTime}
+            />
+
+            <DefaultDivider />
+
+            <DefaultButton
+                title={"Тестовое сообщение"}
+                onClick={() => {
+                    dispatch(
+                        setWidgetMessage({
+                            id: genRandStr(),
+                            user: "Тестер сообщений",
+                            text: getRandomInt(0, 2) === 0
+                                ? "Привет, я очень длинное тестовое сообщение, пришло сюда, чтобы проверить как будет выглядеть перенос на новую строчку!"
+                                : "Привет, я тестовое сообщение!",
+                            time: Date.now(),
+                            service: getRandomService(),
+                            color: getRandomInt(0, nameColors.length - 1),
+                        }),
+                    );
+                }}
+                height="32px"
             />
         </div>
     );

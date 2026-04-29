@@ -1,9 +1,8 @@
 import { useState } from "react";
 import s from "./DefaultSelectList.module.scss";
 import ChevronDown from "../../../assets/icons/chevron-down.svg?react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
-    selectTwitchVoice,
     setTwitchVoice,
 } from "../../../../features/tts-chat/model/slice";
 

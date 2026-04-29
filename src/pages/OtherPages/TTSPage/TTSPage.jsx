@@ -17,7 +17,6 @@ import {
 } from "../../../shared/ui";
 import { DefaultWidgetShape } from "../../../shared/widgets/DefaultWidgetShape/DefaultWidgetShape";
 import s from "./TTSPage.module.scss";
-import { genRandStr } from "../../../shared/lib/genRandStr";
 import { TTSConsole } from "../../../features/tts-console/TTSConsole/TTSConsole";
 import {
     clearConsoleMessages,
@@ -30,7 +29,6 @@ export const TTSPage = () => {
 
     const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
     const twitchVoice = useSelector(selectTwitchVoice);
-    const speechVolume = useSelector(selectSpeechVolume);
     const consoleWidgetOpen = useSelector(selectConsoleWidgetOpen);
 
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";

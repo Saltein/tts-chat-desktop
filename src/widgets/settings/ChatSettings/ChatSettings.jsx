@@ -230,7 +230,8 @@ export const ChatSettings = () => {
                 user: "Тестер сообщений",
                 text:
                     getRandomInt(0, 2) === 0
-                        ? "Привет, я очень длинное тестовое сообщение, пришло сюда, чтобы проверить как будет выглядеть перенос на новую строчку!"
+                        // ? "Привет, я очень длинное тестовое сообщение, пришло сюда, чтобы проверить как будет выглядеть перенос на новую строчку!"
+                        ? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                         : "Привет, я тестовое сообщение!",
                 time: Date.now(),
                 service: getRandomService(),

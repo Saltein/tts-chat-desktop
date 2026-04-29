@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { GlobalPage } from "../pages/GlobalPage/GlobalPage";
 import s from "./App.module.scss";
 import { ChatWidget } from "../pages/Widgets/ChatWidget/ChatWidget";
@@ -7,14 +7,13 @@ import { QRWidget } from "../pages/Widgets/QRWidget/QRWidget";
 import TgLogo from "../shared/assets/icons/telegram-logo-filled.svg";
 import { NoticeStack } from "../features/in-app-notices";
 import { initVkChatListener } from "../features/live-chat/lib/vk/vkChatListener";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectTwitchTTSOn } from "../features/tts-chat/model/slice";
 import { initTTSConsoleListener } from "../features/tts-console/lib/ttsConsoleListener";
 import { addNotice } from "../features/in-app-notices/model/slice";
 import { genRandStr } from "../shared/lib/genRandStr";
-import { selectLastMessage } from "../entities/connection/model/slice";
-import { useWebSocket } from "../shared/hooks/useWebSocket";
+import { SendToWidget } from "../features/live-chat/lib/SendToWidget/SendToWidget";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -22,27 +21,13 @@ function App() {
     const location = useLocation();
     const dispatch = useDispatch();
     const starts = (path) => location.pathname.startsWith(path);
+    const isWidget = starts("/widget");
 
     const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
 
-    // отправка на виджет
-    const message = useSelector(selectLastMessage)[0];
-    const previousMessageRef = useRef(null);
-    const { isConnected, broadcast } = useWebSocket("client", "client");
-
-    useEffect(() => {
-        if (message && broadcast && isConnected) {
-            if (previousMessageRef.current !== message.id && message.id) {
-                previousMessageRef.current = message.id;
-                broadcast(JSON.stringify(message));
-                console.log("💬💬💬Message sent:", message);
-            }
-        }
-    }, [message, broadcast, isConnected]);
-
     useEffect(() => {
         if (!window.electronAPI) return;
-        if (starts("/widget")) return;
+        if (isWidget) return;
 
         const sync = async () => {
             try {
@@ -65,7 +50,7 @@ function App() {
         };
 
         sync();
-    }, [isTwitchTTSOn]);
+    }, [isTwitchTTSOn, isWidget, dispatch]);
 
     useEffect(() => {
         let interval;
@@ -89,8 +74,8 @@ function App() {
         };
     }, [isTwitchTTSOn]);
 
-    if (!starts("/widget")) initVkChatListener();
-    if (!starts("/widget")) initTTSConsoleListener();
+    if (!isWidget) initVkChatListener();
+    if (!isWidget) initTTSConsoleListener();
 
     const text = (
         <div>
@@ -100,7 +85,7 @@ function App() {
         </div>
     );
 
-    if (starts("/widget")) {
+    if (isWidget) {
         if (starts("/widget/chat")) {
             return <ChatWidget />;
         } else if (starts("/widget/qrcode")) {
@@ -119,6 +104,7 @@ function App() {
     return (
         <GoogleOAuthProvider clientId={clientId}>
             <div className={s.App}>
+                {!isWidget && <SendToWidget />}
                 <NoticeStack />
                 <GlobalPage />
             </div>

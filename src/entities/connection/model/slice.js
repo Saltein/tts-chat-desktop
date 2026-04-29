@@ -161,6 +161,9 @@ const connectionSlice = createSlice({
             }
         },
 
+        setWidgetMessage: (state, action) => {
+            state.messages.push(action.payload);
+        },
         setMessages: (state, action) => {
             state.messages = action.payload;
         },
@@ -188,6 +191,7 @@ export const {
     setVkConnectionStatus,
     setNewVkMessage,
 
+    setWidgetMessage,
     setMessages,
     deleteMessageById,
     resetConnection,

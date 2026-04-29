@@ -24,6 +24,7 @@ function rotateKey(dispatch) {
     );
     if (googleApiID >= googleApiKeys.length) {
         throw new Error("❌ Все Google API ключи исчерпаны");
+        // eslint-disable-next-line no-unreachable
         dispatch(
             addNotice({
                 id: genRandStr(),
@@ -96,8 +97,6 @@ export function connectYouTubeChat(
         client.disconnectListeners.push(callbacks.onDisconnected);
     }
 
-    const authParams = `access_token=${accessToken}`;
-
     /**
      * Poll for new messages from YouTube Live Chat
      */
@@ -116,7 +115,7 @@ export function connectYouTubeChat(
                     addNotice({
                         id: genRandStr(),
                         type: "error",
-                        message: `Ошибка YouTube API: ${data.error.message}`,
+                        message: data.error.message.toLowerCase().includes("quota") ? "Превышено лимит обращений по ключу" : `Ошибка YouTube API: ${data.error.message}`,
                     }),
                 );
                 if (data.error.code === 403) {

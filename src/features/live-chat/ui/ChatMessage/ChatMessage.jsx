@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import s from "./ChatMessage.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -18,7 +18,6 @@ import {
 import { useTheme } from "../../../../shared/context/theme/ThemeContext";
 import {
     hexToRgbString,
-    rgbStringToHex,
 } from "../../../../shared/lib/hexToRgbString";
 
 import TwitchIcon from "../../../../shared/assets/icons/twitch-logo.svg?react";
@@ -35,7 +34,7 @@ import {
 import { isBright } from "../../../../shared/lib/isBright";
 import { deleteMessageById } from "../../../../entities/connection/model/slice";
 
-export const ChatMessage = ({ message, timeBeforeDisappear }) => {
+export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const [isFading, setIsFading] = useState(false);
 
     const dispatch = useDispatch();
@@ -222,4 +221,4 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
             </span>
         </div>
     );
-};
+});

@@ -11,7 +11,16 @@ import WebSocketRoom from "../../../ws-lobby/ui/LobbyBlock/WebSocketRoom";
 import FullscreenIcon from "../../../../shared/assets/icons/fullscreen.svg?react";
 import FullscreenExitIcon from "../../../../shared/assets/icons/fullscreen-exit.svg?react";
 import { createPortal } from "react-dom";
-import { genRandStr } from "../../../../shared/lib/genRandStr";
+
+const EXAMPLE_MESSAGE = {
+    message: "Так будут выглядеть сообщения из чата",
+    tags: {
+        "display-name": "TTS Chat",
+        color: "var(--color-accent)",
+    },
+    time: Date.now(),
+    service: "ttschat",
+};
 
 export const LiveChat = ({ backgroundColor, isWidget }) => {
     const [isFullScreened, setIsFullScreened] = useState(false);
@@ -25,7 +34,7 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
     const styles = {
         backgroundColor: backgroundColor ?? undefined,
         height: isWidget ? "100vh" : "",
-        gap: messageGap + "px" ?? undefined,
+        gap: messageGap ? messageGap + "px" : undefined,
     };
 
     function toggleFullscreen() {
@@ -73,15 +82,7 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
                 {/* {isWidget && <WebSocketRoom inWidget />} */}
 
                 <ChatMessage
-                    message={{
-                        message: "Так будут выглядеть сообщения из чата",
-                        tags: {
-                            "display-name": "TTS Chat",
-                            color: "var(--color-accent)",
-                        },
-                        time: Date.now(),
-                        service: "ttschat",
-                    }}
+                    message={EXAMPLE_MESSAGE}
                     timeBeforeDisappear={timeBeforeDisappear}
                 />
 

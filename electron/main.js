@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from "electron";
+import { app, BrowserWindow, ipcMain, shell, globalShortcut } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
 import { startOAuthServer, stopOAuthServer } from "./oauthServer.js";
@@ -8,10 +8,19 @@ import { startWidgetServer, stopWidgetServer } from "./widgetServer.js";
 import VKPLMessageClient from "vklive-message-client";
 import { genRandStr } from "./shared/genRandStr.js";
 import { TTSLogParser } from "./classes/TTSLogParser.js";
-import { cleanupMeiFoldersAsync, cleanupMeiOnExit, startPeriodicMeiCleanup } from "./shared/cleanupMeiFolders.js";
+import {
+    cleanupMeiFoldersAsync,
+    cleanupMeiOnExit,
+    startPeriodicMeiCleanup,
+} from "./shared/cleanupMeiFolders.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// ============= SHORTCUT KEYS ==============
+const SHORTCUTS = {
+    "skip-audio": "CommandOrControl+Shift+.",
+};
 
 // ================= WINDOW =================
 let mainWindow = null;
@@ -321,7 +330,9 @@ ipcMain.handle("tts-stop", async () => {
         } else {
             ttsServerProcess.kill("SIGKILL");
         }
-    } catch (e) {console.log(e)}
+    } catch (e) {
+        console.log(e);
+    }
 
     ttsServerProcess = null;
     return true;
@@ -342,10 +353,24 @@ ipcMain.on("window-maximize", (e) => {
 
 ipcMain.on("open-external", (_, url) => shell.openExternal(url));
 
-// ================= LIFECYCLE =================
+// ================= LIFECYCLE ============================================================================ LIFECYCLE =================================
 app.whenReady().then(() => {
-    createWindow();
+    const shortcutSkip = globalShortcut.register(
+        SHORTCUTS["skip-audio"],
+        handleSkipAudio,
+    );
+    if (!shortcutSkip) {
+        console.error(
+            `Failed to register shortcut to skip audio: ${SHORTCUTS["skip-audio"]}`,
+        );
+        mainWindow?.webContents.send("notice", {
+            id: genRandStr(),
+            type: "error",
+            message: `Ошибка регистрации горячей клавиши для пропуска аудио: ${SHORTCUTS["skip-audio"]}`,
+        });
+    }
 
+    createWindow();
     cleanupMeiFoldersAsync(0.005); // Удаляем папки старше 1 часа
     startPeriodicMeiCleanup(0.02, 0.005); // Каждые 6 часов удаляем папки старше 1 часа
     cleanupMeiOnExit(); // Очищаем при выходе из приложения
@@ -404,4 +429,13 @@ async function shutdown() {
     } catch (e) {
         console.error("[APP] shutdown error:", e);
     }
+}
+
+function handleSkipAudio() {
+    mainWindow?.webContents.send("skip-audio");
+    mainWindow?.webContents.send("notice", {
+        id: genRandStr(),
+        type: "info",
+        message: `Пропуск аудио`,
+    });
 }

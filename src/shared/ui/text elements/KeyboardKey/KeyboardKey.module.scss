@@ -1,0 +1,10 @@
+@use "../../../styles/variables.scss" as *;
+
+.wrapper {
+    border: 2px solid var(--color-text);
+    border-radius: $border-radius-lg;
+    padding: $spacing-xxs $spacing-xs;
+
+    font-weight: 700;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+}

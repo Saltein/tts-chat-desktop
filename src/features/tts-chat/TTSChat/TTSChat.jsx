@@ -57,13 +57,42 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
 
     useEffect(() => {
         if (audioRef.current) {
-            audioRef.current.volume = currentVolume;
+            audioRef.current.volume = currentVolume || 0;
         }
     }, [currentVolume, audioUrl]);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         handleSpeak();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [message]);
+
+    useEffect(() => {
+        if (window.electronAPI?.onSkipAudio) {
+            const skip = window.electronAPI.onSkipAudio(() => {
+                if (audioRef.current && !audioRef.current.ended) {
+                    audioRef.current.currentTime = audioRef.current.duration;
+                    console.log("Audio skipped");
+                }
+            });
+            return skip;
+        }
+    }, []);
+
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        const handleEnded = () => {
+            if (audioUrl) {
+                URL.revokeObjectURL(audioUrl);
+                setAudioUrl(null);
+            }
+        };
+
+        audio.addEventListener("ended", handleEnded);
+        return () => audio.removeEventListener("ended", handleEnded);
+    }, [audioUrl]);
 
     return (
         <div className={s.wrapper}>

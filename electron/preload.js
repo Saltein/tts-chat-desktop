@@ -1,4 +1,5 @@
-const { contextBridge, ipcRenderer, shell } = require("electron");
+// eslint-disable-next-line no-undef
+const { contextBridge, ipcRenderer } = require("electron");
 
 console.log("PRELOAD LOADED");
 
@@ -22,6 +23,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
         const handler = (event, error) => callback(error);
         ipcRenderer.on("tts-server-error", handler);
         return () => ipcRenderer.removeListener("tts-server-error", handler);
+    },
+
+    onSkipAudio: (callback) => {
+        const handler = () => callback();
+        ipcRenderer.on("skip-audio", handler);
+        return () => ipcRenderer.removeListener("skip-audio", handler);
     },
 
     vk: {

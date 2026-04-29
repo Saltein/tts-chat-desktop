@@ -1,12 +1,13 @@
-export { NavButton } from './buttons/NavButton/NavButton'
-export { DefaultTitle } from './titles/DefaultTitle/DefaultTitle'
-export { DefaultDivider } from './dividers/DefaultDivider/DefaultDivider'
-export { ConnectionSwitch } from './switches/ConnectionSwitch/ConnectionSwitch'
-export { DefaultSwitch } from './switches/DefaultSwitch/DefaultSwitch'
-export { DefaultInput } from './inputs/DefaultInput/DefaultInput'
-export { DefaultButton } from './buttons/DefaultButton/DefaultButton'
-export { DefaultWarning } from './warnings'
-export { DefaultSlider } from './sliders'
-export { DefaultOption } from './settings options'
-export { DefaultSelectList } from './selection'
-export { InfoQuestion } from './InfoQuestion/InfoQuestion'
+export { NavButton } from "./buttons/NavButton/NavButton";
+export { DefaultTitle } from "./titles/DefaultTitle/DefaultTitle";
+export { DefaultDivider } from "./dividers/DefaultDivider/DefaultDivider";
+export { ConnectionSwitch } from "./switches/ConnectionSwitch/ConnectionSwitch";
+export { DefaultSwitch } from "./switches/DefaultSwitch/DefaultSwitch";
+export { DefaultInput } from "./inputs/DefaultInput/DefaultInput";
+export { DefaultButton } from "./buttons/DefaultButton/DefaultButton";
+export { DefaultWarning } from "./warnings";
+export { DefaultSlider } from "./sliders";
+export { DefaultOption } from "./settings options";
+export { DefaultSelectList } from "./selection";
+export { InfoQuestion } from "./InfoQuestion/InfoQuestion";
+export { KeyboardKey } from "./text elements/KeyboardKey/KeyboardKey";

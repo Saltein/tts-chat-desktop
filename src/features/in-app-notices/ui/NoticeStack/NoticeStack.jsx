@@ -4,11 +4,13 @@ import { addNotice, selectFiveInAppNotices } from "../../model/slice";
 import { NoticeItem } from "../NoticeItem/NoticeItem";
 import { useEffect } from "react";
 import { genRandStr } from "../../../../shared/lib/genRandStr";
+import { selectChatFullscreen } from "../../../live-chat/model/slice";
 
 export const NoticeStack = () => {
     const dispatch = useDispatch();
 
     const stack = useSelector(selectFiveInAppNotices);
+    const isChatFullscreen = useSelector(selectChatFullscreen);
 
     useEffect(() => {
         console.log("Subscribing to notice...");
@@ -23,10 +25,10 @@ export const NoticeStack = () => {
             );
         });
         return unsub;
-    }, []);
+    }, [dispatch]);
 
     return (
-        <div className={s.wrapper_NoticeStack}>
+        <div className={`${s.wrapper_NoticeStack} ${isChatFullscreen ? s.fullscreen : ""}`}>
             {stack.map((notice) => (
                 <NoticeItem key={notice.id} notice={notice} />
             ))}

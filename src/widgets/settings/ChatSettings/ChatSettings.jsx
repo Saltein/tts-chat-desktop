@@ -223,6 +223,22 @@ export const ChatSettings = () => {
         return services[getRandomInt(0, services.length - 1)];
     };
 
+    const handleTestMessage = () => {
+        dispatch(
+            setWidgetMessage({
+                id: genRandStr(),
+                user: "Тестер сообщений",
+                text:
+                    getRandomInt(0, 2) === 0
+                        ? "Привет, я очень длинное тестовое сообщение, пришло сюда, чтобы проверить как будет выглядеть перенос на новую строчку!"
+                        : "Привет, я тестовое сообщение!",
+                time: Date.now(),
+                service: getRandomService(),
+                color: getRandomInt(0, nameColors.length - 1),
+            }),
+        );
+    };
+
     return (
         <div className={s.wrapper}>
             <DefaultTitle
@@ -381,20 +397,7 @@ export const ChatSettings = () => {
 
             <DefaultButton
                 title={"Тестовое сообщение"}
-                onClick={() => {
-                    dispatch(
-                        setWidgetMessage({
-                            id: genRandStr(),
-                            user: "Тестер сообщений",
-                            text: getRandomInt(0, 2) === 0
-                                ? "Привет, я очень длинное тестовое сообщение, пришло сюда, чтобы проверить как будет выглядеть перенос на новую строчку!"
-                                : "Привет, я тестовое сообщение!",
-                            time: Date.now(),
-                            service: getRandomService(),
-                            color: getRandomInt(0, nameColors.length - 1),
-                        }),
-                    );
-                }}
+                onClick={handleTestMessage}
                 height="32px"
             />
         </div>

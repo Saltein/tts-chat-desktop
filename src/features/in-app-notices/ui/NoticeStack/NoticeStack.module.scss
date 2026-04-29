@@ -11,4 +11,10 @@
     gap: $spacing-xs;
     align-items: center;
     padding: $spacing-md;
+
+    &.fullscreen {
+        flex-direction: column-reverse;
+        top: 32px;
+        bottom: unset;
+    }
 }

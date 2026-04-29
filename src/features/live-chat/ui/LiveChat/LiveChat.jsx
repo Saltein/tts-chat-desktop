@@ -36,7 +36,7 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
 
     const styles = {
         backgroundColor: backgroundColor ?? undefined,
-        height: isWidget ? "100vh" : "",
+        height: isWidget ? "100%" : "",
         gap: messageGap ? messageGap + "px" : undefined,
     };
 
@@ -72,7 +72,7 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
             )}
 
             <div
-                className={s.wrapper}
+                className={s.wrapper_Chat}
                 style={styles}
                 onClick={
                     isFullScreened

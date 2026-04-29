@@ -70,6 +70,7 @@ const saveTwitchToLocalStorage = (twitch) => {
         "twitchConnection",
         JSON.stringify({
             ...twitch,
+            connectionStatus: false,
         }),
     );
 };
@@ -78,6 +79,7 @@ const saveYoutubeToLocalStorage = (youtube) => {
         "youtubeConnection",
         JSON.stringify({
             ...youtube,
+            connectionStatus: false,
         }),
     );
 };
@@ -86,6 +88,7 @@ const saveVkToLocalStorage = (vk) => {
         "vkConnection",
         JSON.stringify({
             ...vk,
+            connectionStatus: false,
         }),
     );
 };

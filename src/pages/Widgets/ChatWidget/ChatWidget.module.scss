@@ -1,6 +1,6 @@
-@use '../../../shared/styles/variables.scss' as *;
-@use '../../../shared/styles/animations.scss' as *;
+@use "../../../shared/styles/variables.scss" as *;
 
 .wrapper {
-    height: 95vh;
+    height: 100vh;
+    padding: $spacing-md;
 }

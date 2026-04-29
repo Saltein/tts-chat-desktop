@@ -49,6 +49,8 @@
     align-items: flex-start;
     justify-content: flex-end;
     overflow: hidden;
+    width: 100%;
+    min-width: 0;
 
     // Маска сверху вниз
     mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%);

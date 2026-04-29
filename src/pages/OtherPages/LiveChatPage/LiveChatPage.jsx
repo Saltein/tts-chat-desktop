@@ -6,7 +6,7 @@ import s from "./LiveChatPage.module.scss";
 
 export const LiveChatPage = () => {
     const isMicroWindow = useMediaQuery({
-        query: "(max-width: 512px), (max-height: 360px)",
+        query: "(max-width: 640px), (max-height: 360px)",
     });
 
     return (
@@ -28,8 +28,9 @@ export const LiveChatPage = () => {
                     backgroundColor={"transparent"}
                     padding={"0"}
                     title="Настройки чата"
-                    paddingBlock={"16px"}
+                    paddingBlock={"0 16px"}
                     height={"fit-content"}
+                    width={"256px"}
                 >
                     <ChatSettings />
                 </DefaultWidgetShape>

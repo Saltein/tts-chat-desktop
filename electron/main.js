@@ -30,7 +30,7 @@ async function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 884,
-        minWidth: 320,
+        minWidth: 376,
         minHeight: 364,
         frame: false,
         webPreferences: {
@@ -94,6 +94,7 @@ function clearTempFolder() {
     const tts_temp_files = isDev
         ? path.join(__dirname, "tts_server", "tts_temp", "sounds")
         : path.join(
+              // eslint-disable-next-line no-undef
               process.resourcesPath,
               "app.asar.unpacked",
               "electron",
@@ -245,13 +246,6 @@ ipcMain.handle("tts-start", async () => {
     const isDev = !app.isPackaged;
     if (ttsServerProcess && !ttsServerProcess.killed) return true;
 
-    const tts_temp_files = path.join(
-        __dirname,
-        "tts_server",
-        "tts_temp",
-        "sounds",
-    );
-
     clearTempFolder();
 
     return new Promise((resolve, reject) => {
@@ -259,6 +253,7 @@ ipcMain.handle("tts-start", async () => {
             const serverPath = isDev
                 ? path.join(__dirname, "tts_server/tts-chat-server.exe")
                 : path.join(
+                      // eslint-disable-next-line no-undef
                       process.resourcesPath,
                       "app.asar.unpacked",
                       "electron",
@@ -320,12 +315,13 @@ ipcMain.handle("tts-stop", async () => {
     if (!ttsServerProcess) return true;
 
     try {
+        // eslint-disable-next-line no-undef
         if (process.platform === "win32") {
             exec(`taskkill /pid ${ttsServerProcess.pid} /f /t`);
         } else {
             ttsServerProcess.kill("SIGKILL");
         }
-    } catch (e) {}
+    } catch (e) {console.log(e)}
 
     ttsServerProcess = null;
     return true;
@@ -364,6 +360,7 @@ app.on("will-quit", async (e) => {
 });
 
 app.on("window-all-closed", () => {
+    // eslint-disable-next-line no-undef
     if (process.platform !== "darwin") {
         app.quit();
     }
@@ -382,6 +379,7 @@ async function shutdown() {
         if (ttsServerProcess) {
             await new Promise((res) => {
                 try {
+                    // eslint-disable-next-line no-undef
                     if (process.platform === "win32") {
                         exec(
                             `taskkill /pid ${ttsServerProcess.pid} /f /t`,

@@ -31,7 +31,7 @@ export const SettingsPage = () => {
                     <ClearStorageButton />
                 </DefaultOption>
                 <DefaultDivider />
-                <DefaultTitle title={"Горячие клавиши"} padding={0} />
+                <DefaultTitle title={"Горячие клавиши"} padding={"0"} />
                 <DefaultOption name={"Пропуск аудио"}>
                     <div className={s.hotkeys}>
                         <KeyboardKey keyName={"Ctrl"} /> +{" "}

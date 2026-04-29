@@ -7,12 +7,14 @@ import { QRWidget } from "../pages/Widgets/QRWidget/QRWidget";
 import TgLogo from "../shared/assets/icons/telegram-logo-filled.svg";
 import { NoticeStack } from "../features/in-app-notices";
 import { initVkChatListener } from "../features/live-chat/lib/vk/vkChatListener";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectTwitchTTSOn } from "../features/tts-chat/model/slice";
 import { initTTSConsoleListener } from "../features/tts-console/lib/ttsConsoleListener";
 import { addNotice } from "../features/in-app-notices/model/slice";
 import { genRandStr } from "../shared/lib/genRandStr";
+import { selectLastMessage } from "../entities/connection/model/slice";
+import { useWebSocket } from "../shared/hooks/useWebSocket";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -23,8 +25,24 @@ function App() {
 
     const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
 
+    // отправка на виджет
+    const message = useSelector(selectLastMessage)[0];
+    const previousMessageRef = useRef(null);
+    const { isConnected, broadcast } = useWebSocket("client", "client");
+
+    useEffect(() => {
+        if (message && broadcast && isConnected) {
+            if (previousMessageRef.current !== message.id && message.id) {
+                previousMessageRef.current = message.id;
+                broadcast(JSON.stringify(message));
+                console.log("💬💬💬Message sent:", message);
+            }
+        }
+    }, [message, broadcast, isConnected]);
+
     useEffect(() => {
         if (!window.electronAPI) return;
+        if (starts("/widget")) return;
 
         const sync = async () => {
             try {
@@ -59,7 +77,7 @@ function App() {
                 timeout = setTimeout(() => {
                     window.electronAPI.startTTSServer();
                 }, 500);
-            }, 180000);
+            }, 300000);
         } else {
             clearInterval(interval);
             clearTimeout(timeout);
@@ -71,8 +89,8 @@ function App() {
         };
     }, [isTwitchTTSOn]);
 
-    initVkChatListener();
-    initTTSConsoleListener();
+    if (!starts("/widget")) initVkChatListener();
+    if (!starts("/widget")) initTTSConsoleListener();
 
     const text = (
         <div>

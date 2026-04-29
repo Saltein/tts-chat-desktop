@@ -37,7 +37,6 @@ import { deleteMessageById } from "../../../../entities/connection/model/slice";
 
 export const ChatMessage = ({ message, timeBeforeDisappear }) => {
     const [isFading, setIsFading] = useState(false);
-    console.log("🦆🐈🍳 message", message);
 
     const dispatch = useDispatch();
     const theme = useTheme().theme;
@@ -78,9 +77,7 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
 
     let nameColor;
     let borderColor;
-    console.log("🦆🐈🍳 message", message);
     if (message.color) {
-        console.log("color", message.color);
         nameColor = nameColors[message.color];
     } else if (message.tags ? message.tags["color"] !== "#FFFFFF" : false) {
         nameColor = message.tags["color"];
@@ -143,10 +140,6 @@ export const ChatMessage = ({ message, timeBeforeDisappear }) => {
             ? `rgba(${hexToRgbString(messageNameBackgroundColor)}, ${messageNameBackgroundOpacity})`
             : "transparent",
     };
-    console.log(
-        "🦆🐈🍳 name color",
-        `${hexToRgbString(messageNameBackgroundColor)}, ${messageNameBackgroundOpacity}`,
-    );
 
     const textStyles = {
         color: messageTextColor,

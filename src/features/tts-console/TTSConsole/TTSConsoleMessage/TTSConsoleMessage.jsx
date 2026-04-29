@@ -1,6 +1,7 @@
+import { memo } from "react";
 import s from "./TTSConsoleMessage.module.scss";
 
-export const TTSConsoleMessage = ({ message }) => {
+export const TTSConsoleMessage = memo(({ message }) => {
     return (
         <div
             className={`
@@ -27,4 +28,4 @@ export const TTSConsoleMessage = ({ message }) => {
             </span>
         </div>
     );
-};
+});

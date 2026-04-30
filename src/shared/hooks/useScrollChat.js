@@ -1,99 +1,91 @@
-import {
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-    useLayoutEffect,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export const useScrollChat = (messages = []) => {
     const containerRef = useRef(null);
-    const [showScrollButton, setShowScrollButton] = useState(false);
-    const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
-    const prevMessagesLengthRef = useRef(0);
-    const isInitialMount = useRef(true);
 
-    // Проверка, находится ли пользователь у нижней границы (с порогом 24px)
+    // фиксируем состояние “пользователь внизу”
+    const isAtBottomRef = useRef(true);
+
+    const [showScrollButtonActual, setShowScrollButtonActual] = useState(false);
+    const [showScrollButton, setShowScrollButton] = useState(false);
+
+    // проверка "внизу ли пользователь"
     const checkIfAtBottom = useCallback(() => {
-        const container = containerRef.current;
-        if (!container) return true;
-        const threshold = 24;
-        return (
-            container.scrollHeight -
-                container.scrollTop -
-                container.clientHeight <=
-            threshold
-        );
+        const el = containerRef.current;
+        if (!el) return true;
+
+        const threshold = 64;
+
+        return el.scrollHeight - el.scrollTop - el.clientHeight <= threshold;
     }, []);
 
-    // Плавная прокрутка вниз (для кнопки)
+    // мягкий скролл вниз (по кнопке)
     const scrollToBottom = useCallback(() => {
-        if (!containerRef.current) return;
-        containerRef.current.scrollTo({
-            top: containerRef.current.scrollHeight,
+        const el = containerRef.current;
+        if (!el) return;
+
+        el.scrollTo({
+            top: el.scrollHeight,
             behavior: "smooth",
         });
-        // После нажатия кнопки снова включаем автопрокрутку
-        setAutoScrollEnabled(true);
+
+        isAtBottomRef.current = true;
+        setShowScrollButtonActual(false);
     }, []);
 
-    // Мгновенная прокрутка (без анимации) для новых сообщений
-    const immediateScrollToBottom = useCallback(() => {
-        if (!containerRef.current) return;
-        containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    // мгновенный скролл (для новых сообщений)
+    const forceScrollToBottom = useCallback(() => {
+        requestAnimationFrame(() => {
+            const el = containerRef.current;
+            if (!el) return;
+
+            el.scrollTop = el.scrollHeight;
+        });
     }, []);
 
-    // Обработчик события скролла
+    // обработка ручного скролла
     const handleScroll = useCallback(() => {
         const atBottom = checkIfAtBottom();
-        // Показываем кнопку, только если автопрокрутка выключена (пользователь ушёл вверх)
-        setShowScrollButton(!autoScrollEnabled);
 
-        // Если пользователь сам докрутил до низа — включаем автопрокрутку обратно
-        if (atBottom && !autoScrollEnabled) {
-            setAutoScrollEnabled(true);
-        }
-        // Если пользователь ушёл от низа (скролл вверх) — выключаем автопрокрутку
-        if (!atBottom && autoScrollEnabled) {
-            setAutoScrollEnabled(false);
-        }
-    }, [autoScrollEnabled, checkIfAtBottom]);
+        isAtBottomRef.current = atBottom;
+        setShowScrollButtonActual(!atBottom);
+    }, [checkIfAtBottom]);
 
-    // При изменении размера контента или появлении новых сообщений корректируем состояние кнопки
-    useLayoutEffect(() => {
-        if (!containerRef.current) return;
-        const atBottom = checkIfAtBottom();
-        // Если мы внизу — автопрокрутка должна быть включена
-        if (atBottom && !autoScrollEnabled) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setAutoScrollEnabled(true);
-        }
-        setShowScrollButton(!autoScrollEnabled);
-    }, [autoScrollEnabled, checkIfAtBottom, messages]);
-
-    // Автоматическая прокрутка при добавлении новых сообщений
+    // авто-скролл при новых сообщениях
     useEffect(() => {
-        const prevLen = prevMessagesLengthRef.current;
-        const currentLen = messages.length;
+        if (!messages.length) return;
 
-        if (currentLen > prevLen) {
-            // Если автопрокрутка включена — прокручиваем вниз
-            if (autoScrollEnabled) {
-                immediateScrollToBottom();
-            }
-            prevMessagesLengthRef.current = currentLen;
+        if (isAtBottomRef.current) {
+            forceScrollToBottom();
         }
-    }, [messages, autoScrollEnabled, immediateScrollToBottom]);
+    }, [messages, forceScrollToBottom]);
 
-    // Первоначальная прокрутка при монтировании (если есть сообщения)
+    // первичная прокрутка при загрузке чата
     useEffect(() => {
-        if (isInitialMount.current && messages.length > 0) {
-            requestAnimationFrame(() => {
-                scrollToBottom(); // плавно и с включением autoScrollEnabled
-            });
-            isInitialMount.current = false;
-        }
-    }, [messages.length, scrollToBottom]);
+        if (messages.length === 0) return;
+
+        requestAnimationFrame(() => {
+            const el = containerRef.current;
+            if (!el) return;
+
+            el.scrollTop = el.scrollHeight;
+            isAtBottomRef.current = true;
+        });
+    }, []);
+
+    // синхронизация кнопки при изменении сообщений
+    useEffect(() => {
+        const atBottom = isAtBottomRef.current;
+        setShowScrollButtonActual(!atBottom);
+    }, [messages]);
+
+    useEffect(() => {
+        let timer = setTimeout(() => {
+            setShowScrollButton(showScrollButtonActual);
+        }, 200);
+
+        return () => clearTimeout(timer);
+    }, [showScrollButtonActual]);
 
     return {
         containerRef,

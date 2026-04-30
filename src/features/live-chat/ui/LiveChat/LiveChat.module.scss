@@ -1,6 +1,8 @@
 @use "../../../../shared/styles/variables.scss" as *;
 
 .megaWrapper {
+    display: flex;
+    flex-direction: column;
     position: relative;
     height: 100%;
     width: 100%;
@@ -22,6 +24,27 @@
         background-image: url("../../../../shared/assets/images/cherry-blossoms-trees.jpg");
         background-size: cover;
     }
+}
+
+.spacer {
+    margin-top: auto;
+}
+
+.scrollCon {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+
+    // Маска сверху вниз
+    mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%);
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent,
+        black 5%,
+        black 95%
+    );
 }
 
 .header {
@@ -49,24 +72,18 @@
 .wrapper_Chat {
     display: flex;
     position: relative;
-    height: 100%;
-    display: flex;
+    height: "fit-content";
     flex-direction: column;
     gap: $spacing-sm;
-    align-items: flex-start;
-    justify-content: flex-end;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     width: 100%;
     min-width: 0;
+    scroll-behavior: smooth;
 
-    // Маска сверху вниз
-    mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%);
-    -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent,
-        black 5%,
-        black 95%
-    );
+    &::-webkit-scrollbar {
+        width: 0px;
+    }
 }
 
 .anchor {

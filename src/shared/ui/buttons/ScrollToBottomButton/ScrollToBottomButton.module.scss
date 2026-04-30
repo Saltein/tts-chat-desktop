@@ -1,0 +1,28 @@
+@use "../../../styles/variables.scss" as *;
+
+.scrollButton {
+    position: absolute;
+    bottom: 32px;
+    right: 32px;
+    width: 44px;
+    height: 32px;
+    border-radius: $border-radius-md;
+    background: var(--color-accent);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        filter: brightness(var(--brightness-hover));
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}

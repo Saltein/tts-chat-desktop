@@ -23,6 +23,7 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     const audioRef = useRef(null);
 
     const handleSpeak = async () => {
+        if (!isTwitchTTSOn) return;
         if (message) {
             if (message?.service === "twitch") {
                 if (message?.tags["reply-parent-user-login"]) return;

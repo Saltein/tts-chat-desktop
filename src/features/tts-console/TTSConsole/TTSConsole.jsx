@@ -5,6 +5,7 @@ import { TTSConsoleMessage } from "./TTSConsoleMessage/TTSConsoleMessage";
 import DownIcon from "../../../shared/assets/icons/chevron-down.svg?react";
 import { selectTwitchTTSOn } from "../../tts-chat/model/slice";
 import { useScrollChat } from "../../../shared/hooks/useScrollChat";
+import { ScrollToBottomButton } from "../../../shared/ui";
 
 export const TTSConsole = () => {
     const ttsOn = useSelector(selectTwitchTTSOn);
@@ -36,17 +37,10 @@ export const TTSConsole = () => {
                 {consoleMessages.map((message) => (
                     <TTSConsoleMessage key={message.id} message={message} />
                 ))}
-                <div className={s.scrollAnchor} />
             </div>
 
             {showScrollButton && consoleWidgetOpen && (
-                <button
-                    className={s.scrollButton}
-                    onClick={scrollToBottom}
-                    title="Прокрутить вниз"
-                >
-                    <DownIcon height={32} width={32} />
-                </button>
+                <ScrollToBottomButton onClick={scrollToBottom} />
             )}
         </div>
     );

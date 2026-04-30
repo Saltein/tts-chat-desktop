@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import s from "./LiveChat.module.scss";
 import { selectLast50Messages } from "../../../../entities/connection/model/slice";
@@ -13,6 +12,9 @@ import FullscreenIcon from "../../../../shared/assets/icons/fullscreen.svg?react
 import FullscreenExitIcon from "../../../../shared/assets/icons/fullscreen-exit.svg?react";
 import { createPortal } from "react-dom";
 import { selectChatFullscreen, toggleChatFullscreen } from "../../model/slice";
+import { useScrollChat } from "../../../../shared/hooks/useScrollChat";
+import DownIcon from "../../../../shared/assets/icons/chevron-down.svg?react";
+import { ScrollToBottomButton } from "../../../../shared/ui";
 
 const EXAMPLE_MESSAGE = {
     message: "Так будут выглядеть сообщения из чата",
@@ -31,9 +33,10 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
     const timeBeforeDisappear = useSelector(selectMessageLifeTime);
     const isPreview = useSelector(selectPreview);
 
-    const dispatch = useDispatch();
+    const { containerRef, showScrollButton, scrollToBottom, handleScroll } =
+        useScrollChat(messages);
 
-    const chatEndRef = useRef(null);
+    const dispatch = useDispatch();
 
     const styles = {
         backgroundColor: backgroundColor ?? undefined,
@@ -44,11 +47,6 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
     function toggleFullscreen() {
         dispatch(toggleChatFullscreen());
     }
-
-    useEffect(() => {
-        // Прокрутка вниз при добавлении нового сообщения
-        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
 
     const content = (
         <div
@@ -72,34 +70,38 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
                 </div>
             )}
 
-            <div
-                className={s.wrapper_Chat}
-                style={styles}
-                onClick={
-                    isFullScreened
-                        ? () => {
-                              toggleFullscreen();
-                          }
-                        : () => {}
-                }
-            >
-                {/* {isWidget && <WebSocketRoom inWidget />} */}
-
-                <ChatMessage
-                    message={EXAMPLE_MESSAGE}
-                    timeBeforeDisappear={timeBeforeDisappear}
-                />
-
-                {messages.map((item) => (
+            <div className={s.scrollCon}>
+                <div className={s.spacer} />
+                <div
+                    ref={containerRef}
+                    onScroll={handleScroll}
+                    className={s.wrapper_Chat}
+                    style={styles}
+                    onClick={
+                        isFullScreened
+                            ? () => {
+                                  toggleFullscreen();
+                              }
+                            : () => {}
+                    }
+                >
                     <ChatMessage
-                        key={item.time + item.message + item.id}
-                        message={item}
+                        message={EXAMPLE_MESSAGE}
                         timeBeforeDisappear={timeBeforeDisappear}
                     />
-                ))}
 
-                <div ref={chatEndRef} className={s.anchor} />
+                    {messages.map((item) => (
+                        <ChatMessage
+                            key={item.time + item.message + item.id}
+                            message={item}
+                            timeBeforeDisappear={timeBeforeDisappear}
+                        />
+                    ))}
+                </div>
             </div>
+            {showScrollButton && !isWidget && (
+                <ScrollToBottomButton onClick={scrollToBottom} />
+            )}
         </div>
     );
 

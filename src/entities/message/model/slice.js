@@ -18,6 +18,7 @@ let initialState = {
     messageLifeTime: 30000,
     messageGap: "8",
     fontSize: 16,
+    preview: false,
 };
 
 // Загружаем параметры из localStorage
@@ -27,8 +28,7 @@ try {
         initialState = {
             // Name
             messageNameBackground: saved.messageNameBackground ?? true,
-            messageNameBackgroundColor:
-                saved.messageNameBackgroundColor ?? "",
+            messageNameBackgroundColor: saved.messageNameBackgroundColor ?? "",
             messageNameBackgroundOpacity:
                 saved.messageNameBackgroundOpacity ?? 1,
             messageNameBorder: saved.messageNameBorder ?? true,
@@ -44,6 +44,7 @@ try {
             messageLifeTime: saved.messageLifeTime ?? 30000,
             messageGap: saved.messageGap ?? "8",
             fontSize: saved.fontSize ?? "16px",
+            preview: saved.preview ?? false,
         };
     }
 } catch {
@@ -112,6 +113,10 @@ const messageCustomizationSlice = createSlice({
             state.fontSize = action.payload;
             saveToLocalStorage(state);
         },
+        togglePreview: (state) => {
+            state.preview = !state.preview;
+            saveToLocalStorage(state);
+        },
     },
 });
 
@@ -133,6 +138,7 @@ export const {
     setMessageLifeTime,
     setMessageGap,
     setFontSize,
+    togglePreview,
 } = messageCustomizationSlice.actions;
 
 export default messageCustomizationSlice.reducer;
@@ -166,3 +172,4 @@ export const selectMessageLifeTime = (state) =>
 export const selectMessageGap = (state) =>
     state.messageCustomization.messageGap;
 export const selectFontSize = (state) => state.messageCustomization.fontSize;
+export const selectPreview = (state) => state.messageCustomization.preview;

@@ -4,6 +4,8 @@
     position: relative;
     height: 100%;
     width: 100%;
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm;
 
     &.fullscreen {
         position: fixed;
@@ -15,20 +17,25 @@
         background-color: var(--color-surface);
         padding: $spacing-sm;
     }
+
+    &.preview {
+        background-image: url("../../../../shared/assets/images/cherry-blossoms-trees.jpg");
+        background-size: cover;
+    }
 }
 
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: calc(100% + $spacing-md * 2);
+    width: 100%;
     height: 48px;
     position: absolute;
-    left: -$spacing-md;
-    top: -$spacing-md;
+    right: 0;
+    top: 0;
 
     &.fullscreen {
-        left: -$spacing-xl;
+        left: 0;
         top: 0;
     }
 }

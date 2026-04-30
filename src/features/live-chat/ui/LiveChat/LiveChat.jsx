@@ -6,6 +6,7 @@ import { ChatMessage } from "../ChatMessage/ChatMessage";
 import {
     selectMessageGap,
     selectMessageLifeTime,
+    selectPreview,
 } from "../../../../entities/message/model/slice";
 import WebSocketRoom from "../../../ws-lobby/ui/LobbyBlock/WebSocketRoom";
 import FullscreenIcon from "../../../../shared/assets/icons/fullscreen.svg?react";
@@ -27,17 +28,17 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
     const messages = useSelector(selectLast50Messages);
     const messageGap = useSelector(selectMessageGap);
     const isFullScreened = useSelector(selectChatFullscreen);
-
-    const chatEndRef = useRef(null);
+    const timeBeforeDisappear = useSelector(selectMessageLifeTime);
+    const isPreview = useSelector(selectPreview);
 
     const dispatch = useDispatch();
 
-    const timeBeforeDisappear = useSelector(selectMessageLifeTime);
+    const chatEndRef = useRef(null);
 
     const styles = {
         backgroundColor: backgroundColor ?? undefined,
         height: isWidget ? "100%" : "",
-        gap: messageGap ? messageGap + "px" : undefined,
+        gap: messageGap ? messageGap + "px" : "0px",
     };
 
     function toggleFullscreen() {
@@ -51,7 +52,7 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
 
     const content = (
         <div
-            className={`${s.megaWrapper} ${isFullScreened ? s.fullscreen : ""}`}
+            className={`${s.megaWrapper} ${isFullScreened ? s.fullscreen : ""} ${isPreview ? s.preview : ""}`}
         >
             {!isWidget && (
                 <div

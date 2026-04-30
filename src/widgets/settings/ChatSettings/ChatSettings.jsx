@@ -9,20 +9,7 @@ import {
 } from "../../../shared/ui";
 import s from "./ChatSettings.module.scss";
 import { useDispatch, useSelector } from "react-redux";
-import {
-    selectSpeechVolume,
-    selectTwitchVoice,
-} from "../../../features/tts-chat/model/slice";
-import {
-    selectTwitchConnectionData,
-    selectTwitchConnectionStatus,
-    selectVkConnectionData,
-    selectVkConnectionStatus,
-    selectYoutubeAccessToken,
-    selectYoutubeConnectionStatus,
-    selectYoutubeVideoId,
-    setWidgetMessage,
-} from "../../../entities/connection/model/slice";
+import { setWidgetMessage } from "../../../entities/connection/model/slice";
 import { convertObjToStr } from "../../../shared/lib/convertObjToStr";
 import {
     selectFontSize,
@@ -36,6 +23,7 @@ import {
     selectMessageNameBackgroundOpacity,
     selectMessageNameBorder,
     selectMessageTextColor,
+    selectPreview,
     selectServiceIcon,
     setFontSize,
     setMessageBackground,
@@ -49,6 +37,7 @@ import {
     setMessageNameBorder,
     setMessageTextColor,
     setServiceIcon,
+    togglePreview,
 } from "../../../entities/message/model/slice";
 import { SimpleWidgetShape } from "../../../shared/widgets/SimpleWidgetShape/SimpleWidgetShape";
 import { SettingSwitch } from "./SettingSwitch/SettingSwitch";
@@ -93,27 +82,8 @@ export const ChatSettings = () => {
 
     const currentMessageTextColor = useSelector(selectMessageTextColor);
     const currentFontSize = useSelector(selectFontSize);
+    const currentPreview = useSelector(selectPreview);
 
-    const currentTheme = localStorage.getItem("theme");
-    const volume = useSelector(selectSpeechVolume) / 100;
-    const twitchVoice = useSelector(selectTwitchVoice);
-
-    const twitchChatChannelName = useSelector(
-        selectTwitchConnectionData,
-    )?.chatChannelName;
-    const twitchConnectionStatus = useSelector(selectTwitchConnectionStatus);
-
-    const youtubeVideoId = useSelector(selectYoutubeVideoId)?.youtubeVideoId;
-    const youtubeAccessToken = useSelector(selectYoutubeAccessToken);
-    const youtubeConnectionStatus = useSelector(selectYoutubeConnectionStatus);
-
-    const vkConnectionData = useSelector(selectVkConnectionData);
-    const vkConnectionStatus = useSelector(selectVkConnectionStatus);
-
-    const generalQueryParamObj = {
-        theme: currentTheme,
-        volume: volume,
-    };
     const chatCustomizationQueryParamObj = {
         messageNameBackground: String(currentMessageNameBackground),
         messageNameBackgroundColor: currentMessageNameBackgroundColor,
@@ -129,31 +99,10 @@ export const ChatSettings = () => {
         messageBorder: String(messageBorderLocal),
         fontSize: String(currentFontSize),
     };
-    const twitchQueryParamObj = {
-        twitchChatChannelName: twitchChatChannelName,
-        twitchConnectionStatus: twitchConnectionStatus,
-        twitchVoice: twitchVoice,
-    };
-    const youtubeQueryParamObj = {
-        youtubeVideoId: youtubeVideoId,
-        youtubeAccessToken: youtubeAccessToken,
-        youtubeConnectionStatus: youtubeConnectionStatus,
-    };
-    const vkQueryParamObj = {
-        vkChannelId: vkConnectionData?.vkChannelId,
-        vkAccessToken: vkConnectionData?.token,
-        vkConnectionStatus: vkConnectionStatus,
-    };
 
     const baseUrl = import.meta.env.VITE_BASE_URL_WIDGET || "";
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const queryParamList = [
-        generalQueryParamObj,
-        chatCustomizationQueryParamObj,
-        twitchQueryParamObj,
-        youtubeQueryParamObj,
-        vkQueryParamObj,
-    ];
+    const queryParamList = [chatCustomizationQueryParamObj];
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -231,8 +180,8 @@ export const ChatSettings = () => {
                 text:
                     getRandomInt(0, 2) === 0
                         ? "Привет, я очень длинное тестовое сообщение, пришло сюда, чтобы проверить как будет выглядеть перенос на новую строчку!"
-                        // ? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                        : "Привет, я тестовое сообщение!",
+                        : // ? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          "Привет, я тестовое сообщение!",
                 time: Date.now(),
                 service: getRandomService(),
                 color: getRandomInt(0, nameColors.length - 1),
@@ -395,6 +344,12 @@ export const ChatSettings = () => {
             />
 
             <DefaultDivider />
+
+            <SettingSwitch
+                title={"Предпросмотр с фоном"}
+                state={currentPreview}
+                onSwitch={() => dispatch(togglePreview())}
+            />
 
             <DefaultButton
                 title={"Тестовое сообщение"}

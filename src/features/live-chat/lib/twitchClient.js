@@ -62,7 +62,7 @@ export function connectTwitchChat(
             addNotice({
                 id: genRandStr(),
                 type: "warning",
-                message: `Отключено от Twitch: ${reason}`,
+                message: `Отключено от Twitch${reason.includes("closed") ? "" : ": " + reason}`,
             }),
         );
     });
@@ -75,11 +75,8 @@ export function connectTwitchChat(
         console.log("🔐 Логин успешен");
     });
 
-    let joined = false;
-
     client.on("join", (ch, username, self) => {
         if (self) {
-            joined = true;
             console.log("✅ Успешно подключились к каналу:", ch);
             dispatch(
                 addNotice({

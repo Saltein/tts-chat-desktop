@@ -16,7 +16,7 @@ export const LiveChatPage = () => {
                 backgroundColor={"transparent"}
                 padding={"0"}
                 title="Чат"
-                paddingBlock={"16px"}
+                paddingBlock={"0"}
                 flex={1}
                 overflowBlock={"hidden"}
             >

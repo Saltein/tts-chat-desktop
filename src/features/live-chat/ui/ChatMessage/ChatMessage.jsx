@@ -25,13 +25,20 @@ import YoutubeIcon2 from "../../../../shared/assets/icons/youtube-logo2.svg?reac
 import VkVideoIcon from "../../../../shared/assets/icons/vk-video-logo.svg?react";
 import TTSChatIcon from "../../../../shared/assets/icons/ttschat-logo.svg?react";
 import WrenchIcon from "../../../../shared/assets/icons/wrench.svg?react";
+import SoundIcon from "../../../../shared/assets/icons/sound.svg?react";
 
 import {
     generateColorFromUsername,
     nameColors,
 } from "../../../../shared/lib/generateColorFromUsername";
 import { isBright } from "../../../../shared/lib/isBright";
-import { deleteMessageById } from "../../../../entities/connection/model/slice";
+import {
+    deleteMessageById,
+    setRevoiceMessage,
+} from "../../../../entities/connection/model/slice";
+import { genRandStr } from "../../../../shared/lib/genRandStr";
+import { addNotice } from "../../../in-app-notices/model/slice";
+import { selectTwitchTTSOn } from "../../../tts-chat/model/slice";
 
 export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const [isFading, setIsFading] = useState(false);
@@ -55,6 +62,8 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     ); // число от 0 до 1
     const fontSize = useSelector(selectFontSize);
     const messageDisappearing = useSelector(selectMessageDisappearing);
+
+    const ttsOn = useSelector(selectTwitchTTSOn);
 
     const isModerator =
         message.tags?.badges?.moderator ||
@@ -184,11 +193,36 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         Icon = TTSChatIcon;
     }
 
+    const handleRevoice = () => {
+        dispatch(setRevoiceMessage({ ...message, id: genRandStr() }));
+        if (ttsOn) {
+            dispatch(
+                addNotice({
+                    id: genRandStr(),
+                    type: "info",
+                    message: "Озвучивание сообщения...",
+                }),
+            );
+        } else {
+            dispatch(
+                addNotice({
+                    id: genRandStr(),
+                    type: "warning",
+                    message: "Озвучка отключена",
+                }),
+            );
+        }
+    };
+
     return (
         <div
             className={`${s.wrapper} ${isFading ? s.fadeOut : ""}`}
             style={wrapperStyles}
+            onClick={handleRevoice}
         >
+            <div className={s.revoiceWrapper}>
+                <SoundIcon className={s.revoiceIcon} />
+            </div>
             <div
                 className={`${s.name} 
                 ${messageNameBackground ? "" : s.noBackground}`}

@@ -6,13 +6,17 @@ import {
 } from "../model/slice";
 import s from "./TTSChat.module.scss";
 import { useSelector } from "react-redux";
-import { selectLastMessage } from "../../../entities/connection/model/slice";
+import {
+    selectLastMessage,
+    selectRevoiceMessage,
+} from "../../../entities/connection/model/slice";
 import { transliterateMessage } from "../../live-chat/lib/transliteration";
 
 export const TTSChat = ({ volume, twitchVoiceProp }) => {
     let currentVolume = useSelector(selectSpeechVolume) / 100;
     if (volume) currentVolume = volume;
     const message = useSelector(selectLastMessage)[0];
+    const revoiceMessage = useSelector(selectRevoiceMessage);
     const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
     let twitchVoice = useSelector(selectTwitchVoice);
     if (twitchVoiceProp) twitchVoice = twitchVoiceProp;
@@ -22,11 +26,11 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     const [audioUrl, setAudioUrl] = useState(null);
     const audioRef = useRef(null);
 
-    const handleSpeak = async () => {
+    const handleSpeak = async (messageObj) => {
         if (!isTwitchTTSOn) return;
-        if (message) {
-            if (message?.service === "twitch") {
-                if (message?.tags["reply-parent-user-login"]) return;
+        if (messageObj) {
+            if (messageObj?.service === "twitch") {
+                if (messageObj?.tags["reply-parent-user-login"]) return;
             }
             try {
                 console.log("twitchVoice", twitchVoice);
@@ -35,7 +39,9 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         text: transliterateMessage(
-                            message.message ? message?.message : message?.text,
+                            messageObj.message
+                                ? messageObj?.message
+                                : messageObj?.text,
                         ),
                         speaker: twitchVoice,
                     }),
@@ -64,9 +70,15 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        handleSpeak();
+        handleSpeak(message);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [message]);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        handleSpeak(revoiceMessage);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [revoiceMessage]);
 
     useEffect(() => {
         if (window.electronAPI?.onSkipAudio) {

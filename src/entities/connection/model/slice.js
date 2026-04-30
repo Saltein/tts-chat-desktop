@@ -15,6 +15,7 @@ const initialState = {
         vkConnectionData: {},
         connectionStatus: false,
     },
+    revoiceMessage: null,
     messages: [], // общий массив сообщений
 };
 
@@ -177,6 +178,10 @@ const connectionSlice = createSlice({
         },
 
         resetConnection: () => ({ ...initialState }),
+
+        setRevoiceMessage: (state, action) => {
+            state.revoiceMessage = action.payload;
+        },
     },
 });
 
@@ -198,6 +203,8 @@ export const {
     setMessages,
     deleteMessageById,
     resetConnection,
+
+    setRevoiceMessage,
 } = connectionSlice.actions;
 
 export default connectionSlice.reducer;
@@ -246,3 +253,5 @@ export const selectLast50YoutubeMessages = createSelector(
     [selectYoutubeMessages],
     (messages) => messages.slice(-50),
 );
+
+export const selectRevoiceMessage = (state) => state.connection.revoiceMessage;

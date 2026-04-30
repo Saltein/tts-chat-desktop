@@ -3,7 +3,7 @@ import s from "./NoticeItem.module.scss";
 import { useEffect, useState } from "react";
 import { removeNotice } from "../../model/slice";
 
-export const NoticeItem = ({ notice, time = 10000 }) => {
+export const NoticeItem = ({ notice, time = 5000 }) => {
     const dispatch = useDispatch();
 
     const [readyToDisappear, setReadyToDisappear] = useState(false);

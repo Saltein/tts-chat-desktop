@@ -74,6 +74,7 @@ export const TTSConsole = () => {
                 immediateScrollToBottom();
             }
 
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setPrevMessagesLength(consoleMessages.length);
         }
     }, [

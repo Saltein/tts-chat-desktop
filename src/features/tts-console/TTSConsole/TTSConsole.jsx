@@ -1,95 +1,18 @@
-import { useRef, useEffect, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { selectConsoleMessages, selectConsoleWidgetOpen } from "../model/slice";
 import s from "./TTSConsole.module.scss";
 import { TTSConsoleMessage } from "./TTSConsoleMessage/TTSConsoleMessage";
 import DownIcon from "../../../shared/assets/icons/chevron-down.svg?react";
 import { selectTwitchTTSOn } from "../../tts-chat/model/slice";
+import { useScrollChat } from "../../../shared/hooks/useScrollChat";
 
 export const TTSConsole = () => {
     const ttsOn = useSelector(selectTwitchTTSOn);
     const consoleMessages = useSelector(selectConsoleMessages);
     const consoleWidgetOpen = useSelector(selectConsoleWidgetOpen);
-    console.log("consoleWidgetOpen", consoleWidgetOpen);
 
-    const containerRef = useRef(null);
-
-    const [showScrollButton, setShowScrollButton] = useState(false);
-    const [isAtBottom, setIsAtBottom] = useState(true);
-    const [prevMessagesLength, setPrevMessagesLength] = useState(0);
-
-    // Проверка, находится ли пользователь внизу
-    const checkIfAtBottom = useCallback(() => {
-        const container = containerRef.current;
-        if (!container) return true;
-
-        const threshold = 24; // Порог в пикселях
-        const atBottom =
-            container.scrollHeight -
-                container.scrollTop -
-                container.clientHeight <=
-            threshold;
-        return atBottom;
-    }, []);
-
-    // Прокрутка вниз
-    const scrollToBottom = useCallback(() => {
-        if (containerRef.current) {
-            containerRef.current.scrollTo({
-                top: containerRef.current.scrollHeight,
-                behavior: "smooth",
-            });
-        }
-    }, []);
-
-    // Мгновенная прокрутка вниз (без анимации)
-    const immediateScrollToBottom = useCallback(() => {
-        if (containerRef.current) {
-            containerRef.current.scrollTop = containerRef.current.scrollHeight;
-        }
-    }, []);
-
-    // Обработка скролла
-    const handleScroll = useCallback(() => {
-        const atBottom = checkIfAtBottom();
-        setIsAtBottom(atBottom);
-        setShowScrollButton(!atBottom);
-    }, [checkIfAtBottom]);
-
-    // Автоматическая прокрутка при новых сообщениях
-    useEffect(() => {
-        // Проверяем, добавились ли новые сообщения
-        if (consoleMessages.length > prevMessagesLength) {
-            const newMessages = consoleMessages.slice(prevMessagesLength);
-
-            // Проверяем, нужно ли прокручивать (если внизу или новые сообщения от system/assistant)
-            const shouldAutoScroll =
-                isAtBottom ||
-                newMessages.some(
-                    (msg) =>
-                        msg.event === "system" || msg.event === "assistant",
-                );
-
-            if (shouldAutoScroll) {
-                immediateScrollToBottom();
-            }
-
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setPrevMessagesLength(consoleMessages.length);
-        }
-    }, [
-        consoleMessages,
-        prevMessagesLength,
-        isAtBottom,
-        immediateScrollToBottom,
-    ]);
-
-    // Инициализация: прокрутка вниз при первом рендере
-    useEffect(() => {
-        if (consoleMessages.length > 0) {
-            immediateScrollToBottom();
-        }
-    }, []); // Пустой массив зависимостей для выполнения только один раз
+    const { containerRef, showScrollButton, scrollToBottom, handleScroll } =
+        useScrollChat(consoleMessages);
 
     if (!ttsOn) {
         return (

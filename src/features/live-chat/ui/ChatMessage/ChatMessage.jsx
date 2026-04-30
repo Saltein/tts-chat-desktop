@@ -6,6 +6,7 @@ import {
     selectMessageBackground,
     selectMessageBackgroundOpacity,
     selectMessageBorder,
+    selectMessageDisappearing,
     selectMessageNameBackground,
     selectMessageNameBackgroundColor,
     selectMessageNameBackgroundOpacity,
@@ -16,9 +17,7 @@ import {
     setMessageTextColor,
 } from "../../../../entities/message/model/slice";
 import { useTheme } from "../../../../shared/context/theme/ThemeContext";
-import {
-    hexToRgbString,
-} from "../../../../shared/lib/hexToRgbString";
+import { hexToRgbString } from "../../../../shared/lib/hexToRgbString";
 
 import TwitchIcon from "../../../../shared/assets/icons/twitch-logo.svg?react";
 import YoutubeIcon from "../../../../shared/assets/icons/youtube-logo.svg?react";
@@ -55,6 +54,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         selectMessageBackgroundOpacity,
     ); // число от 0 до 1
     const fontSize = useSelector(selectFontSize);
+    const messageDisappearing = useSelector(selectMessageDisappearing);
 
     const isModerator =
         message.tags?.badges?.moderator ||
@@ -151,6 +151,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     };
 
     useEffect(() => {
+        if (!messageDisappearing) return;
         // через timeBeforeDisappear начинаем исчезать
         const fadeTimeout = setTimeout(
             () => setIsFading(true),
@@ -166,7 +167,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
             clearTimeout(fadeTimeout);
             clearTimeout(removeTimeout);
         };
-    }, [timeBeforeDisappear, message.id, dispatch]);
+    }, [timeBeforeDisappear, message.id, dispatch, messageDisappearing]);
 
     let Icon;
     if (message?.service === "twitch") {

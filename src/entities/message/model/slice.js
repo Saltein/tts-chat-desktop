@@ -18,6 +18,9 @@ let initialState = {
     messageLifeTime: 30000,
     messageGap: "8",
     fontSize: 16,
+
+    // In app
+    messageDisappearing: true,
     preview: false,
 };
 
@@ -44,6 +47,9 @@ try {
             messageLifeTime: saved.messageLifeTime ?? 30000,
             messageGap: saved.messageGap ?? "8",
             fontSize: saved.fontSize ?? "16px",
+
+            // In app
+            messageDisappearing: saved.messageDisappearing ?? true,
             preview: saved.preview ?? false,
         };
     }
@@ -55,6 +61,8 @@ try {
 const saveToLocalStorage = (state) => {
     localStorage.setItem("chatCustomization", JSON.stringify(state));
 };
+
+const handleClearLocalStorage = () => localStorage.removeItem("chatCustomization");
 
 const messageCustomizationSlice = createSlice({
     name: "messageCustomization",
@@ -113,9 +121,21 @@ const messageCustomizationSlice = createSlice({
             state.fontSize = action.payload;
             saveToLocalStorage(state);
         },
+
+        // In app
+        toggleMessageDisappearing: (state) => {
+            state.messageDisappearing = !state.messageDisappearing;
+            saveToLocalStorage(state);
+        },
         togglePreview: (state) => {
             state.preview = !state.preview;
             saveToLocalStorage(state);
+        },
+
+        // Clear
+        clearLocalStorage: () => {
+            handleClearLocalStorage();
+            return initialState;
         },
     },
 });
@@ -138,7 +158,13 @@ export const {
     setMessageLifeTime,
     setMessageGap,
     setFontSize,
+
+    // In app
+    toggleMessageDisappearing,
     togglePreview,
+
+    // Clear
+    clearLocalStorage,
 } = messageCustomizationSlice.actions;
 
 export default messageCustomizationSlice.reducer;
@@ -172,4 +198,8 @@ export const selectMessageLifeTime = (state) =>
 export const selectMessageGap = (state) =>
     state.messageCustomization.messageGap;
 export const selectFontSize = (state) => state.messageCustomization.fontSize;
+
+// In app
+export const selectMessageDisappearing = (state) =>
+    state.messageCustomization.messageDisappearing;
 export const selectPreview = (state) => state.messageCustomization.preview;

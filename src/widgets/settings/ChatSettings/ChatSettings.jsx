@@ -16,6 +16,7 @@ import {
     selectMessageBackground,
     selectMessageBackgroundOpacity,
     selectMessageBorder,
+    selectMessageDisappearing,
     selectMessageGap,
     selectMessageLifeTime,
     selectMessageNameBackground,
@@ -37,6 +38,7 @@ import {
     setMessageNameBorder,
     setMessageTextColor,
     setServiceIcon,
+    toggleMessageDisappearing,
     togglePreview,
 } from "../../../entities/message/model/slice";
 import { SimpleWidgetShape } from "../../../shared/widgets/SimpleWidgetShape/SimpleWidgetShape";
@@ -82,6 +84,8 @@ export const ChatSettings = () => {
 
     const currentMessageTextColor = useSelector(selectMessageTextColor);
     const currentFontSize = useSelector(selectFontSize);
+
+    const currentMessageDisappearing = useSelector(selectMessageDisappearing);
     const currentPreview = useSelector(selectPreview);
 
     const chatCustomizationQueryParamObj = {
@@ -344,6 +348,21 @@ export const ChatSettings = () => {
             />
 
             <DefaultDivider />
+
+            <DefaultTitle
+                paddingTop={"0"}
+                paddingBottom={"0"}
+                paddingLeft={"0"}
+                paddingRight={"0"}
+                title={"В приложении"}
+                titleStyles={{ fontSize: "1rem" }}
+            />
+
+            <SettingSwitch
+                title={"Исчезновение сообщений"}
+                state={currentMessageDisappearing}
+                onSwitch={() => dispatch(toggleMessageDisappearing())}
+            />
 
             <SettingSwitch
                 title={"Предпросмотр с фоном"}

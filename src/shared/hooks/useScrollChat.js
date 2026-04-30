@@ -72,7 +72,7 @@ export const useScrollChat = (messages = []) => {
             el.scrollTop = el.scrollHeight;
             isAtBottomRef.current = true;
         });
-    }, []);
+    }, [messages.length]);
 
     // синхронизация кнопки при изменении сообщений
     useEffect(() => {
@@ -106,6 +106,8 @@ export const useScrollChat = (messages = []) => {
     }, [forceScrollToBottom]);
 
     useEffect(() => {
+        if (!window.electronAPI) return;
+
         const unsub = window.electronAPI.onWindowActive((active) => {
             isWindowActiveRef.current = active;
         });

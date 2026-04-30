@@ -4,6 +4,7 @@ import s from "./ChatWidget.module.scss";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
+    clearLocalStorage,
     setFontSize,
     setMessageBackground,
     setMessageBackgroundOpacity,
@@ -53,6 +54,7 @@ export const ChatWidget = () => {
 
     // Настройка UI параметров
     useEffect(() => {
+        dispatch(clearLocalStorage());
         // Name
         dispatch(setMessageNameBackground(messageNameBackground));
         dispatch(setMessageNameBackgroundColor(messageNameBackgroundColor));

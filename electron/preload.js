@@ -31,6 +31,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
         return () => ipcRenderer.removeListener("skip-audio", handler);
     },
 
+    onWindowActive: (callback) => {
+        const handler = (_, isActive) => callback(isActive);
+        ipcRenderer.on("window-active", handler);
+        return () => ipcRenderer.removeListener("window-active", handler);
+    },
+
     vk: {
         connect: (channel) => ipcRenderer.invoke("vk-connect", channel),
         disconnect: () => ipcRenderer.invoke("vk-disconnect"),

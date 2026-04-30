@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 export const useScrollChat = (messages = []) => {
     const containerRef = useRef(null);
+    const isWindowActiveRef = useRef(true);
 
     // фиксируем состояние “пользователь внизу”
     const isAtBottomRef = useRef(true);
@@ -55,7 +56,7 @@ export const useScrollChat = (messages = []) => {
     useEffect(() => {
         if (!messages.length) return;
 
-        if (isAtBottomRef.current) {
+        if (isAtBottomRef.current || !isWindowActiveRef.current) {
             forceScrollToBottom();
         }
     }, [messages, forceScrollToBottom]);
@@ -103,6 +104,14 @@ export const useScrollChat = (messages = []) => {
             observer.disconnect();
         };
     }, [forceScrollToBottom]);
+
+    useEffect(() => {
+        const unsub = window.electronAPI.onWindowActive((active) => {
+            isWindowActiveRef.current = active;
+        });
+
+        return unsub;
+    }, []);
 
     return {
         containerRef,

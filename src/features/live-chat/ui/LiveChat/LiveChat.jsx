@@ -1,13 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import s from "./LiveChat.module.scss";
-import { selectLast50Messages } from "../../../../entities/connection/model/slice";
+import { selectLastSeveralMessages } from "../../../../entities/connection/model/slice";
 import { ChatMessage } from "../ChatMessage/ChatMessage";
 import {
     selectMessageGap,
     selectMessageLifeTime,
     selectPreview,
 } from "../../../../entities/message/model/slice";
-import WebSocketRoom from "../../../ws-lobby/ui/LobbyBlock/WebSocketRoom";
 import FullscreenIcon from "../../../../shared/assets/icons/fullscreen.svg?react";
 import FullscreenExitIcon from "../../../../shared/assets/icons/fullscreen-exit.svg?react";
 import { createPortal } from "react-dom";
@@ -27,7 +26,7 @@ const EXAMPLE_MESSAGE = {
 };
 
 export const LiveChat = ({ backgroundColor, isWidget }) => {
-    const messages = useSelector(selectLast50Messages);
+    const messages = useSelector(selectLastSeveralMessages);
     const messageGap = useSelector(selectMessageGap);
     const isFullScreened = useSelector(selectChatFullscreen);
     const timeBeforeDisappear = useSelector(selectMessageLifeTime);

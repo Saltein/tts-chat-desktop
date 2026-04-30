@@ -9,7 +9,6 @@ import {
 } from "../../../shared/ui";
 import { DefaultWidgetShape } from "../../../shared/widgets/DefaultWidgetShape/DefaultWidgetShape";
 import { selectNavPanelCurrentPageID } from "./model/slice";
-import { LobbyBlock } from "../../../features/ws-lobby/ui/LobbyBlock/LobbyBlock";
 import ConnectionIcon from "../../../shared/assets/icons/connection.svg?react";
 import ChatsIcon from "../../../shared/assets/icons/chats.svg?react";
 import TTSIcon from "../../../shared/assets/icons/tts.svg?react";

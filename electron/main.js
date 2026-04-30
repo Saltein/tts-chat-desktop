@@ -51,6 +51,14 @@ async function createWindow() {
         },
     });
 
+    mainWindow.on("focus", () => {
+        mainWindow.webContents.send("window-active", true);
+    });
+
+    mainWindow.on("blur", () => {
+        mainWindow.webContents.send("window-active", false);
+    });
+
     await startOAuthServer(mainWindow);
     try {
         await startWidgetServer((type, message) => {

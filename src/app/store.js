@@ -3,7 +3,6 @@ import navPanelReducer from "../widgets/navs/NavPanel/model/slice";
 import connectionReducer from "../entities/connection/model/slice";
 import ttsSettingsReducer from "../features/tts-chat/model/slice";
 import messageCustomizationReducer from "../entities/message/model/slice";
-import wsRoomReducer from "../features/ws-lobby/model/slice";
 import inAppNoticesReducer from "../features/in-app-notices/model/slice";
 import ttsConsoleReducer from "../features/tts-console/model/slice";
 import liveChatReducer from "../features/live-chat/model/slice";
@@ -20,7 +19,6 @@ export const store = configureStore({
         connection: connectionReducer,
         ttsSettings: ttsSettingsReducer,
         messageCustomization: messageCustomizationReducer,
-        wsRoom: wsRoomReducer,
         inAppNotices: inAppNoticesReducer,
         ttsConsole: ttsConsoleReducer,
         liveChat: liveChatReducer,

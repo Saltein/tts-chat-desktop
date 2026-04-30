@@ -23,9 +23,22 @@ export function startWidgetServer(sendNotice) {
         app.use("/widget", express.static(DIST_PATH));
         app.use(express.static(DIST_PATH));
 
+        app.use((req, res, next) => {
+            // Разрешаем только /widget и вложенные пути
+            if (req.path.startsWith("/widget")) {
+                return next();
+            }
+            // Всё остальное запрещаем
+            res.status(403).send("Forbidden");
+        });
+
         // SPA fallback: любой GET без расширения → index.html
         app.use((req, res, next) => {
             if (req.method !== "GET") return next();
+            // только для widget
+            if (!req.path.startsWith("/widget")) {
+                return res.status(403).send("Forbidden");
+            }
             if (path.extname(req.path)) return next();
             res.sendFile(path.join(DIST_PATH, "index.html"));
         });
@@ -87,7 +100,7 @@ function startVkWebSocketServer(sendNotice) {
         });
 
         // Настройка обработчиков
-        wss.on("connection", (ws, req) => {
+        wss.on("connection", (ws) => {
             let vkClient = null;
             let connectionTimeout = null;
 

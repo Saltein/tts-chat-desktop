@@ -87,6 +87,23 @@ export const useScrollChat = (messages = []) => {
         return () => clearTimeout(timer);
     }, [showScrollButtonActual]);
 
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el) return;
+
+        const observer = new ResizeObserver(() => {
+            if (isAtBottomRef.current) {
+                forceScrollToBottom();
+            }
+        });
+
+        observer.observe(el);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [forceScrollToBottom]);
+
     return {
         containerRef,
         showScrollButton,

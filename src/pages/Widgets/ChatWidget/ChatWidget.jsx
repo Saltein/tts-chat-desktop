@@ -98,7 +98,9 @@ export const ChatWidget = () => {
 
     return (
         <div className={s.wrapper}>
-            <LiveChat backgroundColor={"transparent"} isWidget />
+            <div className={s.chatWrapper}>
+                <LiveChat backgroundColor={"transparent"} isWidget />
+            </div>
         </div>
     );
 };

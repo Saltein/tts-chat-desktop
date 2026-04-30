@@ -40,8 +40,8 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
 
     const styles = {
         backgroundColor: backgroundColor ?? undefined,
-        height: isWidget ? "100%" : "",
         gap: messageGap ? messageGap + "px" : "0px",
+        overflowY: isWidget ? "hidden" : "auto",
     };
 
     function toggleFullscreen() {

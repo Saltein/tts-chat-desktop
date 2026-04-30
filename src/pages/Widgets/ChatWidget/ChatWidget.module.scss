@@ -3,3 +3,9 @@
 .wrapper {
     height: 100vh;
 }
+
+.chatWrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}

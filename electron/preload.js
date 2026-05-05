@@ -75,4 +75,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
                 ipcRenderer.removeListener("tts-console-message", handler);
         },
     },
+
+    updater: {
+        checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
+        restartAndUpdate: () => ipcRenderer.invoke("restart-and-update"),
+        onUpdateStatus: (callback) =>
+            ipcRenderer.on("update-status", (_, data) => callback(data)),
+        onUpdateProgress: (callback) =>
+            ipcRenderer.on("update-download-progress", (_, data) =>
+                callback(data),
+            ),
+    },
 });

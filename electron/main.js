@@ -13,6 +13,7 @@ import {
     cleanupMeiOnExit,
     startPeriodicMeiCleanup,
 } from "./shared/cleanupMeiFolders.js";
+import { autoUpdater } from "electron-updater";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -361,6 +362,95 @@ ipcMain.on("window-maximize", (e) => {
 
 ipcMain.on("open-external", (_, url) => shell.openExternal(url));
 
+// ================= AUTO UPDATER =================
+function setupAutoUpdater() {
+    // Проверка обновлений при старте (с задержкой, чтобы UI успел загрузиться)
+    setTimeout(() => {
+        autoUpdater.checkForUpdatesAndNotify();
+    }, 5000);
+
+    // События autoUpdater
+    autoUpdater.on("checking-for-update", () => {
+        console.log("[UPDATE] Checking for update...");
+        mainWindow?.webContents.send("update-status", { status: "checking" });
+    });
+
+    autoUpdater.on("update-available", (info) => {
+        console.log("[UPDATE] Update available:", info);
+        mainWindow?.webContents.send("update-status", {
+            status: "available",
+            version: info.version,
+            releaseNotes: info.releaseNotes,
+            releaseDate: info.releaseDate,
+        });
+
+        // Показать уведомление
+        mainWindow?.webContents.send("notice", {
+            id: genRandStr(),
+            type: "info",
+            message: `Доступно обновление ${info.version}. Загрузка...`,
+        });
+    });
+
+    autoUpdater.on("update-not-available", (info) => {
+        console.log("[UPDATE] No update available", info);
+        mainWindow?.webContents.send("update-status", {
+            status: "not-available",
+        });
+    });
+
+    autoUpdater.on("error", (err) => {
+        console.error("[UPDATE] Error:", err);
+        mainWindow?.webContents.send("update-status", {
+            status: "error",
+            error: err.message,
+        });
+
+        mainWindow?.webContents.send("notice", {
+            id: genRandStr(),
+            type: "error",
+            message: `Ошибка проверки обновлений: ${err.message}`,
+        });
+    });
+
+    autoUpdater.on("download-progress", (progressObj) => {
+        console.log(`[UPDATE] Download progress: ${progressObj.percent}%`);
+        mainWindow?.webContents.send("update-download-progress", {
+            percent: progressObj.percent,
+            bytesPerSecond: progressObj.bytesPerSecond,
+            transferred: progressObj.transferred,
+            total: progressObj.total,
+        });
+    });
+
+    autoUpdater.on("update-downloaded", (info) => {
+        console.log("[UPDATE] Update downloaded:", info);
+
+        mainWindow?.webContents.send("update-status", {
+            status: "downloaded",
+            version: info.version,
+        });
+
+        mainWindow?.webContents.send("notice", {
+            id: genRandStr(),
+            type: "success",
+            message: `Обновление ${info.version} загружено. Перезапустите приложение для установки.`,
+            action: "restart-to-update", // флаг для кнопки в UI
+        });
+    });
+}
+
+// IPC обработчики для ручной проверки/перезапуска
+ipcMain.handle("check-for-updates", async () => {
+    autoUpdater.checkForUpdatesAndNotify();
+    return true;
+});
+
+ipcMain.handle("restart-and-update", async () => {
+    autoUpdater.quitAndInstall();
+    return true;
+});
+
 // ================= LIFECYCLE ============================================================================ LIFECYCLE =================================
 app.whenReady().then(() => {
     const shortcutSkip = globalShortcut.register(
@@ -379,6 +469,7 @@ app.whenReady().then(() => {
     }
 
     createWindow();
+    setupAutoUpdater();
     cleanupMeiFoldersAsync(0.005); // Удаляем папки старше 1 часа
     startPeriodicMeiCleanup(0.02, 0.005); // Каждые 6 часов удаляем папки старше 1 часа
     cleanupMeiOnExit(); // Очищаем при выходе из приложения

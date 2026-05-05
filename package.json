@@ -11,6 +11,13 @@
         "electron": "electron .",
         "start": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run electron\"",
         "build:electron": "npm run build && electron-builder",
+        "build:electron:win": "npm run build && electron-builder --win --publish never",
+        "build:electron:mac": "npm run build && electron-builder --mac --publish never",
+        "build:electron:linux": "npm run build && electron-builder --linux --publish never",
+        "publish:win": "npm run build && electron-builder --win --publish always",
+        "publish:mac": "npm run build && electron-builder --mac --publish always",
+        "publish:linux": "npm run build && electron-builder --linux --publish always",
+        "publish:all": "npm run build && electron-builder --win --mac --linux --publish always",
         "postinstall": "electron-builder install-app-deps"
     },
     "build": {
@@ -35,7 +42,15 @@
         "win": {
             "target": "nsis",
             "icon": "public/icon.ico"
-        }
+        },
+        "publish": [
+            {
+                "provider": "github",
+                "owner": "Saltein",
+                "repo": "tts-electron-version",
+                "private": false
+            }
+        ]
     },
     "dependencies": {
         "@react-oauth/google": "^0.12.2",
@@ -46,6 +61,7 @@
         "@testing-library/user-event": "^13.2.1",
         "compose": "^0.1.2",
         "doker": "^0.0.8",
+        "electron-updater": "^6.8.3",
         "express": "^5.2.1",
         "nginx": "^1.1.0",
         "number-to-words-ru": "^2.4.1",

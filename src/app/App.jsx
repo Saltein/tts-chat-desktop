@@ -7,73 +7,18 @@ import { QRWidget } from "../pages/Widgets/QRWidget/QRWidget";
 import TgLogo from "../shared/assets/icons/telegram-logo-filled.svg";
 import { NoticeStack } from "../features/in-app-notices";
 import { initVkChatListener } from "../features/live-chat/lib/vk/vkChatListener";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { selectTwitchTTSOn } from "../features/tts-chat/model/slice";
 import { initTTSConsoleListener } from "../features/tts-console/lib/ttsConsoleListener";
-import { addNotice } from "../features/in-app-notices/model/slice";
-import { genRandStr } from "../shared/lib/genRandStr";
 import { SendToWidget } from "../features/live-chat/lib/SendToWidget/SendToWidget";
+import { useTTSServer } from "../shared/hooks/useTTSServer";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function App() {
     const location = useLocation();
-    const dispatch = useDispatch();
     const starts = (path) => location.pathname.startsWith(path);
     const isWidget = starts("/widget");
 
-    const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
-
-    useEffect(() => {
-        if (!window.electronAPI) return;
-        if (isWidget) return;
-
-        const sync = async () => {
-            try {
-                if (isTwitchTTSOn) {
-                    await window.electronAPI.startTTSServer();
-                } else {
-                    await window.electronAPI.stopTTSServer();
-                }
-            } catch (e) {
-                window.electronAPI.vk.onNotice(() => {
-                    dispatch(
-                        addNotice({
-                            id: genRandStr(),
-                            type: "error",
-                            message: "Ошибка запуска TTS сервера: " + e.message,
-                        }),
-                    );
-                });
-            }
-        };
-
-        sync();
-    }, [isTwitchTTSOn, isWidget, dispatch]);
-
-    useEffect(() => {
-        let interval;
-        let timeout;
-
-        if (isTwitchTTSOn) {
-            interval = setInterval(() => {
-                window.electronAPI.stopTTSServer();
-                timeout = setTimeout(() => {
-                    window.electronAPI.startTTSServer();
-                }, 500);
-            }, 300000);
-        } else {
-            clearInterval(interval);
-            clearTimeout(timeout);
-        }
-
-        return () => {
-            clearInterval(interval);
-            clearTimeout(timeout);
-        };
-    }, [isTwitchTTSOn]);
-
+    useTTSServer(isWidget);
     if (!isWidget) initVkChatListener();
     if (!isWidget) initTTSConsoleListener();
 

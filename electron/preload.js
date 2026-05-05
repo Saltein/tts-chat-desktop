@@ -78,12 +78,22 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
     updater: {
         checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
+        downloadUpdate: () => ipcRenderer.invoke("download-update"), // новый метод
         restartAndUpdate: () => ipcRenderer.invoke("restart-and-update"),
+        getPendingUpdate: () => ipcRenderer.invoke("get-pending-update"), // получить ожидающее обновление
+
         onUpdateStatus: (callback) =>
             ipcRenderer.on("update-status", (_, data) => callback(data)),
+
         onUpdateProgress: (callback) =>
             ipcRenderer.on("update-download-progress", (_, data) =>
                 callback(data),
             ),
+
+        // Убираем слушатели при необходимости
+        removeListeners: () => {
+            ipcRenderer.removeAllListeners("update-status");
+            ipcRenderer.removeAllListeners("update-download-progress");
+        },
     },
 });

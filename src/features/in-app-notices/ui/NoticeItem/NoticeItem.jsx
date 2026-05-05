@@ -31,7 +31,14 @@ export const NoticeItem = ({ notice, time = 5000 }) => {
         };
     }, []);
 
-    const handlePress = () => {
+    const handlePress = async () => {
+        try {
+            await navigator.clipboard.writeText(notice.message);
+            console.log("Текст скопирован:", notice.message);
+        } catch (err) {
+            console.error("Ошибка при копировании:", err);
+        }
+
         dispatch(removeNotice(notice.id));
     };
 

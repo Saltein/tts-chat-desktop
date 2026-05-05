@@ -1,0 +1,64 @@
+@use "../../../../shared/styles/variables.scss" as *;
+@use "../../../../shared/styles/animations.scss" as anim;
+
+.wrapper {
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    // pointer-events: none;
+    z-index: 50000;
+}
+
+.notice {
+    display: flex;
+    align-items: center;
+
+    gap: $spacing-xs;
+
+    padding: $spacing-xs $spacing-xs $spacing-xs $spacing-md;
+    border-radius: $border-radius-xl;
+    background-color: var(--color-surface);
+    box-shadow:
+        $shadow-md,
+        0 0 12px var(--color-accent-transparent) inset,
+        0 0 24px var(--color-accent-transparent);
+    border: 1px solid var(--color-accent);
+    animation: appear 0.5s;
+    pointer-events: auto;
+}
+
+.text {
+    font-weight: 700;
+}
+
+.button {
+    height: 24px;
+    width: 104px;
+    background-color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $border-radius-md;
+    border: none;
+    cursor: pointer;
+    transition: 0.1s;
+
+    &:hover {
+        filter: brightness(var(--brightness-hover));
+        transform: scale(1.03);
+    }
+
+    &:active {
+        filter: brightness(var(--brightness-active));
+        transform: scale(0.95);
+    }
+}
+
+.later {
+    background-color: transparent;
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning);
+}

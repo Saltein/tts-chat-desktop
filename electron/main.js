@@ -13,7 +13,8 @@ import {
     cleanupMeiOnExit,
     startPeriodicMeiCleanup,
 } from "./shared/cleanupMeiFolders.js";
-import { autoUpdater } from "electron-updater";
+import pkg from "electron-updater";
+const { autoUpdater } = pkg;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,8 +48,8 @@ async function createWindow() {
             preload: path.join(__dirname, "preload.js"),
             contextIsolation: true,
             nodeIntegration: false,
-            devTools: isDev,
-            // devTools: true,
+            // devTools: isDev,
+            devTools: true,
         },
     });
 
@@ -362,12 +363,17 @@ ipcMain.on("window-maximize", (e) => {
 
 ipcMain.on("open-external", (_, url) => shell.openExternal(url));
 
-// ================= AUTO UPDATER =================
+// ================= AUTO UPDATER (Manual Download) ================================== AUTO UPDATER (Manual Download) =================
+let pendingUpdateInfo = null; // Хранит информацию о доступном обновлении
+
 function setupAutoUpdater() {
+    // Отключаем автоматическую загрузку, только проверяем наличие
+    autoUpdater.autoDownload = false; // КЛЮЧЕВОЙ ПАРАМЕТР
+
     // Проверка обновлений при старте (с задержкой, чтобы UI успел загрузиться)
     setTimeout(() => {
         autoUpdater.checkForUpdatesAndNotify();
-    }, 5000);
+    }, 3000);
 
     // События autoUpdater
     autoUpdater.on("checking-for-update", () => {
@@ -377,23 +383,22 @@ function setupAutoUpdater() {
 
     autoUpdater.on("update-available", (info) => {
         console.log("[UPDATE] Update available:", info);
+
+        // Сохраняем информацию об обновлении
+        pendingUpdateInfo = info;
+
+        // Отправляем статус, но НЕ начинаем загрузку автоматически
         mainWindow?.webContents.send("update-status", {
             status: "available",
             version: info.version,
             releaseNotes: info.releaseNotes,
             releaseDate: info.releaseDate,
         });
-
-        // Показать уведомление
-        mainWindow?.webContents.send("notice", {
-            id: genRandStr(),
-            type: "info",
-            message: `Доступно обновление ${info.version}. Загрузка...`,
-        });
     });
 
     autoUpdater.on("update-not-available", (info) => {
         console.log("[UPDATE] No update available", info);
+        pendingUpdateInfo = null;
         mainWindow?.webContents.send("update-status", {
             status: "not-available",
         });
@@ -401,6 +406,7 @@ function setupAutoUpdater() {
 
     autoUpdater.on("error", (err) => {
         console.error("[UPDATE] Error:", err);
+        pendingUpdateInfo = null;
         mainWindow?.webContents.send("update-status", {
             status: "error",
             error: err.message,
@@ -425,30 +431,48 @@ function setupAutoUpdater() {
 
     autoUpdater.on("update-downloaded", (info) => {
         console.log("[UPDATE] Update downloaded:", info);
+        pendingUpdateInfo = null;
 
         mainWindow?.webContents.send("update-status", {
             status: "downloaded",
             version: info.version,
         });
-
-        mainWindow?.webContents.send("notice", {
-            id: genRandStr(),
-            type: "success",
-            message: `Обновление ${info.version} загружено. Перезапустите приложение для установки.`,
-            action: "restart-to-update", // флаг для кнопки в UI
-        });
     });
 }
 
-// IPC обработчики для ручной проверки/перезапуска
+// IPC обработчики для ручного управления
 ipcMain.handle("check-for-updates", async () => {
+    pendingUpdateInfo = null;
     autoUpdater.checkForUpdatesAndNotify();
     return true;
+});
+
+// Новый обработчик для ручного скачивания обновления
+ipcMain.handle("download-update", async () => {
+    if (pendingUpdateInfo) {
+        console.log("[UPDATE] Starting manual download...");
+        mainWindow?.webContents.send("update-status", {
+            status: "downloading",
+            version: pendingUpdateInfo.version,
+        });
+
+        // Начинаем загрузку
+        autoUpdater.downloadUpdate();
+        return true;
+    } else {
+        console.log("[UPDATE] No pending update to download");
+        return false;
+    }
 });
 
 ipcMain.handle("restart-and-update", async () => {
     autoUpdater.quitAndInstall();
     return true;
+});
+
+// Дополнительный обработчик для получения информации о pending обновлении
+ipcMain.handle("get-pending-update", async () => {
+    return pendingUpdateInfo;
 });
 
 // ================= LIFECYCLE ============================================================================ LIFECYCLE =================================
@@ -470,8 +494,8 @@ app.whenReady().then(() => {
 
     createWindow();
     setupAutoUpdater();
-    cleanupMeiFoldersAsync(0.005); // Удаляем папки старше 1 часа
-    startPeriodicMeiCleanup(0.02, 0.005); // Каждые 6 часов удаляем папки старше 1 часа
+    cleanupMeiFoldersAsync(0.005);
+    startPeriodicMeiCleanup(0.02, 0.005);
     cleanupMeiOnExit(); // Очищаем при выходе из приложения
 });
 

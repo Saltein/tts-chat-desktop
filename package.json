@@ -1,7 +1,7 @@
 {
     "name": "tts-electron",
     "private": true,
-    "version": "0.1.1",
+    "version": "0.2.0",
     "type": "module",
     "main": "electron/main.js",
     "scripts": {
@@ -21,7 +21,7 @@
         "postinstall": "electron-builder install-app-deps"
     },
     "build": {
-        "productName": "TTS Chat Desktop",
+        "productName": "TTS-Chat-Desktop",
         "appId": "com.tts.electron",
         "directories": {
             "output": "release"
@@ -41,14 +41,15 @@
         ],
         "win": {
             "target": "nsis",
-            "icon": "public/icon.ico"
+            "icon": "public/icon.ico",
+            "artifactName": "${productName}-Setup-${version}.${ext}"
         },
         "publish": [
             {
                 "provider": "github",
                 "owner": "Saltein",
                 "repo": "tts-electron-version",
-                "private": false
+                "releaseType": "release"
             }
         ]
     },

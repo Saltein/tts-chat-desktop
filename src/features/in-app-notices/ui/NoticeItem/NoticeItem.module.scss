@@ -5,6 +5,7 @@
     border-radius: $border-radius-lg;
     padding: $spacing-sm $spacing-md;
     box-shadow: $shadow-sm;
+    user-select: text;
 
     backdrop-filter: blur(4px);
 

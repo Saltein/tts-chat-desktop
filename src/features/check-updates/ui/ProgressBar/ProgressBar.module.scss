@@ -1,0 +1,27 @@
+@use "../../../../shared/styles/variables.scss" as *;
+
+.wrapper {
+    position: relative;
+    height: 24px;
+    width: 104px;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $border-radius-md;
+    border: 1px solid var(--color-accent);
+    overflow: hidden;
+}
+
+.progressBar {
+    position: absolute;
+    height: 24px;
+    width: 100%;
+    background-color: var(--color-accent);
+    border-radius: $border-radius-md;
+    transition: 0.1s;
+}
+
+.percentage {
+    z-index: 10;
+}

@@ -45,7 +45,7 @@ export const useTTSServer = (isWidget = false) => {
                 timeout = setTimeout(() => {
                     window.electronAPI.startTTSServer();
                 }, 500);
-            }, 300000);
+            }, 300000); // 5 min
         } else {
             clearInterval(interval);
             clearTimeout(timeout);

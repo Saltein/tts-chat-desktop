@@ -29,7 +29,7 @@ export const NoticeItem = ({ notice, time = 5000 }) => {
             clearTimeout(timer);
             clearTimeout(timerAnimate);
         };
-    }, []);
+    }, [dispatch, notice.id, time]);
 
     const handlePress = async () => {
         try {

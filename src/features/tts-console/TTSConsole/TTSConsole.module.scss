@@ -48,17 +48,17 @@
         }
 
         &::-webkit-scrollbar-track {
-            background: #2d2d2d;
+            background: var(--color-surface);
             border-radius: 4px;
         }
 
         &::-webkit-scrollbar-thumb {
-            background: #555;
+            background: var(--color-accent-transparent);
             border-radius: 4px;
             border: none;
 
             &:hover {
-                background: #666;
+                background: var(--color-accent);
             }
         }
     }

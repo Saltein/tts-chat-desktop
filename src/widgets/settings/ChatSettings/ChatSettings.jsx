@@ -327,7 +327,7 @@ export const ChatSettings = () => {
                 dispatcher={setFontSize}
                 postfix={"px"}
                 min={12}
-                max={32}
+                max={26}
             />
 
             <SettingSlider

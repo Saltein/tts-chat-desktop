@@ -20,8 +20,7 @@ import { useTheme } from "../../../../shared/context/theme/ThemeContext";
 import { hexToRgbString } from "../../../../shared/lib/hexToRgbString";
 
 import TwitchIcon from "../../../../shared/assets/icons/twitch-logo.svg?react";
-import YoutubeIcon from "../../../../shared/assets/icons/youtube-logo.svg?react";
-import YoutubeIcon2 from "../../../../shared/assets/icons/youtube-logo2.svg?react";
+import YoutubeIcon from "../../../../shared/assets/icons/youtube-color-svgrepo-com.svg?react";
 import VkVideoIcon from "../../../../shared/assets/icons/vk-video-logo.svg?react";
 import TTSChatIcon from "../../../../shared/assets/icons/ttschat-logo.svg?react";
 import WrenchIcon from "../../../../shared/assets/icons/wrench.svg?react";
@@ -31,7 +30,6 @@ import {
     generateColorFromUsername,
     nameColors,
 } from "../../../../shared/lib/generateColorFromUsername";
-import { isBright } from "../../../../shared/lib/isBright";
 import {
     deleteMessageById,
     setRevoiceMessage,
@@ -182,11 +180,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     if (message?.service === "twitch") {
         Icon = TwitchIcon;
     } else if (message?.service === "youtube") {
-        if (isBright(messageNameBackgroundColor)) {
-            Icon = YoutubeIcon2;
-        } else {
-            Icon = YoutubeIcon;
-        }
+        Icon = YoutubeIcon;
     } else if (message?.service === "vk") {
         Icon = VkVideoIcon;
     } else if (message?.service === "ttschat") {

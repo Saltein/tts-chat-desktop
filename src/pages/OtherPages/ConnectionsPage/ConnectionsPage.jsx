@@ -2,8 +2,7 @@ import s from "./ConnectionsPage.module.scss";
 import { ConnectionCard } from "../../../entities/connection/ui/ConnectionCard/ConnectionCard";
 import { DefaultWidgetShape } from "../../../shared/widgets/DefaultWidgetShape/DefaultWidgetShape";
 import TwitchIcon from "../../../shared/assets/icons/twitch-logo.svg?react";
-import YoutubeIcon from "../../../shared/assets/icons/youtube-logo.svg?react";
-import YoutubeIcon2 from "../../../shared/assets/icons/youtube-logo2.svg?react";
+import YoutubeIcon from "../../../shared/assets/icons/youtube-color-svgrepo-com.svg?react";
 import VkVideoIcon from "../../../shared/assets/icons/vk-video-logo.svg?react";
 import {
     selectYoutubeAccessToken,
@@ -12,11 +11,9 @@ import {
     setVkConnectionData,
 } from "../../../entities/connection/model/slice";
 import { useSelector } from "react-redux";
-import { useTheme } from "../../../shared/context/theme/ThemeContext";
 
 export const ConnectionsPage = () => {
     const youtubeAccessToken = useSelector(selectYoutubeAccessToken);
-    const theme = useTheme().theme;
 
     const twitchInputs = [
         {
@@ -61,7 +58,7 @@ export const ConnectionsPage = () => {
                         dispatcher={setTwitchChatChannelName}
                     />
                     <ConnectionCard
-                        IconComponent={theme === "dark" ? YoutubeIcon : YoutubeIcon2}
+                        IconComponent={YoutubeIcon}
                         inputs={youtubeInputs}
                         title={"YouTube"}
                         dispatcher={setYoutubeVideoId}

@@ -23,7 +23,6 @@ export const ConnectionCard = ({
     inputs = [],
     title,
     dispatcher,
-    onMistake = () => {},
     funcActive = (formData) => {
         return Object.values(formData)[0] || false;
     },
@@ -36,8 +35,6 @@ export const ConnectionCard = ({
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({});
-
-    const [warningText, setWarningText] = useState("");
 
     const handleSubmit = () => {
         dispatch(dispatcher(formData));
@@ -57,6 +54,7 @@ export const ConnectionCard = ({
                 typeof twitchData === "object"
                     ? twitchData.chatChannelName
                     : twitchData;
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setFormData({ chatChannelName: channelName || "" });
         } else if (title === "YouTube") {
             const videoId =
@@ -69,7 +67,7 @@ export const ConnectionCard = ({
                 vkChannelId: vkData.vkChannelId,
             });
         }
-    }, [twitchData, youtubeData, title]);
+    }, [twitchData, youtubeData, title, vkData.vkChannelId]);
 
     return (
         <div className={s.wrapperOfWrapper}>
@@ -83,10 +81,10 @@ export const ConnectionCard = ({
                 />
             )}
             <div className={`${s.wrapper} ${isActive ? s.active : s.inactive}`}>
-                <IconComponent
+                {IconComponent && <IconComponent
                     className={s.icon}
                     onClick={isActive ? () => setIsModalOpen(true) : () => {}}
-                />
+                />}
                 <ConnectionSwitch serviceName={title} isActive={isActive} />
 
                 {isModalOpen && (
@@ -117,9 +115,6 @@ export const ConnectionCard = ({
                                     />
                                 );
                             })}
-                            {warningText && (
-                                <DefaultWarning text={warningText} />
-                            )}
                             {title === "YouTube" ? (
                                 <GoogleLoginYouTube
                                     onAccessToken={(token) => {

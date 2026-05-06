@@ -44,6 +44,12 @@
             "icon": "public/icon.ico",
             "artifactName": "${productName}-Setup-${version}.${ext}"
         },
+        "nsis": {
+            "oneClick": false,
+            "perMachine": true,
+            "allowToChangeInstallationDirectory": true,
+            "include": "build/installer.nsh"
+        },
         "publish": [
             {
                 "provider": "github",

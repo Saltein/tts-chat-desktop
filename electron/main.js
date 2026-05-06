@@ -411,12 +411,6 @@ function setupAutoUpdater() {
             status: "error",
             error: err.message,
         });
-
-        mainWindow?.webContents.send("notice", {
-            id: genRandStr(),
-            type: "error",
-            message: `Ошибка проверки обновлений: ${err.message}`,
-        });
     });
 
     autoUpdater.on("download-progress", (progressObj) => {

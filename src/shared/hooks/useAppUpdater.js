@@ -96,7 +96,7 @@ export const useAppUpdater = () => {
                         addNotice({
                             id: genRandStr(),
                             type: "error",
-                            message: `Ошибка обновления: ${data.error}`,
+                            message: `Ошибка обновления: ${data.error.includes("Cannot find latest.yml") ? "Разработчик забыл добавить latest.yml" : data.error}`,
                         }),
                     );
                 }

@@ -42,6 +42,7 @@ export const UpdateNotice = () => {
             {updateStatus.status !== "idle" &&
                 updateStatus.status !== "error" &&
                 updateStatus.status !== "checking" &&
+                version &&
                 !updateLater &&
                 !hasError && (
                     <div className={s.notice}>

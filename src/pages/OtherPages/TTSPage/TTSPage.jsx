@@ -34,33 +34,35 @@ export const TTSPage = () => {
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
     const [optionList, setOptionList] = useState([]);
 
-    // 🔥 Только загрузка голосов (никакого запуска сервера)
-    useEffect(() => {
-        const fetchSpeakers = async () => {
-            try {
-                const res = await fetch(`${baseUrl}/api/speakers`);
-                if (!res.ok) {
-                    const error = await res.json();
-                    console.error("Ошибка TTS:", error);
-                    return;
-                }
-
-                const data = await res.json();
-
-                const speakers = Array.isArray(data.speakers)
-                    ? data.speakers.map((s) =>
-                          typeof s === "string" ? s : s.name,
-                      )
-                    : [];
-
-                setOptionList(speakers);
-            } catch (err) {
-                console.error("Ошибка запроса к TTS серверу:", err);
+    const fetchSpeakers = async () => {
+        try {
+            const res = await fetch(`${baseUrl}/api/speakers`);
+            if (!res.ok) {
+                const error = await res.json();
+                console.error("Ошибка fetchSpeakers:", error);
+                return;
             }
-        };
 
-        fetchSpeakers();
-    }, [baseUrl]);
+            const data = await res.json();
+
+            const speakers = Array.isArray(data.speakers)
+                ? data.speakers.map((s) => (typeof s === "string" ? s : s.name))
+                : [];
+
+            setOptionList(speakers);
+        } catch (err) {
+            console.error("Неизвестная ошибка fetchSpeakers:", err);
+        }
+    };
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (optionList.length !== 0) return;
+            fetchSpeakers();
+        }, 200);
+        return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleSwitch = () => {
         dispatch(setTwitchTTSOn(!isTwitchTTSOn));
@@ -134,6 +136,7 @@ export const TTSPage = () => {
                             currentSelection={twitchVoice}
                             options={optionList}
                             onSelect={handleVoiceSelect}
+                            onClick={fetchSpeakers}
                         />
                     </DefaultWidgetShape>
                 </div>

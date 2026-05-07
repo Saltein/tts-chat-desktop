@@ -12,3 +12,4 @@ export { DefaultSelectList } from "./selection";
 export { InfoQuestion } from "./InfoQuestion/InfoQuestion";
 export { KeyboardKey } from "./text elements/KeyboardKey/KeyboardKey";
 export { ScrollToBottomButton } from "./buttons/ScrollToBottomButton/ScrollToBottomButton";
+export { Skeleton } from "./Skeleton/Skeleton";

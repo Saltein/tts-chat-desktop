@@ -1,15 +1,16 @@
+/* eslint-disable react-hooks/purity */
 import { useState } from "react";
 import s from "./DefaultSelectList.module.scss";
 import ChevronDown from "../../../assets/icons/chevron-down.svg?react";
 import { useDispatch } from "react-redux";
-import {
-    setTwitchVoice,
-} from "../../../../features/tts-chat/model/slice";
+import { setTwitchVoice } from "../../../../features/tts-chat/model/slice";
+import { Skeleton } from "../../Skeleton/Skeleton";
 
 export const DefaultSelectList = ({
     options = [],
     currentSelection,
     onSelect,
+    onClick,
 }) => {
     const dispatch = useDispatch();
     const [isSelectionOpen, setIsSelectionOpen] = useState(false);
@@ -19,6 +20,7 @@ export const DefaultSelectList = ({
             setIsSelectionOpen(false);
         } else {
             setIsSelectionOpen(true);
+            onClick && onClick();
         }
     };
 
@@ -44,17 +46,42 @@ export const DefaultSelectList = ({
             </div>
             {isSelectionOpen && (
                 <div className={s.selectionList}>
-                    {options.map((option, index) => {
-                        return (
-                            <div
-                                className={`${s.option} ${currentSelection === option ? s.current : ""}`}
-                                key={index + option}
-                                onClick={() => handleSelect(option)}
-                            >
-                                <span>{option}</span>
-                            </div>
-                        );
-                    })}
+                    {options.length === 0
+                        ? [
+                              Math.random(),
+                              Math.random(),
+                              Math.random(),
+                              Math.random(),
+                              Math.random(),
+                              Math.random(),
+                          ].map((option, index) => {
+                              return (
+                                  <div
+                                      className={`${s.option}`}
+                                      key={index + option}
+                                  >
+                                      <div
+                                          className={s.skeletonSpan}
+                                          style={{
+                                              width: option * 100 + 80 + "px",
+                                          }}
+                                      >
+                                          <Skeleton />
+                                      </div>
+                                  </div>
+                              );
+                          })
+                        : options.map((option, index) => {
+                              return (
+                                  <div
+                                      className={`${s.option} ${currentSelection === option ? s.current : ""}`}
+                                      key={index + option}
+                                      onClick={() => handleSelect(option)}
+                                  >
+                                      <span>{option}</span>
+                                  </div>
+                              );
+                          })}
                 </div>
             )}
         </div>

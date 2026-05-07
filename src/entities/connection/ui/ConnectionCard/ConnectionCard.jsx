@@ -36,11 +36,30 @@ export const ConnectionCard = ({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({});
     const [shouldAutoConnect, setShouldAutoConnect] = useState(false);
+    const [shouldReconnect, setShouldReconnect] = useState(false);
 
     const handleSubmit = (shouldConnect = false) => {
+        const isConnected =
+            title === "Twitch"
+                ? twitchData?.chatChannelName
+                : title === "YouTube"
+                  ? youtubeData?.youtubeVideoId
+                  : vkData?.vkChannelId;
+
+        const newValue = Object.values(formData)[0];
+
+        const hasChanged = isConnected !== newValue;
+
         dispatch(dispatcher(formData));
         setIsModalOpen(false);
-        if (shouldConnect) setShouldAutoConnect(true);
+
+        if (shouldConnect) {
+            if (hasChanged) {
+                setShouldReconnect(true);
+            } else {
+                setShouldAutoConnect(true);
+            }
+        }
     };
 
     const infoText = (
@@ -96,6 +115,8 @@ export const ConnectionCard = ({
                     isActive={isActive}
                     autoConnect={shouldAutoConnect}
                     onAutoConnectHandled={() => setShouldAutoConnect(false)}
+                    reconnect={shouldReconnect}
+                    onReconnectHandled={() => setShouldReconnect(false)}
                 />
 
                 {isModalOpen && (

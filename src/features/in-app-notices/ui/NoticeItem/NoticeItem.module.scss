@@ -7,6 +7,9 @@
     box-shadow: $shadow-sm;
     user-select: text;
 
+    word-break: break-word;
+    overflow-wrap: break-word;
+
     backdrop-filter: blur(4px);
 
     cursor: pointer;

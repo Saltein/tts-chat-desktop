@@ -186,7 +186,7 @@ ipcMain.handle("vk-connect", async (_, channel) => {
             mainWindow?.webContents.send("notice", {
                 id: genRandStr(),
                 type: "error",
-                message: `VK error: ${err.message}`,
+                message: `VK error: ${err.message.includes("blog_not_found") ? "Канал не существует" : err.message}`,
             });
 
             if (vkConnectionId === connectionId) {
@@ -196,12 +196,6 @@ ipcMain.handle("vk-connect", async (_, channel) => {
 
         client.on("close", () => {
             console.log("[VK] closed");
-
-            mainWindow?.webContents.send("notice", {
-                id: genRandStr(),
-                type: "error",
-                message: `Отключено от VK`,
-            });
 
             if (vkConnectionId === connectionId) {
                 mainWindow?.webContents.send("vk-disconnected");
@@ -231,7 +225,7 @@ ipcMain.handle("vk-connect", async (_, channel) => {
         mainWindow?.webContents.send("notice", {
             id: genRandStr(),
             type: "error",
-            message: `VK connect error: ${e.message}`,
+            message: `VK connect error: ${e.message.includes("blog_not_found") ? "Канал не существует" : e.message}`,
         });
 
         return false;

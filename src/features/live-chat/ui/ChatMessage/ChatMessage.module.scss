@@ -74,11 +74,10 @@
 
 .message {
     position: relative;
-    word-break: normal;
+    word-break: break-word;
     overflow-wrap: break-word;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
     user-select: text;
-    word-break: break-word;
     min-width: 0;
 }
 

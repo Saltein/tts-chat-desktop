@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     selectSpeechVolume,
@@ -34,7 +34,7 @@ export const TTSPage = () => {
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
     const [optionList, setOptionList] = useState([]);
 
-    const fetchSpeakers = async () => {
+    const fetchSpeakers = useCallback(async () => {
         try {
             const res = await fetch(`${baseUrl}/api/speakers`);
             if (!res.ok) {
@@ -53,16 +53,25 @@ export const TTSPage = () => {
         } catch (err) {
             console.error("Неизвестная ошибка fetchSpeakers:", err);
         }
-    };
+    }, [baseUrl]);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if (optionList.length !== 0) return;
-            fetchSpeakers();
-        }, 200);
+            if (optionList.length > 0) {
+                console.log("optionList.length > 0", optionList.length);
+
+                return;
+            } else {
+                console.log("optionList.length else", optionList.length);
+
+                fetchSpeakers();
+            }
+        }, 1000);
+        if (optionList.length > 0) {
+            clearInterval(interval);
+        }
         return () => clearInterval(interval);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [optionList.length, fetchSpeakers]);
 
     const handleSwitch = () => {
         dispatch(setTwitchTTSOn(!isTwitchTTSOn));

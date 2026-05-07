@@ -11,6 +11,7 @@ import {
     selectRevoiceMessage,
 } from "../../../entities/connection/model/slice";
 import { transliterateMessage } from "../../live-chat/lib/transliteration";
+import { useEmoteContext } from "../../../shared/context/emotes/EmoteContext";
 
 export const TTSChat = ({ volume, twitchVoiceProp }) => {
     let currentVolume = useSelector(selectSpeechVolume) / 100;
@@ -26,27 +27,30 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     const [audioUrl, setAudioUrl] = useState(null);
     const audioRef = useRef(null);
 
+    const { stripEmotesFromRawText } = useEmoteContext();
+
     const handleSpeak = async (messageObj) => {
-        console.log("[TTSChat, handleSpeak] messageObj", messageObj);
+        const noEmoteText = stripEmotesFromRawText(
+            messageObj?.message || messageObj?.text,
+        );
+
         if (!isTwitchTTSOn) return;
         if (messageObj) {
             if (messageObj?.service === "twitch") {
                 if (messageObj?.tags["reply-parent-user-login"]) return;
             }
-            if (messageObj?.service === "vk" && messageObj?.user === "ChatBot") {
+            if (
+                messageObj?.service === "vk" &&
+                messageObj?.user === "ChatBot"
+            ) {
                 return;
             }
             try {
-                console.log("twitchVoice", twitchVoice);
                 const res = await fetch(`${baseUrl}/api/speak`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        text: transliterateMessage(
-                            messageObj.message
-                                ? messageObj?.message
-                                : messageObj?.text,
-                        ),
+                        text: transliterateMessage(noEmoteText),
                         speaker: twitchVoice,
                     }),
                 });

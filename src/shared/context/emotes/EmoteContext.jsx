@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import { EmoteFetcher, EmoteParser } from "@mkody/twitch-emoticons";
 import { useSelector } from "react-redux";
 import { selectTwitchConnectionData } from "../../../entities/connection/model/slice";
@@ -109,15 +116,78 @@ export const EmoteProvider = ({ children }) => {
         [parser],
     );
 
+    // Функция для очистки текста от эмодзи
+    const stripEmotes = useCallback((text) => {
+        if (!text) return text;
+        if (typeof text !== "string") return text;
+
+        const emoteRegex = /<img[^>]*class="[^"]*emote[^"]*"[^>]*>/gi;
+        const emoteMarkerRegex = /:[\w]+:/g;
+        let cleanedText = text.replace(emoteRegex, "");
+        cleanedText = cleanedText.replace(emoteMarkerRegex, "");
+        cleanedText = cleanedText.replace(/\s+/g, " ").trim();
+
+        return cleanedText;
+    }, []);
+
+    const stripEmotesFromRawText = useCallback(
+        (text, keepWhitespace = true) => {
+            if (!text || typeof text !== "string") return text;
+
+            if (fetcher && fetcher.emotes) {
+                const emotesMap = fetcher.emotes;
+                let cleanedText = text;
+
+                // Функция для экранирования спецсимволов regex
+                const escapeRegex = (str) => {
+                    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                };
+
+                for (const [emoteName, _] of emotesMap) {
+                    try {
+                        // Экранируем спецсимволы в названии эмоута
+                        const escapedName = escapeRegex(emoteName);
+                        const regex = new RegExp(`\\b${escapedName}\\b`, "g");
+                        cleanedText = cleanedText.replace(regex, "");
+                    } catch (error) {
+                        console.warn(
+                            `Failed to create regex for emote: ${emoteName}`,
+                            error,
+                        );
+                    }
+                }
+
+                if (!keepWhitespace) {
+                    cleanedText = cleanedText.replace(/\s+/g, " ").trim();
+                }
+
+                return cleanedText;
+            }
+
+            return stripEmotes(text);
+        },
+        [fetcher, stripEmotes],
+    );
+
     const value = useMemo(
         () => ({
+            stripEmotes,
+            stripEmotesFromRawText,
             parseText,
             isLoading,
             error,
             isReady: !isLoading && !error && parser !== null,
             emotesCount: fetcher?.emotes?.size || 0,
         }),
-        [parseText, isLoading, error, parser, fetcher],
+        [
+            stripEmotes,
+            stripEmotesFromRawText,
+            parseText,
+            isLoading,
+            error,
+            parser,
+            fetcher,
+        ],
     );
 
     return (

@@ -1222,6 +1222,63 @@
   resolved "https://registry.npmjs.org/@csstools/selector-specificity/-/selector-specificity-2.2.0.tgz"
   integrity sha512-+OJ9konv95ClSTOJCmMZqpd5+YGsB2S+x6w3E1oaM8UuR5j8nTNHYSz8c9BEPGDOCMQYIEEGlVPj/VY64iTbGw==
 
+"@d-fischer/cache-decorators@^4.0.0":
+  version "4.0.1"
+  resolved "https://registry.npmjs.org/@d-fischer/cache-decorators/-/cache-decorators-4.0.1.tgz"
+  integrity sha512-HNYLBLWs/t28GFZZeqdIBqq8f37mqDIFO6xNPof94VjpKvuP6ROqCZGafx88dk5zZUlBfViV9jD8iNNlXfc4CA==
+  dependencies:
+    "@d-fischer/shared-utils" "^3.6.3"
+    tslib "^2.6.2"
+
+"@d-fischer/cross-fetch@^5.0.1":
+  version "5.0.5"
+  resolved "https://registry.npmjs.org/@d-fischer/cross-fetch/-/cross-fetch-5.0.5.tgz"
+  integrity sha512-symjDUPInTrkfIsZc2n2mo9hiAJLcTJsZkNICjZajEWnWpJ3s3zn50/FY8xpNUAf5w3eFuQii2wxztTGpvG1Xg==
+  dependencies:
+    node-fetch "^2.6.12"
+
+"@d-fischer/detect-node@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.npmjs.org/@d-fischer/detect-node/-/detect-node-3.0.1.tgz"
+  integrity sha512-0Rf3XwTzuTh8+oPZW9SfxTIiL+26RRJ0BRPwj5oVjZFyFKmsj9RGfN2zuTRjOuA3FCK/jYm06HOhwNK+8Pfv8w==
+
+"@d-fischer/logger@^4.2.1", "@d-fischer/logger@^4.2.3":
+  version "4.2.4"
+  resolved "https://registry.npmjs.org/@d-fischer/logger/-/logger-4.2.4.tgz"
+  integrity sha512-TFMZ/SVW8xyQtyJw9Rcuci4betSKy0qbQn2B5+1+72vVXeO8Qb1pYvuwF5qr0vDGundmSWq7W8r19nVPnXXSvA==
+  dependencies:
+    "@d-fischer/detect-node" "^3.0.1"
+    "@d-fischer/shared-utils" "^3.6.1"
+    tslib "^2.5.0"
+
+"@d-fischer/qs@^7.0.2":
+  version "7.0.2"
+  resolved "https://registry.npmjs.org/@d-fischer/qs/-/qs-7.0.2.tgz"
+  integrity sha512-yAu3xDooiL+ef84Jo8nLjDjWBRk7RXk163Y6aTvRB7FauYd3spQD/dWvgT7R4CrN54Juhrrc3dMY7mc+jZGurQ==
+
+"@d-fischer/rate-limiter@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/@d-fischer/rate-limiter/-/rate-limiter-1.1.0.tgz"
+  integrity sha512-O5HgACwApyCZhp4JTEBEtbv/W3eAwEkrARFvgWnEsDmXgCMWjIHwohWoHre5BW6IYXFSHBGsuZB/EvNL3942kQ==
+  dependencies:
+    "@d-fischer/logger" "^4.2.3"
+    "@d-fischer/shared-utils" "^3.6.3"
+    tslib "^2.6.2"
+
+"@d-fischer/shared-utils@^3.6.1", "@d-fischer/shared-utils@^3.6.3":
+  version "3.6.4"
+  resolved "https://registry.npmjs.org/@d-fischer/shared-utils/-/shared-utils-3.6.4.tgz"
+  integrity sha512-BPkVLHfn2Lbyo/ENDBwtEB8JVQ+9OzkjJhUunLaxkw4k59YFlQxUUwlDBejVSFcpQT0t+D3CQlX+ySZnQj0wxw==
+  dependencies:
+    tslib "^2.4.1"
+
+"@d-fischer/typed-event-emitter@^3.3.1":
+  version "3.3.3"
+  resolved "https://registry.npmjs.org/@d-fischer/typed-event-emitter/-/typed-event-emitter-3.3.3.tgz"
+  integrity sha512-OvSEOa8icfdWDqcRtjSEZtgJTFOFNgTjje7zaL0+nAtu2/kZtRCSK5wUMrI/aXtCH8o0Qz2vA8UqkhWUTARFQQ==
+  dependencies:
+    tslib "^2.4.0"
+
 "@develar/schema-utils@~2.6.5":
   version "2.6.5"
   resolved "https://registry.npmjs.org/@develar/schema-utils/-/schema-utils-2.6.5.tgz"
@@ -1799,6 +1856,15 @@
     lodash "^4.17.15"
     tmp-promise "^3.0.2"
 
+"@mkody/twitch-emoticons@^2.9.7":
+  version "2.9.7"
+  resolved "https://registry.npmjs.org/@mkody/twitch-emoticons/-/twitch-emoticons-2.9.7.tgz"
+  integrity sha512-pppTnUFpZcJEIPKfHW+d0YfVZqFJ/NOrsZ1LwAxbk5+gW6p23TwNN8ScIstW9jqHWS4pKGoU8UUB1b2oRce+8w==
+  dependencies:
+    "@twurple/api" "^7.4.0"
+    "@twurple/auth" "^7.4.0"
+    axios "^1.13.6"
+
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
   resolved "https://registry.npmjs.org/@nicolo-ribaudo/eslint-scope-5-internals/-/eslint-scope-5-internals-5.1.1-v1.tgz"
@@ -2260,6 +2326,55 @@
   version "1.1.2"
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-1.1.2.tgz"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
+
+"@twurple/api-call@7.4.0":
+  version "7.4.0"
+  resolved "https://registry.npmjs.org/@twurple/api-call/-/api-call-7.4.0.tgz"
+  integrity sha512-WNxvjp/hMqZREElbvE4rHMyUIrHdGY5cbG8xbqgSM9CESFvJ1wm5BubhyANOyKd1TxABacLddbfbO//Fz9YHgA==
+  dependencies:
+    "@d-fischer/cross-fetch" "^5.0.1"
+    "@d-fischer/qs" "^7.0.2"
+    "@d-fischer/shared-utils" "^3.6.1"
+    "@twurple/common" "7.4.0"
+    tslib "^2.0.3"
+
+"@twurple/api@^7.4.0":
+  version "7.4.0"
+  resolved "https://registry.npmjs.org/@twurple/api/-/api-7.4.0.tgz"
+  integrity sha512-RlXLs4ZvS8n0+iIk7YyVDwrjhlwpn+N+h7fX5Q61HoxlmzoCShmnnFo03abYw9i8Cc3deGpbQATOSVmigXM4qg==
+  dependencies:
+    "@d-fischer/cache-decorators" "^4.0.0"
+    "@d-fischer/cross-fetch" "^5.0.1"
+    "@d-fischer/detect-node" "^3.0.1"
+    "@d-fischer/logger" "^4.2.1"
+    "@d-fischer/rate-limiter" "^1.1.0"
+    "@d-fischer/shared-utils" "^3.6.1"
+    "@d-fischer/typed-event-emitter" "^3.3.1"
+    "@twurple/api-call" "7.4.0"
+    "@twurple/common" "7.4.0"
+    retry "^0.13.1"
+    tslib "^2.0.3"
+
+"@twurple/auth@^7.4.0", "@twurple/auth@7.4.0":
+  version "7.4.0"
+  resolved "https://registry.npmjs.org/@twurple/auth/-/auth-7.4.0.tgz"
+  integrity sha512-WAQV6nJGkfY7r2BkRYhnzUpdfozLvjNsCxkyNVprl4dCWdJzccnTvqkKTdDRJc5ZJxDVaB9Drzwx9/fCp/gRDA==
+  dependencies:
+    "@d-fischer/logger" "^4.2.1"
+    "@d-fischer/shared-utils" "^3.6.1"
+    "@d-fischer/typed-event-emitter" "^3.3.1"
+    "@twurple/api-call" "7.4.0"
+    "@twurple/common" "7.4.0"
+    tslib "^2.0.3"
+
+"@twurple/common@7.4.0":
+  version "7.4.0"
+  resolved "https://registry.npmjs.org/@twurple/common/-/common-7.4.0.tgz"
+  integrity sha512-lX5cVkYar6jGvni6iLmMYjhxH1oPSl2v7XVeZ4C7U1GbLz/Jwk0L0uldQNGUIf9gpRHPY+TXRlk0UIpz2yo8DA==
+  dependencies:
+    "@d-fischer/shared-utils" "^3.6.1"
+    klona "^2.0.4"
+    tslib "^2.0.3"
 
 "@types/aria-query@^5.0.1":
   version "5.0.4"
@@ -3365,7 +3480,7 @@ axe-core@^4.10.0:
   resolved "https://registry.npmjs.org/axe-core/-/axe-core-4.11.3.tgz"
   integrity sha512-zBQouZixDTbo3jMGqHKyePxYxr1e5W8UdTmBQ7sNtaA9M2bE32daxxPLS/jojhKOHxQ7LWwPjfiwf/fhaJWzlg==
 
-axios@^1.15.0:
+axios@^1.13.6, axios@^1.15.0:
   version "1.15.1"
   resolved "https://registry.npmjs.org/axios/-/axios-1.15.1.tgz"
   integrity sha512-WOG+Jj8ZOvR0a3rAn+Tuf1UQJRxw5venr6DgdbJzngJE3qG7X0kL83CZGpdHMxEm+ZK3seAbvFsw4FfOfP9vxg==
@@ -8323,7 +8438,7 @@ node-exports-info@^1.6.0:
     object.entries "^1.1.9"
     semver "^6.3.1"
 
-node-fetch@^2.6.1:
+node-fetch@^2.6.1, node-fetch@^2.6.12:
   version "2.7.0"
   resolved "https://registry.npmjs.org/node-fetch/-/node-fetch-2.7.0.tgz"
   integrity sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==
@@ -11393,7 +11508,7 @@ tslib@^1.8.1:
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@^2.0.3, tslib@^2.1.0, tslib@^2.8.0:
+tslib@^2.0.3, tslib@^2.1.0, tslib@^2.4.0, tslib@^2.4.1, tslib@^2.5.0, tslib@^2.6.2, tslib@^2.8.0:
   version "2.8.1"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz"
   integrity sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==

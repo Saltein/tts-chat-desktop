@@ -37,8 +37,20 @@ import {
 import { genRandStr } from "../../../../shared/lib/genRandStr";
 import { addNotice } from "../../../in-app-notices/model/slice";
 import { selectTwitchTTSOn } from "../../../tts-chat/model/slice";
+import { useTwitchEmoteParser } from "../../../../shared/hooks/useTwitchEmoteParser";
 
 export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
+    const { parseText } = useTwitchEmoteParser();
+
+    let messageText = message.message ? message.message : message?.text;
+
+    const parsedMessage = parseText(messageText);
+
+    if (message?.service === "twitch") {
+        console.log("[ChatMessage] parsedMessage", parsedMessage);
+        messageText = parsedMessage;
+    }
+
     const [isFading, setIsFading] = useState(false);
 
     const dispatch = useDispatch();
@@ -245,9 +257,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
                     )}
                 </span>
             </div>
-            <span className={s.message} style={textStyles}>
-                {message.message ? message.message : message?.text}
-            </span>
+            <span className={s.message} style={textStyles} dangerouslySetInnerHTML={{ __html: parsedMessage }}/>
         </div>
     );
 });

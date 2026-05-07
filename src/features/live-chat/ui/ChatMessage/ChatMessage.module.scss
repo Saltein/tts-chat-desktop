@@ -79,6 +79,14 @@
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
     user-select: text;
     min-width: 0;
+
+    line-height: 1.2;
+
+    & img {
+        height: 1.7em; // важно: привязка к шрифту, а не к font-size переменной
+        width: auto;
+        vertical-align: middle;
+    }
 }
 
 .icon {

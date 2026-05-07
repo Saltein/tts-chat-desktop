@@ -10,27 +10,23 @@
 
     transition: $transition-medium;
 
-    /* ширина скроллбара */
-    ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
     }
 
-    /* фон трека */
-    ::-webkit-scrollbar-track {
-        background: #1e1e1e;
-        border-radius: 10px;
+    &::-webkit-scrollbar-track {
+        background: var(--color-surface);
+        border-radius: 4px;
     }
 
-    /* сам ползунок */
-    ::-webkit-scrollbar-thumb {
-        background: #555;
-        border-radius: 10px;
-        border: 2px solid #1e1e1e;
-    }
+    &::-webkit-scrollbar-thumb {
+        background: var(--color-accent-transparent);
+        border-radius: 4px;
+        border: none;
 
-    /* при наведении */
-    ::-webkit-scrollbar-thumb:hover {
-        background: #888;
+        &:hover {
+            background: var(--color-accent);
+        }
     }
 }

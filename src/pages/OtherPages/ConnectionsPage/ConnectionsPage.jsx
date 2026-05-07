@@ -49,6 +49,7 @@ export const ConnectionsPage = () => {
                 backgroundColor={"transparent"}
                 padding={"0"}
                 title="Подключения"
+                paddingBlock={"0"}
             >
                 <div className={s.connections}>
                     <ConnectionCard

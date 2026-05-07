@@ -76,13 +76,6 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
                     onScroll={handleScroll}
                     className={s.wrapper_Chat}
                     style={styles}
-                    onClick={
-                        isFullScreened
-                            ? () => {
-                                  toggleFullscreen();
-                              }
-                            : () => {}
-                    }
                 >
                     <ChatMessage
                         message={EXAMPLE_MESSAGE}

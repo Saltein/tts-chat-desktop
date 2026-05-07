@@ -11,6 +11,7 @@ import { initTTSConsoleListener } from "../features/tts-console/lib/ttsConsoleLi
 import { SendToWidget } from "../features/live-chat/lib/SendToWidget/SendToWidget";
 import { useTTSServer } from "../shared/hooks/useTTSServer";
 import { UpdateNotice } from "../features/check-updates/ui/UpdateNotice/UpdateNotice";
+import { EmoteProvider } from "../shared/context/emotes/EmoteContext";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -49,12 +50,14 @@ function App() {
 
     return (
         <GoogleOAuthProvider clientId={clientId}>
-            <div className={s.App}>
-                {!isWidget && <SendToWidget />}
-                <UpdateNotice />
-                <NoticeStack />
-                <GlobalPage />
-            </div>
+            <EmoteProvider>
+                <div className={s.App}>
+                    {!isWidget && <SendToWidget />}
+                    <UpdateNotice />
+                    <NoticeStack />
+                    <GlobalPage />
+                </div>
+            </EmoteProvider>
         </GoogleOAuthProvider>
     );
 }

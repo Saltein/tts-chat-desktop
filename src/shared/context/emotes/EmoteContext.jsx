@@ -1,25 +1,42 @@
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { EmoteFetcher, EmoteParser } from "@mkody/twitch-emoticons";
 import { useSelector } from "react-redux";
-import { selectTwitchConnectionData } from "../../entities/connection/model/slice";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { selectTwitchConnectionData } from "../../../entities/connection/model/slice";
 
-export const useTwitchEmoteParser = () => {
+const EmoteContext = createContext(null);
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useEmoteContext = () => {
+    const context = useContext(EmoteContext);
+    if (!context) {
+        throw new Error("useEmoteContext must be used within EmoteProvider");
+    }
+    return context;
+};
+
+export const EmoteProvider = ({ children }) => {
     const twitchLogin = useSelector(selectTwitchConnectionData);
-
     const clientId = import.meta.env.VITE_TWITCH_APP_ID;
     const clientSecret = import.meta.env.VITE_TWITCH_APP_SECRET;
 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [parser, setParser] = useState(null);
+    const [fetcher, setFetcher] = useState(null);
 
-    const fetcher = useMemo(() => {
-        // ✅ ВАЖНО: правильный конструктор
-        return new EmoteFetcher(clientId, clientSecret);
+    // Создаем fetcher один раз
+    useEffect(() => {
+        const newFetcher = new EmoteFetcher(clientId, clientSecret);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setFetcher(newFetcher);
     }, [clientId, clientSecret]);
 
+    // Загружаем эмодзи один раз
     useEffect(() => {
+        if (!fetcher) return;
+
         let isMounted = true;
+        let cachedChannelId = null;
 
         const loadEmotes = async () => {
             setIsLoading(true);
@@ -29,14 +46,20 @@ export const useTwitchEmoteParser = () => {
                 let channelId = null;
 
                 if (twitchLogin) {
-                    let user = null;
-
-                    if (fetcher?.api?.users?.getUserByName) {
-                        user =
-                            await fetcher.api.users.getUserByName(twitchLogin);
+                    // Кешируем ID канала
+                    if (cachedChannelId) {
+                        channelId = cachedChannelId;
+                    } else {
+                        let user = null;
+                        if (fetcher?.api?.users?.getUserByName) {
+                            user =
+                                await fetcher.api.users.getUserByName(
+                                    twitchLogin,
+                                );
+                        }
+                        channelId = user?.id ?? null;
+                        cachedChannelId = channelId;
                     }
-
-                    channelId = user?.id ?? null;
                 }
 
                 await Promise.all([
@@ -86,11 +109,18 @@ export const useTwitchEmoteParser = () => {
         [parser],
     );
 
-    return {
-        parseText,
-        isLoading,
-        error,
-        isReady: !isLoading && !error && parser !== null,
-        emotesCount: fetcher?.emotes?.size || 0,
-    };
+    const value = useMemo(
+        () => ({
+            parseText,
+            isLoading,
+            error,
+            isReady: !isLoading && !error && parser !== null,
+            emotesCount: fetcher?.emotes?.size || 0,
+        }),
+        [parseText, isLoading, error, parser, fetcher],
+    );
+
+    return (
+        <EmoteContext.Provider value={value}>{children}</EmoteContext.Provider>
+    );
 };

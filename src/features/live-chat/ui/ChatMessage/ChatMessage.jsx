@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import s from "./ChatMessage.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -37,19 +37,22 @@ import {
 import { genRandStr } from "../../../../shared/lib/genRandStr";
 import { addNotice } from "../../../in-app-notices/model/slice";
 import { selectTwitchTTSOn } from "../../../tts-chat/model/slice";
-import { useTwitchEmoteParser } from "../../../../shared/hooks/useTwitchEmoteParser";
+import { useEmoteContext } from "../../../../shared/context/emotes/EmoteContext";
 
 export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
-    const { parseText } = useTwitchEmoteParser();
+    const { parseText, isReady } = useEmoteContext();
 
     let messageText = message.message ? message.message : message?.text;
 
-    const parsedMessage = parseText(messageText);
-
-    if (message?.service === "twitch") {
-        console.log("[ChatMessage] parsedMessage", parsedMessage);
-        messageText = parsedMessage;
-    }
+    const parsedMessage = useMemo(() => {
+        if (!isReady) return messageText;
+        if (message?.service === "twitch") {
+            const parsed = parseText(messageText);
+            console.log("[ChatMessage] parsedMessage", parsed);
+            return parsed;
+        }
+        return messageText;
+    }, [messageText, message?.service, parseText, isReady]);
 
     const [isFading, setIsFading] = useState(false);
 
@@ -257,7 +260,11 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
                     )}
                 </span>
             </div>
-            <span className={s.message} style={textStyles} dangerouslySetInnerHTML={{ __html: parsedMessage }}/>
+            <span
+                className={s.message}
+                style={textStyles}
+                dangerouslySetInnerHTML={{ __html: parsedMessage }}
+            />
         </div>
     );
 });

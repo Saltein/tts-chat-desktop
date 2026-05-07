@@ -7,7 +7,7 @@
     height: 100%;
     width: 100%;
     border-radius: $border-radius-sm;
-    padding: $spacing-sm;
+    padding: $spacing-sm $spacing-xxs $spacing-sm $spacing-sm;
 
     &.fullscreen {
         position: fixed;
@@ -71,7 +71,7 @@
 
 .wrapper_Chat {
     display: flex;
-    position: relative;                                     
+    position: relative;
     flex-direction: column;
     gap: $spacing-sm;
     overflow-y: auto;
@@ -79,9 +79,19 @@
     height: fit-content;
     min-width: 0;
     scroll-behavior: smooth;
+    z-index: 10;
+    padding: 0 $spacing-xs 0 0;
+    transition: none;
 
     &::-webkit-scrollbar {
         width: 0px;
+    }
+
+    &:hover {
+        padding: 0 $spacing-xxs 0 0;
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
     }
 }
 

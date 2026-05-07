@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import s from "./ConnectionSwitch.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -11,7 +11,6 @@ import {
     setYoutubeConnectionStatus,
     setNewYoutubeMessage,
     setVkConnectionStatus,
-    setNewVkMessage,
     selectVkConnectionData,
     selectYoutubeConnectionStatus,
     selectVkConnectionStatus,
@@ -32,7 +31,12 @@ import { addNotice } from "../../../../features/in-app-notices/model/slice";
 import { genRandStr } from "../../../lib/genRandStr";
 import { getVkChannelName } from "../../../lib/getVkChannelName";
 
-export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
+export const ConnectionSwitch = ({
+    serviceName = "",
+    isActive = true,
+    autoConnect = false,
+    onAutoConnectHandled = () => {},
+}) => {
     const dispatch = useDispatch();
 
     const twitchBotName = import.meta.env.VITE_TWITCH_BOT_NAME;
@@ -54,11 +58,16 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
         youtubeVideoId?.youtubeVideoId,
     );
 
-    const getConnectionStatus = () => {
+    const getConnectionStatus = useCallback(() => {
         if (serviceName === "Twitch") return twitchConnectionStatus;
         else if (serviceName === "YouTube") return youtubeConnectionStatus;
         else if (serviceName === "VK Видео Live") return vkConnectionStatus;
-    };
+    }, [
+        serviceName,
+        twitchConnectionStatus,
+        youtubeConnectionStatus,
+        vkConnectionStatus,
+    ]);
 
     const [isSwitchLoading, setIsSwitchLoading] = useState(false);
     const [twitchJoined, setTwitchJoined] = useState(false);
@@ -77,6 +86,7 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
                 youtubeClient && youtubeClient.isConnected;
 
             if (isYoutubeConnected !== getConnectionStatus()) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setIsSwitchLoading(false);
             }
         }
@@ -88,7 +98,7 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
                 setIsSwitchLoading(false);
             }
         }
-    }, [serviceName, getConnectionStatus()]);
+    }, [serviceName, getConnectionStatus]);
 
     // Очистка таймаута при размонтировании
     useEffect(() => {
@@ -152,24 +162,27 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
         dispatch,
     ]);
 
-    const handleConnect = async () => {
+    const handleConnect = useCallback(async () => {
         if (getConnectionStatus()) {
             // Отключение
             if (serviceName === "Twitch") {
                 disconnectTwitchClient();
                 dispatch(setTwitchConnectionStatus(false));
                 setIsSwitchLoading(false);
+                onAutoConnectHandled();
             } else if (serviceName === "VK Видео Live") {
                 await window.electronAPI.vk.disconnect();
                 // Статус обновится через глобальный onDisconnected, но для уверенности сбросим локально
                 setVkJoined(false);
                 dispatch(setVkConnectionStatus(false));
                 setIsSwitchLoading(false);
+                onAutoConnectHandled();
             } else if (serviceName === "YouTube") {
                 setIsSwitchLoading(true);
                 disconnectYouTubeClient();
                 dispatch(setYoutubeConnectionStatus(false));
                 setIsSwitchLoading(false);
+                onAutoConnectHandled();
             }
         } else {
             // Включение
@@ -343,12 +356,25 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
                 }
             }
         }
-    };
+    }, [
+        serviceName,
+        dispatch,
+        youtubeAccessToken,
+        youtubeVideoIdFormatted,
+        getConnectionStatus,
+        isSwitchLoading,
+        twitchBotName,
+        twitchBotToken,
+        twitchChatChannelName,
+        vkConnectionData?.vkChannelId,
+        onAutoConnectHandled
+    ]);
 
     // Эффект для отслеживания глобального статуса VK (чтобы синхронизировать vkJoined и снять загрузку)
     useEffect(() => {
         if (serviceName === "VK Видео Live") {
             if (vkConnectionStatus) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setVkJoined(true);
                 setIsSwitchLoading(false);
             } else {
@@ -356,6 +382,14 @@ export const ConnectionSwitch = ({ serviceName = "", isActive = true }) => {
             }
         }
     }, [serviceName, vkConnectionStatus]);
+
+    useEffect(() => {
+        if (autoConnect && !getConnectionStatus()) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            handleConnect();
+            onAutoConnectHandled();
+        }
+    }, [autoConnect, getConnectionStatus, onAutoConnectHandled, handleConnect]);
 
     return (
         <div

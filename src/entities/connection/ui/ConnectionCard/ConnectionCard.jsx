@@ -35,10 +35,12 @@ export const ConnectionCard = ({
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({});
+    const [shouldAutoConnect, setShouldAutoConnect] = useState(false);
 
-    const handleSubmit = () => {
+    const handleSubmit = (shouldConnect = false) => {
         dispatch(dispatcher(formData));
         setIsModalOpen(false);
+        if (shouldConnect) setShouldAutoConnect(true);
     };
 
     const infoText = (
@@ -81,11 +83,20 @@ export const ConnectionCard = ({
                 />
             )}
             <div className={`${s.wrapper} ${isActive ? s.active : s.inactive}`}>
-                {IconComponent && <IconComponent
-                    className={s.icon}
-                    onClick={isActive ? () => setIsModalOpen(true) : () => {}}
-                />}
-                <ConnectionSwitch serviceName={title} isActive={isActive} />
+                {IconComponent && (
+                    <IconComponent
+                        className={s.icon}
+                        onClick={
+                            isActive ? () => setIsModalOpen(true) : () => {}
+                        }
+                    />
+                )}
+                <ConnectionSwitch
+                    serviceName={title}
+                    isActive={isActive}
+                    autoConnect={shouldAutoConnect}
+                    onAutoConnectHandled={() => setShouldAutoConnect(false)}
+                />
 
                 {isModalOpen && (
                     <DefaultModalWindow
@@ -126,7 +137,7 @@ export const ConnectionCard = ({
                             )}
                             <DefaultButton
                                 title={"Применить"}
-                                onClick={handleSubmit}
+                                onClick={() => handleSubmit(true)}
                                 active={funcActive(formData)}
                             />
                         </div>

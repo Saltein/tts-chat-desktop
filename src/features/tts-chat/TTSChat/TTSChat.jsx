@@ -27,10 +27,14 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     const audioRef = useRef(null);
 
     const handleSpeak = async (messageObj) => {
+        console.log("[TTSChat, handleSpeak] messageObj", messageObj);
         if (!isTwitchTTSOn) return;
         if (messageObj) {
             if (messageObj?.service === "twitch") {
                 if (messageObj?.tags["reply-parent-user-login"]) return;
+            }
+            if (messageObj?.service === "vk" && messageObj?.user === "ChatBot") {
+                return;
             }
             try {
                 console.log("twitchVoice", twitchVoice);

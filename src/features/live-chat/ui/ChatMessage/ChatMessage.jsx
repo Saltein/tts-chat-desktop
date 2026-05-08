@@ -231,7 +231,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
 
     return (
         <div
-            className={`${s.wrapper} ${isFading ? s.fadeOut : ""}`}
+            className={`${s.wrapper} ${isFading ? s.fadeOut : ""} ${messageNameBackground ? "" : s.noNameBackground}`}
             style={wrapperStyles}
             onClick={handleRevoice}
         >
@@ -257,13 +257,13 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
                     {message.tags
                         ? message.tags["display-name"]
                         : message?.user}
-                    {!messageNameBackground && " :"}
                     {isModerator && (
                         <WrenchIcon
                             className={s.wrenchIcon}
                             fill="var(--color-moderator)"
                         />
                     )}
+                    {!messageNameBackground && " :"}
                 </span>
             </div>
             <span

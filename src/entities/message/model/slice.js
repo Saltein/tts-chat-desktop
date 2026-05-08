@@ -17,7 +17,7 @@ let initialState = {
     // General
     messageLifeTime: 30000,
     messageGap: "8",
-    fontSize: 16,
+    fontSize: 20,
 
     // In app
     messageDisappearing: true,

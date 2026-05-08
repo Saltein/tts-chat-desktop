@@ -40,6 +40,10 @@
             border 0.1s ease;
         transform: scaleY(0.9) scaleX(1.01);
     }
+
+    &.noNameBackground {
+        padding: $spacing-xxs $spacing-sm;
+    }
 }
 
 .name {
@@ -58,7 +62,7 @@
     gap: 0;
 
     &.noBackground {
-        left: 0;
+        left: -6px;
         background-color: transparent;
         border: none;
         box-shadow: none;
@@ -69,6 +73,7 @@
 
 .nameText {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    // font-weight: 600;
     user-select: text;
 }
 

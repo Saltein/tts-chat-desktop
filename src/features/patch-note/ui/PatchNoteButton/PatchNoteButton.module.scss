@@ -1,0 +1,128 @@
+@use "../../../../shared/styles/variables.scss" as *;
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: 100%;
+    width: 34px;
+    cursor: pointer;
+    transition: 0.1s;
+    margin-right: $spacing-md;
+
+    &:hover {
+        transform: scale(1.1);
+
+        .icon {
+            filter: drop-shadow(0 0 3px white);
+        }
+    }
+}
+
+.icon {
+    transition: 0.1s;
+    height: 24px;
+    width: 24px;
+    filter: drop-shadow(0 0 0 black);
+}
+
+.markdown {
+    line-height: 1.6;
+    font-size: 14px;
+
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 $spacing-md;
+    margin: $spacing-md 0;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    h1 {
+        font-size: 2em;
+        border-bottom: 1px solid #30363d;
+        padding-bottom: 0.3em;
+    }
+
+    h2 {
+        font-size: 1.5em;
+        border-bottom: 1px solid #30363d;
+        padding-bottom: 0.3em;
+    }
+
+    p {
+        margin-bottom: 16px;
+    }
+
+    ul,
+    ol {
+        padding-left: 2em;
+        margin-bottom: 16px;
+    }
+
+    li {
+        margin-bottom: 4px;
+    }
+
+    code {
+        background: rgba(110, 118, 129, 0.4);
+        padding: 0.2em 0.4em;
+        border-radius: 6px;
+        font-family: monospace;
+    }
+
+    pre {
+        background: #161b22;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin-bottom: 16px;
+
+        code {
+            background: none;
+            padding: 0;
+        }
+    }
+
+    blockquote {
+        border-left: 4px solid #3b434b;
+        padding-left: 16px;
+        color: #8b949e;
+        margin-bottom: 16px;
+    }
+
+    table {
+        border-collapse: collapse;
+        margin-bottom: 16px;
+        width: 100%;
+    }
+
+    th,
+    td {
+        border: 1px solid #30363d;
+        padding: 6px 12px;
+    }
+
+    th {
+        background: #161b22;
+    }
+
+    a {
+        color: #58a6ff;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

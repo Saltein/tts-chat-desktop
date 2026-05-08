@@ -1,10 +1,11 @@
 import { useMediaQuery } from "react-responsive";
 import { WindowControlButton } from "../../processes";
 import s from "./Header.module.scss";
+import { PatchNoteButton } from "../../features/patch-note/ui/PatchNoteButton/PatchNoteButton";
 
 export const Header = () => {
     const isMicroWindow = useMediaQuery({
-        query: "(max-width: 380px)",
+        query: "(max-width: 460px)",
     });
 
     return (
@@ -21,6 +22,7 @@ export const Header = () => {
             </div>
 
             <div className={s.controls}>
+                <PatchNoteButton />
                 <WindowControlButton type={"minimize"} />
                 <WindowControlButton type={"maximize"} />
                 <WindowControlButton type={"close"} />

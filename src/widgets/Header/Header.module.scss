@@ -10,7 +10,7 @@
 
 .draggable {
     height: 100%;
-    width: 100%;
+    flex: 1;
     padding: $spacing-xs $spacing-md;
     -webkit-app-region: drag;
 }

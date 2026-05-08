@@ -5,6 +5,8 @@
     height: calc(100% - 64px);
     width: 100%;
     margin: 0 auto;
+    min-width: 0; // Добавить
+    overflow-x: hidden; // Добавить
 
     &.forHeader {
         max-width: none;
@@ -17,4 +19,6 @@
 .pagePart {
     height: 100%;
     width: 100%;
+    min-width: 0; // Добавить
+    overflow-x: hidden; // Добавить
 }

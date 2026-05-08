@@ -2,6 +2,8 @@
 
 .wrapper {
     position: relative;
+    min-width: 0;
+    
     border: 1px solid var(--color-border);
     padding: $spacing-xxs $spacing-xs;
     border-radius: $border-radius-lg;
@@ -49,7 +51,6 @@
 .name {
     display: inline-flex;
     align-items: center;
-    width: fit-content;
     height: 32px;
     position: relative;
     left: -$spacing-xxs;
@@ -60,6 +61,8 @@
     box-shadow: $shadow-sm;
     white-space: nowrap;
     gap: 0;
+    max-width: 100%;
+    min-width: 0; 
 
     &.noBackground {
         left: -6px;
@@ -73,8 +76,11 @@
 
 .nameText {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-    // font-weight: 600;
     user-select: text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block; // или inline-block
 }
 
 .message {
@@ -97,6 +103,7 @@
 .icon {
     position: relative;
     margin-right: $spacing-xxs;
+    flex-shrink: 0;
 }
 
 .wrenchIcon {

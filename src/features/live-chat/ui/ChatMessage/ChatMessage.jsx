@@ -202,7 +202,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         Icon = TTSChatIcon;
     }
 
-    const handleRevoice = () => {
+    const handleRevoice = async () => {
         dispatch(setRevoiceMessage({ ...message, id: genRandStr() }));
         if (ttsOn) {
             dispatch(
@@ -220,6 +220,12 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
                     message: "Озвучка отключена",
                 }),
             );
+        }
+        try {
+            await navigator.clipboard.writeText(messageText);
+            console.log("Текст скопирован:", messageText);
+        } catch (err) {
+            console.error("Ошибка при копировании:", err);
         }
     };
 

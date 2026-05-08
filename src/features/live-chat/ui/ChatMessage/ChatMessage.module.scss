@@ -38,7 +38,7 @@
             opacity 0.3s ease,
             transform 0.1s ease,
             border 0.1s ease;
-        transform: scale(0.97);
+        transform: scaleY(0.9) scaleX(1.01);
     }
 }
 
@@ -115,6 +115,7 @@
     background-color: var(--color-surface);
     height: 28px;
     width: 28px;
+    pointer-events: none;
 }
 
 .revoiceIcon {

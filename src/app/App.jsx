@@ -34,16 +34,22 @@ function App() {
 
     if (isWidget) {
         if (starts("/widget/chat")) {
-            return <ChatWidget />;
+            return (
+                <EmoteProvider>
+                    <ChatWidget />
+                </EmoteProvider>
+            );
         } else if (starts("/widget/qrcode")) {
             return (
-                <QRWidget
-                    value={"https://t.me/saltein"}
-                    logoImage={TgLogo}
-                    text={text}
-                    frequency={300}
-                    showTime={30}
-                />
+                <EmoteProvider>
+                    <QRWidget
+                        value={"https://t.me/saltein"}
+                        logoImage={TgLogo}
+                        text={text}
+                        frequency={300}
+                        showTime={30}
+                    />
+                </EmoteProvider>
             );
         }
     }

@@ -62,8 +62,33 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
         onDisconnected: (callback) => {
             const handler = () => callback();
-            ipcRenderer.on("vk-disconnect", handler);
+            ipcRenderer.on("vk-disconnected", handler);
             return () => ipcRenderer.removeListener("vk-disconnected", handler);
+        },
+    },
+
+    youtube: {
+        connect: (videoId) => ipcRenderer.invoke("youtube-connect", videoId),
+        disconnect: () => ipcRenderer.invoke("youtube-disconnect"),
+
+        onMessage: (callback) => {
+            const handler = (_, data) => callback(data);
+            ipcRenderer.on("youtube-message", handler);
+            return () => ipcRenderer.removeListener("youtube-message", handler);
+        },
+
+        onConnected: (callback) => {
+            const handler = () => callback();
+            ipcRenderer.on("youtube-connected", handler);
+            return () =>
+                ipcRenderer.removeListener("youtube-connected", handler);
+        },
+
+        onDisconnected: (callback) => {
+            const handler = () => callback();
+            ipcRenderer.on("youtube-disconnected", handler);
+            return () =>
+                ipcRenderer.removeListener("youtube-disconnected", handler);
         },
     },
 

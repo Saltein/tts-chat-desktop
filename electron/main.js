@@ -15,6 +15,7 @@ import {
 } from "./shared/cleanupMeiFolders.js";
 import pkg from "electron-updater";
 const { autoUpdater } = pkg;
+import { Innertube } from "youtubei.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,9 +31,13 @@ let mainWindow = null;
 // ================= TTS =================
 let ttsServerProcess = null;
 
-// ================= VK (SINGLE CLIENT ONLY) =================
+// ================= VK =================
 let vkClient = null;
 let vkConnectionId = 0;
+
+// ================= YOUTUBE =================
+let youtubeLiveChat = null;
+let youtubeConnectionId = 0;
 
 // ================= WINDOW =================
 async function createWindow() {
@@ -106,6 +111,25 @@ function destroyVkClient(client) {
     }
 }
 
+// ================= YOUTUBE CLEAN DESTROY =================
+function destroyYoutubeLiveChat(livechat) {
+    if (!livechat) return;
+
+    try {
+        console.log("[YOUTUBE] destroying livechat...");
+
+        livechat.removeAllListeners?.();
+
+        // главное
+        livechat.stop?.();
+
+        // иногда полезно
+        livechat.running = false;
+    } catch (e) {
+        console.error("[YOUTUBE] destroy error:", e);
+    }
+}
+
 // ================= TTS CLEAN DESTROY =================
 function clearTempFolder() {
     const isDev = !app.isPackaged;
@@ -167,7 +191,6 @@ ipcMain.handle("vk-connect", async (_, channel) => {
 
         client.on("message", (ctx) => {
             if (vkConnectionId !== connectionId) return;
-            console.log("-------------------------------------message", ctx);
 
             mainWindow?.webContents.send("vk-message", {
                 id: ctx.message.id,
@@ -249,6 +272,110 @@ ipcMain.handle("vk-disconnect", async () => {
         id: genRandStr(),
         type: "warning",
         message: `Отключено от VK`,
+    });
+
+    return true;
+});
+
+// ================= YouTube CONNECT =================
+ipcMain.handle("youtube-connect", async (_, videoId) => {
+    const connectionId = ++youtubeConnectionId;
+
+    try {
+        // убиваем старый чат
+        if (youtubeLiveChat) {
+            destroyYoutubeLiveChat(youtubeLiveChat);
+            youtubeLiveChat = null;
+        }
+
+        const youtube = await Innertube.create();
+
+        const info = await youtube.getInfo(videoId);
+
+        const livechat = info.getLiveChat();
+
+        if (!livechat) {
+            console.log("[YOUTUBE] У трансляции нет live-чата");
+
+            mainWindow?.webContents.send("notice", {
+                id: genRandStr(),
+                type: "error",
+                message: `У трансляции нет live-чата`,
+            });
+
+            return false;
+        }
+
+        youtubeLiveChat = livechat;
+
+        console.log("[YOUTUBE] connected");
+
+        mainWindow?.webContents.send("notice", {
+            id: genRandStr(),
+            type: "success",
+            message: `Подключено к чату YouTube`,
+        });
+
+        livechat.on("chat-update", (action) => {
+            // защита от старых подключений
+            if (youtubeConnectionId !== connectionId) return;
+
+            console.log("[RAW]", action);
+
+            mainWindow?.webContents.send("youtube-message", action);
+        });
+
+        livechat.on("error", (err) => {
+            console.error("[YOUTUBE] error:", err);
+
+            mainWindow?.webContents.send("notice", {
+                id: genRandStr(),
+                type: "error",
+                message: `Ошибка YouTube: ${err.message}`,
+            });
+
+            if (youtubeConnectionId === connectionId) {
+                mainWindow?.webContents.send("youtube-disconnected");
+            }
+        });
+
+        livechat.start();
+
+        mainWindow?.webContents.send("youtube-connected");
+
+        return true;
+    } catch (e) {
+        console.error("[YOUTUBE] connect error:", e);
+
+        mainWindow?.webContents.send("youtube-disconnected");
+
+        mainWindow?.webContents.send("notice", {
+            id: genRandStr(),
+            type: "error",
+            message: `Ошибка подключения YouTube: ${e.message}`,
+        });
+
+        return false;
+    }
+});
+
+// ================= YouTube DISCONNECT =================
+ipcMain.handle("youtube-disconnect", async () => {
+    console.log("[YOUTUBE] disconnect");
+
+    youtubeConnectionId++;
+
+    if (youtubeLiveChat) {
+        destroyYoutubeLiveChat(youtubeLiveChat);
+        youtubeLiveChat = null;
+    }
+
+    mainWindow?.webContents.send("youtube-disconnected");
+
+    mainWindow?.webContents.send("notice", {
+        id: genRandStr(),
+        type: "warning",
+        message: `Отключено от YouTube`,
     });
 
     return true;
@@ -509,6 +636,10 @@ async function shutdown() {
         if (vkClient) {
             destroyVkClient(vkClient);
             vkClient = null;
+        }
+        if (youtubeLiveChat) {
+            destroyYoutubeLiveChat(youtubeLiveChat);
+            youtubeLiveChat = null;
         }
 
         // ✅ TTS kill

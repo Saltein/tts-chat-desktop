@@ -13,9 +13,7 @@ import {
     selectTwitchConnectionData,
     selectVkConnectionData,
     selectYoutubeVideoId,
-    setYoutubeAccessToken,
 } from "../../model/slice";
-import { GoogleLoginYouTube } from "../../../../features/auth/ui/GoogleLoginButton/GoogleLoginYoutube";
 
 export const ConnectionCard = ({
     IconComponent,
@@ -147,15 +145,6 @@ export const ConnectionCard = ({
                                     />
                                 );
                             })}
-                            {title === "YouTube" ? (
-                                <GoogleLoginYouTube
-                                    onAccessToken={(token) => {
-                                        dispatch(setYoutubeAccessToken(token));
-                                    }}
-                                />
-                            ) : (
-                                ""
-                            )}
                             <DefaultButton
                                 title={"Применить"}
                                 onClick={() => handleSubmit(true)}

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useRef, useEffect, useCallback } from "react";
 import s from "./ConnectionSwitch.module.scss";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,9 +8,7 @@ import {
     setTwitchConnectionStatus,
     setNewTwitchMessage,
     selectYoutubeVideoId,
-    selectYoutubeAccessToken,
     setYoutubeConnectionStatus,
-    setNewYoutubeMessage,
     setVkConnectionStatus,
     selectVkConnectionData,
     selectYoutubeConnectionStatus,
@@ -21,12 +20,6 @@ import {
     disconnectTwitchClient,
     getTwitchClient,
 } from "../../../../features/live-chat/lib/twitchClientSingleton";
-
-import {
-    connectYouTubeClient,
-    disconnectYouTubeClient,
-    getYouTubeClient,
-} from "../../../../features/live-chat/lib/youtube/youtubeClientSingleton";
 
 import { getTwitchChannelName } from "../../../lib/getTwitchChannelName";
 import { getYoutubeVideoId } from "../../../lib/getYoutubeVideoId";
@@ -53,7 +46,6 @@ export const ConnectionSwitch = ({
     const vkConnectionData = useSelector(selectVkConnectionData);
     const vkConnectionStatus = useSelector(selectVkConnectionStatus);
     const youtubeVideoId = useSelector(selectYoutubeVideoId);
-    const youtubeAccessToken = useSelector(selectYoutubeAccessToken);
     const youtubeConnectionStatus = useSelector(selectYoutubeConnectionStatus);
 
     const twitchChatChannelName = getTwitchChannelName(
@@ -91,18 +83,6 @@ export const ConnectionSwitch = ({
 
     // sync state
     useEffect(() => {
-        if (serviceName === "YouTube") {
-            const youtubeClient = getYouTubeClient();
-
-            const isYoutubeConnected =
-                youtubeClient && youtubeClient.isConnected;
-
-            if (isYoutubeConnected !== getConnectionStatus()) {
-                // eslint-disable-next-line react-hooks/set-state-in-effect
-                setIsSwitchLoading(false);
-            }
-        }
-
         if (serviceName === "Twitch") {
             const twitchClient = getTwitchClient();
 
@@ -126,7 +106,7 @@ export const ConnectionSwitch = ({
     // timeout
     useEffect(() => {
         if (isSwitchLoading) {
-            connectTimeoutRef.current = setTimeout(() => {
+            connectTimeoutRef.current = setTimeout(async () => {
                 if (!twitchJoined && serviceName === "Twitch") {
                     setIsSwitchLoading(false);
 
@@ -144,7 +124,7 @@ export const ConnectionSwitch = ({
                 if (!youtubeJoined && serviceName === "YouTube") {
                     setIsSwitchLoading(false);
 
-                    disconnectYouTubeClient();
+                    await window.electronAPI?.youtube?.disconnect?.();
 
                     dispatch(
                         addNotice({
@@ -158,7 +138,7 @@ export const ConnectionSwitch = ({
                 if (!vkJoined && serviceName === "VK Видео Live") {
                     setIsSwitchLoading(false);
 
-                    window.electronAPI?.vk?.disconnect?.();
+                    await window.electronAPI?.vk?.disconnect?.();
 
                     dispatch(
                         addNotice({
@@ -317,67 +297,54 @@ export const ConnectionSwitch = ({
         else if (serviceName === "YouTube") {
             setIsSwitchLoading(true);
 
-            const callbacks = {
-                onChatMessage: (msg) => {
-                    dispatch(setNewYoutubeMessage(msg));
-                },
-
-                onConnected: () => {
-                    setIsSwitchLoading(false);
-
-                    dispatch(setYoutubeConnectionStatus(true));
-
-                    setYoutubeJoined(true);
-                },
-
-                onDisconnected: () => {
-                    setIsSwitchLoading(false);
-
-                    dispatch(setYoutubeConnectionStatus(false));
-
-                    setYoutubeJoined(false);
-                },
-            };
-
-            try {
-                const client = await connectYouTubeClient(
-                    {
-                        accessToken: youtubeAccessToken,
-                        videoId: youtubeVideoIdFormatted,
-                    },
-                    callbacks,
-                    dispatch,
-                );
-
-                if (client) {
-                    clientRef.current = client;
-                } else {
-                    dispatch(
-                        addNotice({
-                            id: genRandStr(),
-                            type: "error",
-                            message: "Не удалось подключиться к YouTube",
-                        }),
-                    );
-
-                    setIsSwitchLoading(false);
-
-                    dispatch(setYoutubeConnectionStatus(false));
-                }
-            } catch (error) {
-                const errorText = error?.message || String(error);
-
-                console.error("YouTube error:", error);
+            if (!youtubeVideoIdFormatted) {
+                setIsSwitchLoading(false);
 
                 dispatch(
                     addNotice({
                         id: genRandStr(),
                         type: "error",
-                        message: `Ошибка подключения к YouTube: ${errorText}`,
+                        message: "Введите ссылку на трансляцию YouTube",
                     }),
                 );
 
+                return;
+            }
+
+            try {
+                const success = await window.electronAPI?.youtube?.connect?.(
+                    youtubeVideoIdFormatted,
+                );
+
+                if (!success) {
+                    throw new Error(
+                        "YouTube connect failed - method returned false",
+                    );
+                }
+
+                setTimeout(() => {
+                    if (getConnectionStatus() === false && isSwitchLoading) {
+                        setIsSwitchLoading(false);
+
+                        setYoutubeJoined(false);
+
+                        dispatch(setYoutubeConnectionStatus(false));
+
+                        dispatch(
+                            addNotice({
+                                id: genRandStr(),
+                                type: "error",
+                                message: "Таймаут подключения к YouTube",
+                            }),
+                        );
+                    }
+                }, 10000);
+            } catch (error) {
+                console.error("YouTube error:", error);
+
                 setIsSwitchLoading(false);
+
+                setYoutubeJoined(false);
 
                 dispatch(setYoutubeConnectionStatus(false));
             } finally {
@@ -385,42 +352,35 @@ export const ConnectionSwitch = ({
             }
         }
     }, [
-        serviceName,
         dispatch,
+        getConnectionStatus,
+        isSwitchLoading,
+        serviceName,
         twitchBotName,
         twitchBotToken,
         twitchChatChannelName,
-        youtubeAccessToken,
-        youtubeVideoIdFormatted,
         vkConnectionData?.vkChannelId,
-        getConnectionStatus,
-        isSwitchLoading,
+        youtubeVideoIdFormatted,
     ]);
 
     // TOGGLE
     const handleConnect = useCallback(async () => {
         if (getConnectionStatus()) {
             // disconnect
-
             if (serviceName === "Twitch") {
                 disconnectTwitchClient();
-
+                setTwitchJoined(false);
                 dispatch(setTwitchConnectionStatus(false));
-
                 setIsSwitchLoading(false);
             } else if (serviceName === "VK Видео Live") {
                 await window.electronAPI?.vk?.disconnect?.();
-
                 setVkJoined(false);
-
                 dispatch(setVkConnectionStatus(false));
-
                 setIsSwitchLoading(false);
             } else if (serviceName === "YouTube") {
-                disconnectYouTubeClient();
-
+                await window.electronAPI?.youtube?.disconnect?.();
+                setYoutubeJoined(false);
                 dispatch(setYoutubeConnectionStatus(false));
-
                 setIsSwitchLoading(false);
             }
 
@@ -440,9 +400,7 @@ export const ConnectionSwitch = ({
     useEffect(() => {
         if (serviceName === "VK Видео Live") {
             if (vkConnectionStatus) {
-                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setVkJoined(true);
-
                 setIsSwitchLoading(false);
             } else {
                 setVkJoined(false);
@@ -450,12 +408,22 @@ export const ConnectionSwitch = ({
         }
     }, [serviceName, vkConnectionStatus]);
 
+    // YOUTUBE sync
+    useEffect(() => {
+        if (serviceName === "YouTube") {
+            if (youtubeConnectionStatus) {
+                setYoutubeJoined(true);
+                setIsSwitchLoading(false);
+            } else {
+                setYoutubeJoined(false);
+            }
+        }
+    }, [serviceName, youtubeConnectionStatus]);
+
     // auto connect
     useEffect(() => {
         if (autoConnect && !getConnectionStatus()) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             handleConnect();
-
             onAutoConnectHandled();
         }
     }, [autoConnect, getConnectionStatus, handleConnect, onAutoConnectHandled]);
@@ -476,7 +444,7 @@ export const ConnectionSwitch = ({
                 }
 
                 if (serviceName === "YouTube") {
-                    disconnectYouTubeClient();
+                    await window.electronAPI?.youtube?.disconnect?.();
                     dispatch(setYoutubeConnectionStatus(false));
                 }
 

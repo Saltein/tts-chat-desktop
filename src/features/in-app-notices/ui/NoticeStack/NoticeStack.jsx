@@ -14,7 +14,7 @@ export const NoticeStack = () => {
 
     useEffect(() => {
         console.log("Subscribing to notice...");
-        const unsub = window.electronAPI.vk.onNotice((data) => {
+        const unsub = window.electronAPI.onNotice((data) => {
             console.log("NOTICE RECEIVED:", data);
             dispatch(
                 addNotice({

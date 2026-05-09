@@ -5,16 +5,12 @@ import TwitchIcon from "../../../shared/assets/icons/twitch-logo.svg?react";
 import YoutubeIcon from "../../../shared/assets/icons/youtube-color-svgrepo-com.svg?react";
 import VkVideoIcon from "../../../shared/assets/icons/vk-video-logo.svg?react";
 import {
-    selectYoutubeAccessToken,
     setYoutubeVideoId,
     setTwitchChatChannelName,
     setVkConnectionData,
 } from "../../../entities/connection/model/slice";
-import { useSelector } from "react-redux";
 
 export const ConnectionsPage = () => {
-    const youtubeAccessToken = useSelector(selectYoutubeAccessToken);
-
     const twitchInputs = [
         {
             name: "chatChannelName",
@@ -65,8 +61,7 @@ export const ConnectionsPage = () => {
                         dispatcher={setYoutubeVideoId}
                         funcActive={(formData) => {
                             if (
-                                Object.values(formData)[0] &&
-                                youtubeAccessToken
+                                Object.values(formData)[0]
                             ) {
                                 return true;
                             }

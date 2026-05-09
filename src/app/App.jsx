@@ -12,6 +12,8 @@ import { SendToWidget } from "../features/live-chat/lib/SendToWidget/SendToWidge
 import { useTTSServer } from "../shared/hooks/useTTSServer";
 import { UpdateNotice } from "../features/check-updates/ui/UpdateNotice/UpdateNotice";
 import { EmoteProvider } from "../shared/context/emotes/EmoteContext";
+import { initYoutubeChatListener } from "../features/live-chat/lib/youtube/youtubeChatListener";
+import { useEffect } from "react";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -21,8 +23,6 @@ function App() {
     const isWidget = starts("/widget");
 
     useTTSServer(isWidget);
-    if (!isWidget) initVkChatListener();
-    if (!isWidget) initTTSConsoleListener();
 
     const text = (
         <div>
@@ -31,6 +31,14 @@ function App() {
             <h2>@SALTEIN</h2>
         </div>
     );
+
+    useEffect(() => {
+        if (!isWidget) {
+            initVkChatListener();
+            initYoutubeChatListener();
+            initTTSConsoleListener();
+        }
+    }, [isWidget]);
 
     if (isWidget) {
         if (starts("/widget/chat")) {

@@ -8,7 +8,6 @@ const initialState = {
     },
     youtube: {
         youtubeVideoId: "",
-        youtubeAccessToken: "",
         connectionStatus: false,
     },
     vk: {
@@ -45,7 +44,6 @@ try {
 if (savedYoutube) {
     initialState.youtube = {
         youtubeVideoId: savedYoutube.youtubeVideoId || "",
-        youtubeAccessToken: savedYoutube.youtubeAccessToken || "",
         connectionStatus: savedYoutube.connectionStatus || false,
     };
 }
@@ -124,10 +122,6 @@ const connectionSlice = createSlice({
             state.youtube.youtubeVideoId = action.payload;
             saveYoutubeToLocalStorage(state.youtube);
         },
-        setYoutubeAccessToken: (state, action) => {
-            state.youtube.youtubeAccessToken = action.payload;
-            saveYoutubeToLocalStorage(state.youtube);
-        },
         setYoutubeConnectionStatus: (state, action) => {
             state.youtube.connectionStatus = action.payload;
         },
@@ -191,7 +185,6 @@ export const {
     setNewTwitchMessage,
 
     setYoutubeVideoId,
-    setYoutubeAccessToken,
     setYoutubeConnectionStatus,
     setNewYoutubeMessage,
 
@@ -217,8 +210,6 @@ export const selectTwitchConnectionStatus = (state) =>
 
 export const selectYoutubeVideoId = (state) =>
     state.connection.youtube.youtubeVideoId;
-export const selectYoutubeAccessToken = (state) =>
-    state.connection.youtube.youtubeAccessToken;
 export const selectYoutubeConnectionStatus = (state) =>
     state.connection.youtube.connectionStatus;
 

@@ -37,6 +37,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
         return () => ipcRenderer.removeListener("window-active", handler);
     },
 
+    onNotice: (callback) => {
+        const handler = (_, data) => callback(data);
+        ipcRenderer.on("notice", handler);
+
+        return () => ipcRenderer.removeListener("notice", handler);
+    },
+
     vk: {
         connect: (channel) => ipcRenderer.invoke("vk-connect", channel),
         disconnect: () => ipcRenderer.invoke("vk-disconnect"),
@@ -51,13 +58,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
             const handler = () => callback();
             ipcRenderer.on("vk-connected", handler);
             return () => ipcRenderer.removeListener("vk-connected", handler);
-        },
-
-        onNotice: (callback) => {
-            const handler = (_, data) => callback(data);
-            ipcRenderer.on("notice", handler);
-
-            return () => ipcRenderer.removeListener("notice", handler);
         },
 
         onDisconnected: (callback) => {

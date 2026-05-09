@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain, shell, globalShortcut } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
-import { startOAuthServer, stopOAuthServer } from "./oauthServer.js";
 import { spawn, exec } from "child_process";
 import fs from "fs";
 import { startWidgetServer, stopWidgetServer } from "./widgetServer.js";
@@ -66,7 +65,6 @@ async function createWindow() {
         mainWindow.webContents.send("window-active", false);
     });
 
-    await startOAuthServer(mainWindow);
     try {
         await startWidgetServer((type, message) => {
             mainWindow?.webContents.send("notice", {
@@ -320,7 +318,8 @@ ipcMain.handle("youtube-connect", async (_, videoId) => {
             // защита от старых подключений
             if (youtubeConnectionId !== connectionId) return;
 
-            console.log("[RAW]", action);
+            // console.log("[RAW]", action);
+            console.log("[YOUTUBE new message]");
 
             mainWindow?.webContents.send("youtube-message", action);
         });
@@ -333,6 +332,14 @@ ipcMain.handle("youtube-connect", async (_, videoId) => {
                 type: "error",
                 message: `Ошибка YouTube: ${err.message}`,
             });
+
+            if (youtubeConnectionId === connectionId) {
+                mainWindow?.webContents.send("youtube-disconnected");
+            }
+        });
+
+        livechat.on("end", () => {
+            console.log("[YOUTUBE] ended");
 
             if (youtubeConnectionId === connectionId) {
                 mainWindow?.webContents.send("youtube-disconnected");
@@ -664,7 +671,6 @@ async function shutdown() {
             ttsServerProcess = null;
         }
 
-        await stopOAuthServer?.();
         await stopWidgetServer?.();
 
         console.log("[APP] shutdown complete");

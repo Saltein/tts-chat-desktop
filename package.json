@@ -89,7 +89,8 @@
         "vklive-message-client": "^5.3.2",
         "web-vitals": "^2.1.0",
         "ws": "^8.20.0",
-        "yarn": "^1.22.22"
+        "yarn": "^1.22.22",
+        "youtubei.js": "^17.0.1"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.4",

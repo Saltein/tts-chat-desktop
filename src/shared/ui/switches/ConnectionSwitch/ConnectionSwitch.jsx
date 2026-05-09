@@ -85,7 +85,6 @@ export const ConnectionSwitch = ({
     useEffect(() => {
         if (serviceName === "Twitch") {
             const twitchClient = getTwitchClient();
-
             const isTwitchConnected = twitchClient && twitchClient.isConnected;
 
             if (isTwitchConnected !== getConnectionStatus()) {
@@ -199,27 +198,20 @@ export const ConnectionSwitch = ({
 
                     client.on("notice", (error) => {
                         setTwitchJoined(false);
-
                         console.error("Twitch error:", error);
-
                         dispatch(setTwitchConnectionStatus(false));
-
                         setIsSwitchLoading(false);
                     });
 
                     client.on("join", () => {
                         setTwitchJoined(true);
-
                         setIsSwitchLoading(false);
-
                         dispatch(setTwitchConnectionStatus(true));
                     });
 
                     client.on("disconnected", () => {
                         setTwitchJoined(false);
-
                         dispatch(setTwitchConnectionStatus(false));
-
                         setIsSwitchLoading(false);
                     });
                 } else {
@@ -282,11 +274,8 @@ export const ConnectionSwitch = ({
                 }, 10000);
             } catch (error) {
                 console.error("VK error:", error);
-
                 setIsSwitchLoading(false);
-
                 setVkJoined(false);
-
                 dispatch(setVkConnectionStatus(false));
             } finally {
                 isConnectingRef.current = false;
@@ -341,11 +330,8 @@ export const ConnectionSwitch = ({
                 }, 10000);
             } catch (error) {
                 console.error("YouTube error:", error);
-
                 setIsSwitchLoading(false);
-
                 setYoutubeJoined(false);
-
                 dispatch(setYoutubeConnectionStatus(false));
             } finally {
                 isConnectingRef.current = false;

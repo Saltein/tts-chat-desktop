@@ -1,4 +1,11 @@
-import { app, BrowserWindow, ipcMain, shell, globalShortcut } from "electron";
+import {
+    app,
+    BrowserWindow,
+    ipcMain,
+    shell,
+    globalShortcut,
+    protocol,
+} from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
 import { spawn, exec } from "child_process";
@@ -15,6 +22,10 @@ import {
 import pkg from "electron-updater";
 const { autoUpdater } = pkg;
 import { Innertube } from "youtubei.js";
+import {
+    clearMessageFromEmojis,
+    parseYoutubeEmojisToHTML,
+} from "./shared/parseYoutubeEmojisToHTML.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -318,10 +329,17 @@ ipcMain.handle("youtube-connect", async (_, videoId) => {
             // защита от старых подключений
             if (youtubeConnectionId !== connectionId) return;
 
-            // console.log("[RAW]", action);
-            console.log("[YOUTUBE new message]");
+            const item = action.item;
 
-            mainWindow?.webContents.send("youtube-message", action);
+            const message = {
+                message: { text: parseYoutubeEmojisToHTML(item?.message) },
+                clearMessage: clearMessageFromEmojis(item?.message) || " ",
+                user: item?.author?.name,
+                isModerator: item?.author?.is_moderator,
+                isOwner: item?.author?.badges[0]?.tooltip === "Owner",
+            };
+
+            mainWindow?.webContents.send("youtube-message", message);
         });
 
         livechat.on("error", (err) => {
@@ -599,10 +617,39 @@ ipcMain.handle("get-pending-update", async () => {
 
 // ================= LIFECYCLE ============================================================================ LIFECYCLE =================================
 app.whenReady().then(() => {
+    protocol.handle("assets", (request) => {
+        const url = new URL(request.url);
+
+        const filePath = path.join(
+            __dirname,
+            "shared",
+            "assets",
+            url.hostname,
+            decodeURIComponent(url.pathname).replace(/^\/+/, ""),
+        );
+
+        console.log("[ASSETS PATH]", filePath);
+
+        if (!fs.existsSync(filePath)) {
+            console.error("[ASSETS NOT FOUND]", filePath);
+            return new Response("Not found", { status: 404 });
+        }
+
+        const data = fs.readFileSync(filePath);
+
+        return new Response(data, {
+            headers: {
+                "Content-Type": "image/png",
+                "Cache-Control": "no-cache",
+            },
+        });
+    });
+
     const shortcutSkip = globalShortcut.register(
         SHORTCUTS["skip-audio"],
         handleSkipAudio,
     );
+
     if (!shortcutSkip) {
         console.error(
             `Failed to register shortcut to skip audio: ${SHORTCUTS["skip-audio"]}`,

@@ -69,6 +69,7 @@
         "@testing-library/user-event": "^13.2.1",
         "compose": "^0.1.2",
         "doker": "^0.0.8",
+        "dompurify": "^3.4.2",
         "electron-updater": "^6.8.3",
         "express": "^5.2.1",
         "nginx": "^1.1.0",

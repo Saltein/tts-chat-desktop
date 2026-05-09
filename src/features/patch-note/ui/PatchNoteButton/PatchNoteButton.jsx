@@ -8,8 +8,6 @@ import markdown from "../../../../shared/assets/texts/updates.md?raw";
 
 export const PatchNoteButton = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    console.log(markdown);
-
     const handleClick = () => {
         setIsModalOpen(true);
     };

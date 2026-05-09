@@ -23,15 +23,15 @@
 - React — интерфейс
 - Redux — управление состоянием
 - Node.js — серверная логика внутри приложения
-- VK Live Message Client / Twitch API / YouTube API — работа с чатами
+- vklive-message-client / tmi.js / youtubei.js — работа с чатами
 
 ## 📦 Установка
 
 1. Перейдите в раздел [Releases](https://github.com/your-username/tts-chat-desktop/releases)
 2. Скачайте последнюю версию приложения:
-    - `TTS Electron App Setup 0.0.0.exe`
-3. Запустите установщик
-4. После этого появится ярлык на рабочем столе и приложение сразу запустится
+    - `TTS-Chat-Desktop-Setup-x.x.x.exe`
+3. Установите в любую папку
+4. После этого появится ярлык на рабочем столе
 
 ### 🧑‍💻 Для разработчиков
 
@@ -46,7 +46,7 @@
     - Запуск собранного приложения:
         - `npm start`
     - Сборка `.exe` файла:
-        - `npm run build:electron`
+        - `npm run build:electron:win`
 
 #### 🔑 Переменные окружения
 
@@ -60,17 +60,12 @@ VITE_BASE_URL_API=http://localhost:5001
 VITE_BASE_URL_WEBSOCKET=ws://localhost:6789
 VITE_BASE_URL_WIDGET=http://127.0.0.1:3030
 
-VITE_GOOGLE_CLIENT_ID=id_десктоп_приложения_в_твоем_проекте_Google_Console
-VITE_GOOGLE_CLIENT_SECRET=secret_десктоп_приложения_в_твоем_проекте_Google_Console
-
-VITE_GOOGLE_REDIRECT_URI=http://localhost:5173/oauth2callback
-
 VITE_GOOGLE_API_KEY=api_ключ_проекта_Google_Console
 VITE_GOOGLE_API_KEYS=api_ключ_проекта_Google_Console1 api_ключ_проекта_Google_Console2 api_ключ_проекта_Google_Console3
 
-VITE_GOOGLE_TIMEOUT=5000
+VITE_TWITCH_APP_ID=id_приложения_Twitch_Developers_Console
+VITE_TWITCH_APP_SECRET=secret_id_приложения_Twitch_Developers_Console
 
-VITE_BETA_ACCESS_PASSWORD=aboba1337
 ```
 
 ### ⚠️ Важно: не публикуй .env в репозитории
@@ -79,9 +74,7 @@ VITE_BETA_ACCESS_PASSWORD=aboba1337
 ## 🧩 Планы на будущее
 - более гибкая настройка внешнего вида сообщений
 - выбор какие сообщения озвучивать (например за баллы канала)
-- возможность загрузки своей модели для озвучки
 - цензура сообщений и черный список слов
-- отображение эмоджи
 - виджет статистики
 
 ## 🤝 Контрибьюция

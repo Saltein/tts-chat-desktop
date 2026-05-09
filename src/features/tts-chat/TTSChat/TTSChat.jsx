@@ -30,9 +30,20 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     const { stripEmotesFromRawText } = useEmoteContext();
 
     const handleSpeak = async (messageObj) => {
-        const noEmoteText = stripEmotesFromRawText(
-            messageObj?.message || messageObj?.text,
-        );
+        console.log("[TTSChat] handleSpeak", messageObj);
+        let noEmoteText;
+        if (messageObj?.service === "twitch") {
+            noEmoteText = stripEmotesFromRawText(
+                messageObj?.message || messageObj?.text,
+            );
+        } else if (messageObj.clearMessage) {
+            noEmoteText = messageObj.clearMessage;
+        } else {
+            noEmoteText =
+                messageObj?.message?.text ||
+                messageObj?.message ||
+                messageObj?.text;
+        }
 
         if (!isTwitchTTSOn) return;
         if (messageObj) {

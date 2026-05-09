@@ -12,6 +12,7 @@ export function initVkChatListener() {
 
     // Подписка на входящие сообщения VK
     window.electronAPI.vk.onMessage((msg) => {
+        console.log("[vkChatListener], message:", msg);
         store.dispatch(setNewVkMessage(msg));
     });
 

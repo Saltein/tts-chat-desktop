@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 import { memo, useEffect, useMemo, useState } from "react";
 import s from "./ChatMessage.module.scss";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,20 +39,81 @@ import { genRandStr } from "../../../../shared/lib/genRandStr";
 import { addNotice } from "../../../in-app-notices/model/slice";
 import { selectTwitchTTSOn } from "../../../tts-chat/model/slice";
 import { useEmoteContext } from "../../../../shared/context/emotes/EmoteContext";
+import DOMPurify from "dompurify";
+
+const ALLOWED_IMAGE_DOMAINS = [
+    "static-cdn.jtvnw.net",
+    "clips-media-assets2.twitch.tv",
+    "static.twitchcdn.net",
+    "assets.twitch.tv",
+
+    "yt3.ggpht.com",
+    "i.ytimg.com",
+    "emoji.ytimg.com",
+    "www.youtube.com",
+
+    "fonts.gstatic.com",
+    "i.imgur.com",
+    "cdn.discordapp.com",
+
+    "youtubeEmojis",
+];
+
+function isAllowedImage(src) {
+    try {
+        const url = new URL(src);
+        if (url.protocol === "assets:") {
+            return true;
+        }
+
+        return ALLOWED_IMAGE_DOMAINS.includes(url.hostname);
+    } catch {
+        return false;
+    }
+}
 
 export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const { parseText, isReady } = useEmoteContext();
 
     let messageText = message.message ? message.message : message?.text;
+    if (message.message) {
+        if (typeof message.message !== "string") {
+            messageText = message.message?.text;
+        } else {
+            messageText = message.message;
+        }
+    } else {
+        message?.text;
+    }
 
     const parsedMessage = useMemo(() => {
-        if (!isReady) return messageText;
-        if (message?.service === "twitch") {
-            const parsed = parseText(messageText);
-            console.log("[ChatMessage] parsedMessage", parsed);
-            return parsed;
+        let result = messageText;
+        if (isReady && message?.service === "twitch") {
+            result = parseText(messageText);
         }
-        return messageText;
+        // 1. сначала чистим XSS
+        const cleanHtml = DOMPurify.sanitize(result, {
+            ALLOWED_TAGS: ["img", "span", "div", "br"],
+
+            ALLOWED_ATTR: ["src", "class", "style"],
+
+            ALLOWED_URI_REGEXP:
+                /^(?:(?:https?|assets):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+        });
+        // 2. парсим HTML чтобы проверить <img>
+        const doc = new DOMParser().parseFromString(cleanHtml, "text/html");
+
+        doc.querySelectorAll("img").forEach((img) => {
+            const src = img.getAttribute("src");
+
+            if (!src || !isAllowedImage(src)) {
+                // удаляем опасную/неразрешённую картинку
+                img.remove();
+            }
+        });
+
+        // 3. возвращаем безопасный HTML
+        return doc.body.innerHTML;
     }, [messageText, message?.service, parseText, isReady]);
 
     const [isFading, setIsFading] = useState(false);

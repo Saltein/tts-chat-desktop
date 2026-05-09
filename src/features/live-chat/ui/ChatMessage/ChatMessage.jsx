@@ -75,6 +75,10 @@ function isAllowedImage(src) {
 export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const { parseText, isReady } = useEmoteContext();
 
+    const messageName = message.tags
+        ? message.tags["display-name"]
+        : message?.user;
+
     let messageText = message.message ? message.message : message?.text;
     if (message.message) {
         if (typeof message.message !== "string") {
@@ -253,6 +257,12 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         };
     }, [timeBeforeDisappear, message.id, dispatch, messageDisappearing]);
 
+    useEffect(() => {
+        if (!messageName) {
+            dispatch(deleteMessageById(message.id));
+        }
+    }, [messageName, dispatch, message.id]);
+
     let Icon;
     if (message?.service === "twitch") {
         Icon = TwitchIcon;
@@ -316,9 +326,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
                     />
                 )}
                 <span className={s.nameText} style={nameStyles}>
-                    {message.tags
-                        ? message.tags["display-name"]
-                        : message?.user}
+                    {messageName}
                     {isModerator && (
                         <WrenchIcon
                             className={s.wrenchIcon}

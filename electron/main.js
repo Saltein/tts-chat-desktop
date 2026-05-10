@@ -26,6 +26,7 @@ import {
     clearMessageFromEmojis,
     parseYoutubeEmojisToHTML,
 } from "./shared/parseYoutubeEmojisToHTML.js";
+import { parseVkEmojisToHTML } from "./shared/parseVkEmojisToHTML.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -201,10 +202,22 @@ ipcMain.handle("vk-connect", async (_, channel) => {
         client.on("message", (ctx) => {
             if (vkConnectionId !== connectionId) return;
 
+            console.log("[VK message]", ctx);
+
+            console.log(
+                "[VK parsed message]",
+                parseVkEmojisToHTML(ctx?.message?.text, ctx?.message?.smiles),
+            );
+
+            const parsedMessage = parseVkEmojisToHTML(
+                ctx?.message?.text,
+                ctx?.message?.smiles,
+            );
+
             mainWindow?.webContents.send("vk-message", {
                 id: ctx.message.id,
                 user: ctx.user?.name,
-                text: ctx.message?.text,
+                text: parsedMessage,
                 color: ctx.user?.nickColor,
                 isModerator:
                     ctx.user?.isChatModerator || ctx.user?.isChannelModerator,

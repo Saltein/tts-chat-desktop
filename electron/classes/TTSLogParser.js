@@ -1,3 +1,4 @@
+/* eslint-disable no-control-regex */
 export class TTSLogParser {
     constructor(options = {}) {
         this.buffer = "";

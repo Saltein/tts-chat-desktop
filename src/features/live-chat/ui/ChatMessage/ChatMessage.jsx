@@ -57,6 +57,9 @@ const ALLOWED_IMAGE_DOMAINS = [
     "cdn.discordapp.com",
 
     "youtubeEmojis",
+
+    "images.live.vkvideo.ru",
+    "vk.com",
 ];
 
 function isAllowedImage(src) {

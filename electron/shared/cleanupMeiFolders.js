@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import fs from "fs";
 import path from "path";
 import os from "os";
@@ -31,6 +32,7 @@ async function cleanupMeiFolders(maxAgeHours = 1, forceDeleteAll = false) {
                 const stats = fs.statSync(fullPath);
                 return stats.isDirectory() && item.startsWith("_MEI");
             } catch (err) {
+                console.error(`Failed to get stats for ${fullPath}:`, err);
                 return false;
             }
         });

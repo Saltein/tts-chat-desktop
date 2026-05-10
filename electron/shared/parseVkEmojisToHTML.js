@@ -1,13 +1,8 @@
 export const parseVkEmojisToHTML = (message, smiles) => {
-    console.log("[parseVkEmojisToHTML] message:", message);
-    console.log("[parseVkEmojisToHTML] smiles:", smiles);
-
     if (!message) {
-        console.log("[parseVkEmojisToHTML] no message");
         return "";
     }
     if (smiles.length === 0) {
-        console.log("[parseVkEmojisToHTML] no smiles");
         return message;
     }
     const emojisMap = Object.fromEntries(

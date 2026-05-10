@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     selectSpeechVolume,
     selectTwitchTTSOn,
@@ -16,46 +16,72 @@ import { useEmoteContext } from "../../../shared/context/emotes/EmoteContext";
 export const TTSChat = ({ volume, twitchVoiceProp }) => {
     let currentVolume = useSelector(selectSpeechVolume) / 100;
     if (volume) currentVolume = volume;
+
     const message = useSelector(selectLastMessage)[0];
     const revoiceMessage = useSelector(selectRevoiceMessage);
+
     const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
+
     let twitchVoice = useSelector(selectTwitchVoice);
     if (twitchVoiceProp) twitchVoice = twitchVoiceProp;
 
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
 
-    const [audioUrl, setAudioUrl] = useState(null);
     const audioRef = useRef(null);
+
+    // ОЧЕРЕДЬ
+    const queueRef = useRef([]);
+
+    // ИДЁТ ЛИ ВОСПРОИЗВЕДЕНИЕ
+    const isPlayingRef = useRef(false);
+
+    const [audioUrl, setAudioUrl] = useState(null);
 
     const { stripEmotesFromRawText } = useEmoteContext();
 
-    const handleSpeak = async (messageObj) => {
-        console.log("[TTSChat] handleSpeak", messageObj);
-        let noEmoteText;
-        if (messageObj?.service === "twitch") {
-            noEmoteText = stripEmotesFromRawText(
-                messageObj?.message || messageObj?.text,
-            );
-        } else if (messageObj.clearMessage) {
-            noEmoteText = messageObj.clearMessage;
-        } else {
-            noEmoteText =
-                messageObj?.message?.text ||
-                messageObj?.message ||
-                messageObj?.text;
+    const playNext = () => {
+        const next = queueRef.current.shift();
+
+        if (!next) {
+            isPlayingRef.current = false;
+            setAudioUrl(null);
+            return;
         }
 
-        if (!isTwitchTTSOn) return;
-        if (messageObj) {
+        isPlayingRef.current = true;
+        setAudioUrl(next);
+    };
+
+    const handleSpeak = useCallback(
+        async (messageObj) => {
+            if (!isTwitchTTSOn || !messageObj) return;
+
+            let noEmoteText;
+
+            if (messageObj?.service === "twitch") {
+                noEmoteText = stripEmotesFromRawText(
+                    messageObj?.message || messageObj?.text,
+                );
+            } else if (messageObj.clearMessage) {
+                noEmoteText = messageObj.clearMessage;
+            } else {
+                noEmoteText =
+                    messageObj?.message?.text ||
+                    messageObj?.message ||
+                    messageObj?.text;
+            }
+
             if (messageObj?.service === "twitch") {
                 if (messageObj?.tags["reply-parent-user-login"]) return;
             }
+
             if (
                 messageObj?.service === "vk" &&
                 messageObj?.user === "ChatBot"
             ) {
                 return;
             }
+
             try {
                 const res = await fetch(`${baseUrl}/api/speak`, {
                     method: "POST",
@@ -74,12 +100,20 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
 
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
-                setAudioUrl(url);
+
+                // ДОБАВЛЯЕМ В ОЧЕРЕДЬ
+                queueRef.current.push(url);
+
+                // ЕСЛИ НИЧЕГО НЕ ИГРАЕТ → СТАРТУЕМ
+                if (!isPlayingRef.current) {
+                    playNext();
+                }
             } catch (err) {
                 console.error("Ошибка запроса к TTS серверу:", err);
             }
-        }
-    };
+        },
+        [baseUrl, isTwitchTTSOn, stripEmotesFromRawText, twitchVoice],
+    );
 
     useEffect(() => {
         if (audioRef.current) {
@@ -88,43 +122,52 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     }, [currentVolume, audioUrl]);
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         handleSpeak(message);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [message]);
+    }, [message, handleSpeak]);
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         handleSpeak(revoiceMessage);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [revoiceMessage]);
+    }, [revoiceMessage, handleSpeak]);
+
+    useEffect(() => {
+        const audio = audioRef.current;
+
+        if (!audio) return;
+
+        const handleEnded = () => {
+            if (audio.src) {
+                URL.revokeObjectURL(audio.src);
+            }
+
+            playNext();
+        };
+
+        audio.addEventListener("ended", handleEnded);
+
+        return () => {
+            audio.removeEventListener("ended", handleEnded);
+        };
+    }, []);
 
     useEffect(() => {
         if (window.electronAPI?.onSkipAudio) {
             const skip = window.electronAPI.onSkipAudio(() => {
-                if (audioRef.current && !audioRef.current.ended) {
-                    audioRef.current.currentTime = audioRef.current.duration;
-                    console.log("Audio skipped");
+                const audio = audioRef.current;
+
+                if (audio && !audio.ended) {
+                    audio.pause();
+
+                    if (audio.src) {
+                        URL.revokeObjectURL(audio.src);
+                    }
+
+                    playNext();
                 }
             });
+
             return skip;
         }
     }, []);
-
-    useEffect(() => {
-        const audio = audioRef.current;
-        if (!audio) return;
-
-        const handleEnded = () => {
-            if (audioUrl) {
-                URL.revokeObjectURL(audioUrl);
-                setAudioUrl(null);
-            }
-        };
-
-        audio.addEventListener("ended", handleEnded);
-        return () => audio.removeEventListener("ended", handleEnded);
-    }, [audioUrl]);
 
     return (
         <div className={s.wrapper}>
@@ -133,7 +176,7 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
                     ref={audioRef}
                     controls
                     autoPlay
-                    src={audioUrl}
+                    src={audioUrl || ""}
                     style={{ width: "100%" }}
                 />
             )}

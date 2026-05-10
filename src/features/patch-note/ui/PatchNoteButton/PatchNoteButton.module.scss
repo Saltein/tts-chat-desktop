@@ -126,3 +126,24 @@
         }
     }
 }
+
+.link {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    text-decoration: none;
+    color: #58a6ff;
+    margin-top: $spacing-xs;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    gap: $spacing-xxs;
+}
+
+.linkIcon {
+    height: 16px;
+    width: 16px;
+    color: #58a6ff;
+}

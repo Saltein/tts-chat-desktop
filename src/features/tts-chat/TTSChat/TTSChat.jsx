@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
     selectSpeechVolume,
@@ -36,18 +37,31 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
 
     const { stripEmotesFromRawText } = useEmoteContext();
 
+    console.log("[TTS] init render", {
+        isTwitchTTSOn,
+        baseUrl,
+        voice: twitchVoice,
+    });
+
     // ----------------------------
     // PLAY NEXT
     // ----------------------------
     const playNext = useCallback(() => {
+        console.log(
+            "[TTS] playNext called, queue size:",
+            queueRef.current.length,
+        );
+
         const next = queueRef.current.shift();
 
         if (!next) {
+            console.log("[TTS] queue empty, stopping");
             isPlayingRef.current = false;
             setAudioUrl(null);
             return;
         }
 
+        console.log("[TTS] playing next url");
         isPlayingRef.current = true;
 
         setAudioUrl(next);
@@ -58,13 +72,24 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     // ----------------------------
     const enqueue = useCallback(
         (url, priority = false) => {
+            console.log("[TTS] enqueue", { priority, url });
+
             if (priority) {
                 queueRef.current.unshift(url);
             } else {
                 queueRef.current.push(url);
             }
 
-            if (!isPlayingRef.current && !audioRef.current?.src) {
+            console.log(
+                "[TTS] queue size after enqueue:",
+                queueRef.current.length,
+            );
+
+            // Запускаем воспроизведение, если ничего не играет:
+            // либо isPlayingRef === false, либо аудио на паузе (закончилось или прервано)
+            const audio = audioRef.current;
+            if (!isPlayingRef.current || (audio && audio.paused)) {
+                console.log("[TTS] starting playback from enqueue");
                 playNext();
             }
         },
@@ -76,7 +101,12 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     // ----------------------------
     const handleSpeak = useCallback(
         async (messageObj) => {
-            if (!isTwitchTTSOn || !messageObj) return;
+            console.log("[TTS] handleSpeak received:", messageObj);
+
+            if (!isTwitchTTSOn || !messageObj) {
+                console.log("[TTS] handleSpeak aborted (disabled or empty)");
+                return;
+            }
 
             let noEmoteText;
 
@@ -93,6 +123,8 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
                     messageObj?.text;
             }
 
+            console.log("[TTS] parsed text:", noEmoteText);
+
             try {
                 const res = await fetch(`${baseUrl}/api/speak`, {
                     method: "POST",
@@ -103,16 +135,21 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
                     }),
                 });
 
+                console.log("[TTS] API response status:", res.status);
+
                 if (!res.ok) {
+                    console.error("[TTS] API error response");
                     return;
                 }
 
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
 
+                console.log("[TTS] audio blob created:", url);
+
                 enqueue(url, false);
             } catch (err) {
-                console.error("TTS error:", err);
+                console.error("[TTS] TTS error:", err);
             }
         },
         [baseUrl, isTwitchTTSOn, stripEmotesFromRawText, twitchVoice, enqueue],
@@ -123,7 +160,12 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     // ----------------------------
     const playImmediate = useCallback(
         async (messageObj) => {
-            if (!isTwitchTTSOn || !messageObj) return;
+            console.log("[TTS] playImmediate:", messageObj);
+
+            if (!isTwitchTTSOn || !messageObj) {
+                console.log("[TTS] playImmediate aborted");
+                return;
+            }
 
             let noEmoteText;
 
@@ -140,6 +182,8 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
                     messageObj?.text;
             }
 
+            console.log("[TTS] playImmediate text:", noEmoteText);
+
             try {
                 const res = await fetch(`${baseUrl}/api/speak`, {
                     method: "POST",
@@ -150,14 +194,19 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
                     }),
                 });
 
+                console.log("[TTS] immediate API status:", res.status);
+
                 if (!res.ok) return;
 
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
 
+                console.log("[TTS] immediate audio url:", url);
+
                 const audio = audioRef.current;
 
                 if (audio) {
+                    console.log("[TTS] stopping current audio");
                     audio.pause();
                     audio.currentTime = 0;
                 }
@@ -166,11 +215,42 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
 
                 setAudioUrl(url);
             } catch (err) {
-                console.error("TTS immediate error:", err);
+                console.error("[TTS] TTS immediate error:", err);
             }
         },
         [baseUrl, isTwitchTTSOn, stripEmotesFromRawText, twitchVoice],
     );
+
+    // ----------------------------
+    // СБРОС ПРИ ВЫКЛЮЧЕНИИ TTS
+    // ----------------------------
+    useEffect(() => {
+        if (!isTwitchTTSOn) {
+            console.log("[TTS] TTS disabled, cleaning up state");
+
+            // Останавливаем текущее воспроизведение
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+
+            // Сбрасываем флаг воспроизведения
+            isPlayingRef.current = false;
+
+            // Очищаем очередь и освобождаем blob URL
+            queueRef.current.forEach((url) => {
+                try {
+                    URL.revokeObjectURL(url);
+                } catch (e) {
+                    console.error("[TTS] Error revoking URL:", e);
+                }
+            });
+            queueRef.current = [];
+
+            // Сбрасываем audioUrl
+            setAudioUrl(null);
+        }
+    }, [isTwitchTTSOn]);
 
     // ----------------------------
     // volume
@@ -178,6 +258,7 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.volume = currentVolume || 0;
+            console.log("[TTS] volume set:", currentVolume);
         }
     }, [currentVolume, audioUrl]);
 
@@ -188,8 +269,10 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
         const audio = audioRef.current;
         if (!audio || !audioUrl) return;
 
+        console.log("[TTS] trying autoplay:", audioUrl);
+
         audio.play().catch((err) => {
-            console.warn("Autoplay blocked:", err);
+            console.warn("[TTS] autoplay blocked:", err);
         });
     }, [audioUrl]);
 
@@ -197,28 +280,34 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     // messages
     // ----------------------------
     useEffect(() => {
+        console.log("[TTS] message update:", message);
         handleSpeak(message);
     }, [message, handleSpeak]);
 
     useEffect(() => {
         if (revoiceMessage) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
+            console.log("[TTS] revoice message:", revoiceMessage);
             playImmediate(revoiceMessage);
         }
     }, [revoiceMessage, playImmediate]);
 
     // ----------------------------
-    // ended (FIXED LOGIC)
+    // ended
     // ----------------------------
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;
 
         const handleEnded = () => {
+            console.log("[TTS] audio ended");
+
             const src = audio.src;
 
             setTimeout(() => {
-                if (src) URL.revokeObjectURL(src);
+                if (src) {
+                    console.log("[TTS] revoking url:", src);
+                    URL.revokeObjectURL(src);
+                }
             }, 0);
 
             isPlayingRef.current = false;
@@ -235,7 +324,11 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
     // ----------------------------
     useEffect(() => {
         if (window.electronAPI?.onSkipAudio) {
+            console.log("[TTS] skip handler registered");
+
             const skip = window.electronAPI.onSkipAudio(() => {
+                console.log("[TTS] skip triggered");
+
                 const audio = audioRef.current;
 
                 if (!audio) return;
@@ -245,7 +338,7 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
                 try {
                     URL.revokeObjectURL(audio.src);
                 } catch {
-                    console.error("URL revoke error");
+                    console.error("[TTS] revoke error");
                 }
 
                 playNext();
@@ -261,7 +354,7 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
                 <audio
                     ref={audioRef}
                     controls
-                    src={audioUrl || ""}
+                    src={audioUrl || undefined}
                     style={{ width: "100%" }}
                 />
             )}

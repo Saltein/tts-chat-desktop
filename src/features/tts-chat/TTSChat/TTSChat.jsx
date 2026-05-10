@@ -29,17 +29,17 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
 
     const audioRef = useRef(null);
 
-    // ОЧЕРЕДЬ
     const queueRef = useRef([]);
-
-    // ИДЁТ ЛИ ВОСПРОИЗВЕДЕНИЕ
     const isPlayingRef = useRef(false);
 
     const [audioUrl, setAudioUrl] = useState(null);
 
     const { stripEmotesFromRawText } = useEmoteContext();
 
-    const playNext = () => {
+    // ----------------------------
+    // PLAY NEXT
+    // ----------------------------
+    const playNext = useCallback(() => {
         const next = queueRef.current.shift();
 
         if (!next) {
@@ -49,9 +49,31 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
         }
 
         isPlayingRef.current = true;
-        setAudioUrl(next);
-    };
 
+        setAudioUrl(next);
+    }, []);
+
+    // ----------------------------
+    // ENQUEUE
+    // ----------------------------
+    const enqueue = useCallback(
+        (url, priority = false) => {
+            if (priority) {
+                queueRef.current.unshift(url);
+            } else {
+                queueRef.current.push(url);
+            }
+
+            if (!isPlayingRef.current && !audioRef.current?.src) {
+                playNext();
+            }
+        },
+        [playNext],
+    );
+
+    // ----------------------------
+    // NORMAL SPEAK
+    // ----------------------------
     const handleSpeak = useCallback(
         async (messageObj) => {
             if (!isTwitchTTSOn || !messageObj) return;
@@ -71,15 +93,51 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
                     messageObj?.text;
             }
 
-            if (messageObj?.service === "twitch") {
-                if (messageObj?.tags["reply-parent-user-login"]) return;
-            }
+            try {
+                const res = await fetch(`${baseUrl}/api/speak`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        text: transliterateMessage(noEmoteText),
+                        speaker: twitchVoice,
+                    }),
+                });
 
-            if (
-                messageObj?.service === "vk" &&
-                messageObj?.user === "ChatBot"
-            ) {
-                return;
+                if (!res.ok) {
+                    return;
+                }
+
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+
+                enqueue(url, false);
+            } catch (err) {
+                console.error("TTS error:", err);
+            }
+        },
+        [baseUrl, isTwitchTTSOn, stripEmotesFromRawText, twitchVoice, enqueue],
+    );
+
+    // ----------------------------
+    // PRIORITY REVOICE
+    // ----------------------------
+    const playImmediate = useCallback(
+        async (messageObj) => {
+            if (!isTwitchTTSOn || !messageObj) return;
+
+            let noEmoteText;
+
+            if (messageObj?.service === "twitch") {
+                noEmoteText = stripEmotesFromRawText(
+                    messageObj?.message || messageObj?.text,
+                );
+            } else if (messageObj.clearMessage) {
+                noEmoteText = messageObj.clearMessage;
+            } else {
+                noEmoteText =
+                    messageObj?.message?.text ||
+                    messageObj?.message ||
+                    messageObj?.text;
             }
 
             try {
@@ -92,82 +150,110 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
                     }),
                 });
 
-                if (!res.ok) {
-                    const error = await res.json();
-                    console.error("Ошибка TTS:", error);
-                    return;
-                }
+                if (!res.ok) return;
 
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
 
-                // ДОБАВЛЯЕМ В ОЧЕРЕДЬ
-                queueRef.current.push(url);
+                const audio = audioRef.current;
 
-                // ЕСЛИ НИЧЕГО НЕ ИГРАЕТ → СТАРТУЕМ
-                if (!isPlayingRef.current) {
-                    playNext();
+                if (audio) {
+                    audio.pause();
+                    audio.currentTime = 0;
                 }
+
+                isPlayingRef.current = true;
+
+                setAudioUrl(url);
             } catch (err) {
-                console.error("Ошибка запроса к TTS серверу:", err);
+                console.error("TTS immediate error:", err);
             }
         },
         [baseUrl, isTwitchTTSOn, stripEmotesFromRawText, twitchVoice],
     );
 
+    // ----------------------------
+    // volume
+    // ----------------------------
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.volume = currentVolume || 0;
         }
     }, [currentVolume, audioUrl]);
 
+    // ----------------------------
+    // autoplay
+    // ----------------------------
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio || !audioUrl) return;
+
+        audio.play().catch((err) => {
+            console.warn("Autoplay blocked:", err);
+        });
+    }, [audioUrl]);
+
+    // ----------------------------
+    // messages
+    // ----------------------------
     useEffect(() => {
         handleSpeak(message);
     }, [message, handleSpeak]);
 
     useEffect(() => {
-        handleSpeak(revoiceMessage);
-    }, [revoiceMessage, handleSpeak]);
+        if (revoiceMessage) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            playImmediate(revoiceMessage);
+        }
+    }, [revoiceMessage, playImmediate]);
 
+    // ----------------------------
+    // ended (FIXED LOGIC)
+    // ----------------------------
     useEffect(() => {
         const audio = audioRef.current;
-
         if (!audio) return;
 
         const handleEnded = () => {
-            if (audio.src) {
-                URL.revokeObjectURL(audio.src);
-            }
+            const src = audio.src;
+
+            setTimeout(() => {
+                if (src) URL.revokeObjectURL(src);
+            }, 0);
+
+            isPlayingRef.current = false;
 
             playNext();
         };
 
         audio.addEventListener("ended", handleEnded);
+        return () => audio.removeEventListener("ended", handleEnded);
+    }, [playNext]);
 
-        return () => {
-            audio.removeEventListener("ended", handleEnded);
-        };
-    }, []);
-
+    // ----------------------------
+    // skip
+    // ----------------------------
     useEffect(() => {
         if (window.electronAPI?.onSkipAudio) {
             const skip = window.electronAPI.onSkipAudio(() => {
                 const audio = audioRef.current;
 
-                if (audio && !audio.ended) {
-                    audio.pause();
+                if (!audio) return;
 
-                    if (audio.src) {
-                        URL.revokeObjectURL(audio.src);
-                    }
+                audio.pause();
 
-                    playNext();
+                try {
+                    URL.revokeObjectURL(audio.src);
+                } catch {
+                    console.error("URL revoke error");
                 }
+
+                playNext();
             });
 
             return skip;
         }
-    }, []);
+    }, [playNext]);
 
     return (
         <div className={s.wrapper}>
@@ -175,7 +261,6 @@ export const TTSChat = ({ volume, twitchVoiceProp }) => {
                 <audio
                     ref={audioRef}
                     controls
-                    autoPlay
                     src={audioUrl || ""}
                     style={{ width: "100%" }}
                 />

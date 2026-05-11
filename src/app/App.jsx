@@ -1,6 +1,5 @@
 import s from "./App.module.scss";
 import TgLogo from "../shared/assets/icons/telegram-logo-filled.svg";
-import { useLocation } from "react-router-dom";
 import { GlobalPage } from "../pages/GlobalPage/GlobalPage";
 import { ChatWidget } from "../pages/Widgets/ChatWidget/ChatWidget";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -14,13 +13,12 @@ import { UpdateNotice } from "../features/check-updates/ui/UpdateNotice/UpdateNo
 import { EmoteProvider } from "../shared/context/emotes/EmoteContext";
 import { initYoutubeChatListener } from "../features/live-chat/lib/youtube/youtubeChatListener";
 import { useEffect } from "react";
+import { useStartsWith } from "../shared/hooks/useStartsWith";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function App() {
-    const location = useLocation();
-    const starts = (path) => location.pathname.startsWith(path);
-    const isWidget = starts("/widget");
+    const { starts, isWidget } = useStartsWith();
 
     useTTSServer(isWidget);
 

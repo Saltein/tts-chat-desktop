@@ -40,6 +40,7 @@ import { addNotice } from "../../../in-app-notices/model/slice";
 import { selectTwitchTTSOn } from "../../../tts-chat/model/slice";
 import { useEmoteContext } from "../../../../shared/context/emotes/EmoteContext";
 import DOMPurify from "dompurify";
+import { useStartsWith } from "../../../../shared/hooks/useStartsWith";
 
 const ALLOWED_IMAGE_DOMAINS = [
     "static-cdn.jtvnw.net",
@@ -78,6 +79,8 @@ function isAllowedImage(src) {
 export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const { parseText, isReady } = useEmoteContext();
 
+    const { isWidget } = useStartsWith();
+
     const messageName = message.tags
         ? message.tags["display-name"]
         : message?.user;
@@ -107,6 +110,15 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
             ALLOWED_URI_REGEXP:
                 /^(?:(?:https?|assets):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
         });
+
+        if (isWidget) {
+            const newHtml = cleanHtml.replaceAll(
+                "assets://",
+                "/assets/",
+            );
+            console.log("newHtml", newHtml);
+            return newHtml;
+        }
         // 2. парсим HTML чтобы проверить <img>
         const doc = new DOMParser().parseFromString(cleanHtml, "text/html");
 
@@ -121,7 +133,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
 
         // 3. возвращаем безопасный HTML
         return doc.body.innerHTML;
-    }, [messageText, message?.service, parseText, isReady]);
+    }, [messageText, message?.service, parseText, isReady, isWidget]);
 
     const [isFading, setIsFading] = useState(false);
 

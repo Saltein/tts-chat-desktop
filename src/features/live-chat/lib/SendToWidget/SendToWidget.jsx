@@ -4,18 +4,23 @@ import { useEffect, useRef } from "react";
 import { useWebSocket } from "../../../../shared/hooks/useWebSocket";
 
 export const SendToWidget = () => {
-    const message = useSelector(selectLastMessage)[0];
-    const previousMessageRef = useRef(null);
     const { isConnected, sendMessage } = useWebSocket("client", "client");
+    const message = useSelector(selectLastMessage)[0];
+
+    const sentIdsRef = useRef(new Set());
 
     useEffect(() => {
-        if (message && isConnected) {
-            if (previousMessageRef.current !== message.id && message.id) {
-                previousMessageRef.current = message.id;
+        if (message && isConnected && message.id) {
+            if (!sentIdsRef.current.has(message.id)) {
+                sentIdsRef.current.add(message.id);
                 sendMessage(JSON.stringify(message));
+
+                setTimeout(() => {
+                    sentIdsRef.current.delete(message.id);
+                }, 3000);
             }
         }
-    }, [message, sendMessage, isConnected]);
+    }, [message, isConnected, sendMessage]);
 
     return null;
 };

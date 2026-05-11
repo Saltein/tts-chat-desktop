@@ -9,6 +9,7 @@ import {
     setMessageBackground,
     setMessageBackgroundOpacity,
     setMessageBorder,
+    setMessageGap,
     setMessageLifeTime,
     setMessageNameBackground,
     setMessageNameBackgroundColor,
@@ -49,6 +50,7 @@ export const ChatWidget = () => {
         searchParams.get("messageBorder") === "false" ? false : true;
 
     // General
+    const messageGap = searchParams.get("messageGap");
     const messageLifeTime = searchParams.get("messageLifeTime");
     const fontSize = searchParams.get("fontSize");
 
@@ -69,6 +71,7 @@ export const ChatWidget = () => {
         dispatch(setMessageBorder(messageBorder));
 
         // General
+        dispatch(setMessageGap(messageGap));
         dispatch(setMessageLifeTime(messageLifeTime));
         dispatch(setFontSize(fontSize));
     }, [
@@ -84,6 +87,7 @@ export const ChatWidget = () => {
         messageNameBackgroundColor,
         messageNameBackgroundOpacity,
         messageNameBorder,
+        messageGap,
     ]);
 
     // Подключение к WS

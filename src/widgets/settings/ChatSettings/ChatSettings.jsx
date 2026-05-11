@@ -98,9 +98,10 @@ export const ChatSettings = () => {
         messageBackgroundColor: currentMessageBackgroundColor,
         messageBackgroundOpacity: currentMessageBackgroundOpacity,
         messageTextColor: currentMessageTextColor,
-
-        messageLifeTime: lifetime,
         messageBorder: String(messageBorderLocal),
+
+        messageGap: String(useSelector(selectMessageGap)),
+        messageLifeTime: lifetime,
         fontSize: String(currentFontSize),
     };
 

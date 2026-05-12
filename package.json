@@ -1,7 +1,7 @@
 {
     "name": "tts-electron",
     "private": true,
-    "version": "0.2.4",
+    "version": "0.2.5",
     "type": "module",
     "main": "electron/main.js",
     "scripts": {
@@ -18,7 +18,7 @@
         "publish:mac": "npm run build && electron-builder --mac --publish always",
         "publish:linux": "npm run build && electron-builder --linux --publish always",
         "publish:all": "npm run build && electron-builder --win --mac --linux --publish always",
-        "postinstall": "electron-builder install-app-deps"
+        "postinstall": "electron-builder install-app-deps && node patch-parser.js"
     },
     "build": {
         "productName": "TTS-Chat-Desktop",

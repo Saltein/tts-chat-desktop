@@ -8,11 +8,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     minimize: () => ipcRenderer.send("window-minimize"),
     maximize: () => ipcRenderer.send("window-maximize"),
     openExternal: (url) => ipcRenderer.send("open-external", url),
-    onGoogleOAuthCode: (callback) => {
-        const handler = (event, code) => callback(code);
-        ipcRenderer.on("google-oauth-code", handler);
-        return () => ipcRenderer.removeListener("google-oauth-code", handler);
-    },
     removeAllListeners: (channel) => {
         ipcRenderer.removeAllListeners(channel);
     },

@@ -26,7 +26,10 @@ import {
     clearMessageFromEmojis,
     parseYoutubeEmojisToHTML,
 } from "./shared/parseYoutubeEmojisToHTML.js";
-import { clearMessageFromVkEmojis, parseVkEmojisToHTML } from "./shared/parseVkEmojisToHTML.js";
+import {
+    clearMessageFromVkEmojis,
+    parseVkEmojisToHTML,
+} from "./shared/parseVkEmojisToHTML.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -310,18 +313,15 @@ ipcMain.handle("vk-disconnect", async () => {
 // ================= YouTube CONNECT =================
 ipcMain.handle("youtube-connect", async (_, videoId) => {
     const connectionId = ++youtubeConnectionId;
+    // убиваем старый чат
+    if (youtubeLiveChat) {
+        destroyYoutubeLiveChat(youtubeLiveChat);
+        youtubeLiveChat = null;
+    }
 
     try {
-        // убиваем старый чат
-        if (youtubeLiveChat) {
-            destroyYoutubeLiveChat(youtubeLiveChat);
-            youtubeLiveChat = null;
-        }
-
         const youtube = await Innertube.create();
-
         const info = await youtube.getInfo(videoId);
-
         const livechat = info.getLiveChat();
 
         if (!livechat) {
@@ -391,7 +391,9 @@ ipcMain.handle("youtube-connect", async (_, videoId) => {
 
         return true;
     } catch (e) {
-        console.error("[YOUTUBE] connect error:", e);
+        console.error("[YOUTUBE] connect error FULL:", e);
+        console.error("[YOUTUBE] error stack:", e.stack);
+        console.error("[YOUTUBE] error message:", e.message);
 
         mainWindow?.webContents.send("youtube-disconnected");
 

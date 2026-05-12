@@ -17,3 +17,24 @@ export const parseVkEmojisToHTML = (message, smiles) => {
         return `<img src="${emojiUrl}" alt="${word}"/>`;
     });
 };
+
+export const clearMessageFromVkEmojis = (message, smiles) => {
+    if (!message) {
+        return "";
+    }
+    if (smiles.length === 0) {
+        return message;
+    }
+
+    const emojisSet = new Set(smiles.map((item) => item.name));
+
+    return message
+        .split(/(\s+)/)
+        .map((word) => {
+            if (emojisSet.has(word)) {
+                return "";
+            }
+            return word;
+        })
+        .join("");
+};

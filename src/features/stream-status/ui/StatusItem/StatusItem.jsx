@@ -10,13 +10,14 @@ export const StatusItem = ({ info, service }) => {
             {service === "youtube" && <YoutubeIcon className={s.serviceIcon} />}
             {service === "vk" && <VkIcon className={s.serviceIcon} />}
             <div className={s.info}>
-                {info.viewers && (
+                {info.viewers != null && (
                     <div className={`${s.viewers} ${s.metric}`}>
                         <ViewersIcon className={s.icon} />
                         <span className={s.number}>{info.viewers}</span>
                     </div>
                 )}
-                {info.likes && (
+
+                {info.likes != null && (
                     <div className={`${s.likes} ${s.metric}`}>
                         <LikesIcon className={s.icon} />
                         <span className={s.number}>{info.likes}</span>

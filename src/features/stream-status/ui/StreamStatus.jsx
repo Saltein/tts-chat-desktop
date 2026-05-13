@@ -12,7 +12,7 @@ import {
     selectYoutubeStatus,
 } from "../model/slice";
 
-export const StreamStatus = () => {
+export const StreamStatus = ({ isWidget = false }) => {
     const youtubeInfo = useSelector(selectYoutubeStatus);
     const vkInfo = useSelector(selectVkStatus);
     const twitchInfo = useSelector(selectTwitchStatus);
@@ -24,11 +24,21 @@ export const StreamStatus = () => {
     return (
         <div className={s.wrapper}>
             {youtubeConnected && (
-                <StatusItem info={youtubeInfo} service="youtube" />
+                <StatusItem
+                    info={youtubeInfo}
+                    service="youtube"
+                    isWidget={isWidget}
+                />
             )}
-            {vkConnected && <StatusItem info={vkInfo} service="vk" />}
+            {vkConnected && (
+                <StatusItem info={vkInfo} service="vk" isWidget={isWidget} />
+            )}
             {twitchConnected && (
-                <StatusItem info={twitchInfo} service="twitch" />
+                <StatusItem
+                    info={twitchInfo}
+                    service="twitch"
+                    isWidget={isWidget}
+                />
             )}
         </div>
     );

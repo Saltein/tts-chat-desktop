@@ -58,7 +58,7 @@ export const StatisticsWidget = () => {
 
     return (
         <div className={s.wrapper}>
-            <StreamStatus />
+            <StreamStatus isWidget />
         </div>
     );
 };

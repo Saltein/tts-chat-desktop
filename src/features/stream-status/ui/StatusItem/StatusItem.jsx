@@ -5,9 +5,15 @@ import ViewersIcon from "../../../../shared/assets/icons/eye.svg?react";
 import LikesIcon from "../../../../shared/assets/icons/like.svg?react";
 import TwitchIcon from "../../../../shared/assets/icons/twitch-logo.svg?react";
 
-export const StatusItem = ({ info, service }) => {
+export const StatusItem = ({ info, service, isWidget }) => {
+    console.log("[StatusItem] isWidget", isWidget);
+
+    const wrapperStyles = {
+        backgroundColor: isWidget ? "#000a" : undefined,
+    };
+
     return (
-        <div className={s.wrapper}>
+        <div className={s.wrapper} style={wrapperStyles}>
             {service === "youtube" && <YoutubeIcon className={s.serviceIcon} />}
             {service === "vk" && <VkIcon className={s.serviceIcon} />}
             {service === "twitch" && <TwitchIcon className={s.serviceIcon} />}

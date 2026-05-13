@@ -23,6 +23,10 @@
     interpolate-size: allow-keywords;
 }
 
+.header {
+    position: relative;
+}
+
 .mainBlock {
     height: 100%;
     background-color: var(--color-surface);
@@ -30,4 +34,22 @@
     gap: $spacing-md;
     padding: 0 $spacing-md;
     border-radius: $border-radius-lg;
+}
+
+.minimizeIconWrapper {
+    position: absolute;
+    right: 12px;
+    top: 10px;
+
+    pointer-events: none;
+
+    &.open {
+        transform: rotate(180deg);
+        top: 6px
+    }
+}
+
+.minimizeIcon {
+    width: 32px;
+    height: 32px;
 }

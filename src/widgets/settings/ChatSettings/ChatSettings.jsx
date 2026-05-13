@@ -50,10 +50,13 @@ import { addNotice } from "../../../features/in-app-notices/model/slice";
 import { genRandStr } from "../../../shared/lib/genRandStr";
 import { getRandomInt } from "../../../shared/lib/getRandomInt";
 import { nameColors } from "../../../shared/lib/generateColorFromUsername";
+import { useNavigate } from "react-router-dom";
 
-export const ChatSettings = () => {
+export const ChatSettings = ({ full = true }) => {
     const [link, setLink] = useState("");
     const [copied, setCopied] = useState(false);
+
+    const navigate = useNavigate();
 
     const [lifetime, setLifetime] = useState(
         useSelector(selectMessageLifeTime),
@@ -193,6 +196,47 @@ export const ChatSettings = () => {
             }),
         );
     };
+
+    const handleToSettings = () => {
+        navigate("/live-chat")
+    };
+
+    if (!full) {
+        return (
+            <div className={s.wrapper}>
+                <DefaultTitle
+                    paddingTop={"0"}
+                    paddingBottom={"0"}
+                    paddingLeft={"0"}
+                    paddingRight={"0"}
+                    title={"URL виджета"}
+                    titleStyles={{ fontSize: "1rem" }}
+                />
+                <DefaultInput
+                    width={"100%"}
+                    info={
+                        'Добавь источник "Браузер" в OBS и вставь туда эту ссылку.'
+                    }
+                    value={link}
+                    height={"32px"}
+                />
+                <DefaultButton
+                    title={copied ? "Скопировано" : "Скопировать ссылку"}
+                    onClick={handleCopy}
+                    active={copied ? false : true}
+                    height="32px"
+                    borderRadius={"32px"}
+                />
+                <DefaultButton
+                    title={"Перейти к настройкам"}
+                    onClick={handleToSettings}
+                    height="32px"
+                    color={"var(--color-info)"}
+                    textColor={"#fff"}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className={s.wrapper}>

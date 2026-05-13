@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DefaultTitle } from "../../ui";
 import s from "./DefaultWidgetShape.module.scss";
 import { useDispatch } from "react-redux";
+import ChevronDownIcon from "../../assets/icons/chevron-down.svg?react";
 
 export const DefaultWidgetShape = ({
     onClick,
@@ -43,7 +44,11 @@ export const DefaultWidgetShape = ({
     dispatcherStateMinimized,
     TitleChildComponent,
 }) => {
-    const [widgetOpen, setWidgetOpen] = useState(globalStateMinimized !== undefined ? globalStateMinimized : initialStateMinimized);
+    const [widgetOpen, setWidgetOpen] = useState(
+        globalStateMinimized !== undefined
+            ? globalStateMinimized
+            : initialStateMinimized,
+    );
 
     const dispatch = useDispatch();
 
@@ -110,20 +115,31 @@ export const DefaultWidgetShape = ({
             style={{ ...wrapperStyles, minWidth: 0 }}
         >
             {!noTitle && (
-                <DefaultTitle
-                    title={title}
-                    titleStyles={titleStyles}
-                    cursor={minimizable ? "pointer" : "default"}
-                    onClick={() => {
-                        onClick?.();
-                        if (minimizable) {
-                            setWidgetOpen(!widgetOpen);
-                            if (dispatcherStateMinimized)
-                                dispatch(dispatcherStateMinimized(!widgetOpen));
-                        }
-                    }}
-                    ChildComponent={TitleChildComponent}
-                />
+                <div className={s.header}>
+                    <DefaultTitle
+                        title={title}
+                        titleStyles={titleStyles}
+                        cursor={minimizable ? "pointer" : "default"}
+                        onClick={() => {
+                            onClick?.();
+                            if (minimizable) {
+                                setWidgetOpen(!widgetOpen);
+                                if (dispatcherStateMinimized)
+                                    dispatch(
+                                        dispatcherStateMinimized(!widgetOpen),
+                                    );
+                            }
+                        }}
+                        ChildComponent={TitleChildComponent}
+                    />
+                    {minimizable && (
+                        <div
+                            className={`${s.minimizeIconWrapper} ${widgetOpen ? s.open : ""}`}
+                        >
+                            <ChevronDownIcon className={s.minimizeIcon} />
+                        </div>
+                    )}
+                </div>
             )}
 
             {noBlock ? (

@@ -13,6 +13,7 @@ import ConnectionIcon from "../../../shared/assets/icons/connection.svg?react";
 import ChatsIcon from "../../../shared/assets/icons/chats.svg?react";
 import TTSIcon from "../../../shared/assets/icons/tts.svg?react";
 import SettingsIcon from "../../../shared/assets/icons/settings.svg?react";
+import WidgetsIcon from "../../../shared/assets/icons/widgets.svg?react";
 import { useMediaQuery } from "react-responsive";
 import { mobileBreakpoint } from "../../../shared/styles/consts";
 
@@ -29,7 +30,6 @@ export const NavPanel = () => {
                 title={"TTS Chat"}
                 noTitle={isMobile}
                 isMobile={isMobile}
-                minimizable
             >
                 <NavButton
                     title={"Подключения"}
@@ -51,6 +51,13 @@ export const NavPanel = () => {
                     index={2}
                     link="/tts"
                     Icon={TTSIcon}
+                    isMobile={isMobile}
+                />
+                <NavButton
+                    title={"Виджеты"}
+                    index={2}
+                    link="/page-widgets"
+                    Icon={WidgetsIcon}
                     isMobile={isMobile}
                 />
 

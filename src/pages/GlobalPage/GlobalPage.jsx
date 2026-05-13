@@ -7,6 +7,7 @@ import { LiveChatPage } from "../OtherPages/LiveChatPage/LiveChatPage";
 import { TTSPage } from "../OtherPages/TTSPage/TTSPage";
 import { TTSChat } from "../../features/tts-chat/TTSChat/TTSChat";
 import { Header } from "../../widgets/Header/Header";
+import { WidgetsPage } from "../OtherPages/WidgetsPage/WidgetsPage";
 
 export const GlobalPage = () => {
     return (
@@ -28,6 +29,7 @@ export const GlobalPage = () => {
                         <Route path="/live-chat" element={<LiveChatPage />} />
                         <Route path="/settings" element={<SettingsPage />} />
                         <Route path="/tts" element={<TTSPage />} />
+                        <Route path="/page-widgets" element={<WidgetsPage />} />
                     </Routes>
                 </div>
             </div>

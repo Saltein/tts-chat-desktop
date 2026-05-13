@@ -1,5 +1,27 @@
 @use "../../../shared/styles/variables.scss" as *;
 
-.widgetsList {
-    padding: $spacing-md;
+.description {
+    position: absolute;
+    top: 18px;
+    right: 64px;
+    margin-left: 120px;
+    z-index: 1000;
+    padding: 0 0 $spacing-md $spacing-md;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+
+    & span {
+        color: var(--color-muted);
+        font-style: italic;
+        font-size: $font-size-sm;
+
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }

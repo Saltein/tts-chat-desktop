@@ -55,19 +55,19 @@ export const NavPanel = () => {
                 />
                 <NavButton
                     title={"Виджеты"}
-                    index={2}
+                    index={3}
                     link="/page-widgets"
                     Icon={WidgetsIcon}
                     isMobile={isMobile}
                 />
 
-                {currentPageID !== 2 && currentPageID !== 3 && (
+                {currentPageID < 3 && (
                     <DefaultDivider direction="horizontal" />
                 )}
 
                 <NavButton
                     title={"Настройки"}
-                    index={3}
+                    index={4}
                     link="/settings"
                     position="last"
                     Icon={SettingsIcon}

@@ -1,3 +1,4 @@
+import { StatusWidgetSettings } from "../../../features/stream-status/ui/StatusWidgetSettings/StatusWidgetSettings";
 import { DefaultWidgetShape } from "../../../shared/widgets/DefaultWidgetShape/DefaultWidgetShape";
 import { ChatSettings } from "../../../widgets/settings/ChatSettings/ChatSettings";
 import s from "./WidgetsPage.module.scss";
@@ -20,7 +21,12 @@ export const WidgetsPage = () => {
                     minimizable
                     initialStateMinimized={false}
                     backgroundColor={"var(--color-items)"}
+                    paddingBlock={"16px"}
+                    position={"relative"}
                 >
+                    <div className={s.description}>
+                        <span>Виджет чата</span>
+                    </div>
                     <ChatSettings full={false} />
                 </DefaultWidgetShape>
                 <DefaultWidgetShape
@@ -31,8 +37,13 @@ export const WidgetsPage = () => {
                     minimizable
                     initialStateMinimized={false}
                     backgroundColor={"var(--color-items)"}
+                    paddingBlock={"16px"}
+                    position={"relative"}
                 >
-                    виджет онлайна и лайков
+                    <div className={s.description}>
+                        <span>Виджет статистики онлайна и лайков</span>
+                    </div>
+                    <StatusWidgetSettings />
                 </DefaultWidgetShape>
             </DefaultWidgetShape>
         </div>

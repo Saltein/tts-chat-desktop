@@ -43,6 +43,7 @@ export const DefaultWidgetShape = ({
     globalStateMinimized,
     dispatcherStateMinimized,
     TitleChildComponent,
+    position,
 }) => {
     const [widgetOpen, setWidgetOpen] = useState(
         globalStateMinimized !== undefined
@@ -74,6 +75,7 @@ export const DefaultWidgetShape = ({
             shadow && `0 ${shadow}px ${shadow * 1.5}px rgba(0, 0, 0, 0.15)`,
         flex: !widgetOpen ? undefined : (flex ?? undefined),
         cursor: onClick ? "pointer" : "default",
+        position: position ?? undefined,
     };
 
     if (paddingTop || paddingBottom || paddingLeft || paddingRight) {

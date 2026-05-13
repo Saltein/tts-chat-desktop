@@ -58,10 +58,10 @@ async function createWindow() {
     const isDev = !app.isPackaged;
 
     mainWindow = new BrowserWindow({
-        width: 1280,
-        height: 884,
+        width: 1024,
+        height: 720,
         minWidth: 376,
-        minHeight: 364,
+        minHeight: 404,
         frame: false,
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),

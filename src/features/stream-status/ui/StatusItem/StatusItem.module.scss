@@ -4,11 +4,13 @@
     display: flex;
     align-items: center;
     gap: $spacing-xs;
-    background-color: var(--color-surface);
+    background-color: var(--color-background-stream-status);
     padding: $spacing-xxs $spacing-sm;
     border-radius: $border-radius-md;
     margin-right: $spacing-xs;
     height: 40px;
+
+    backdrop-filter: blur(2px);
 }
 
 .info {
@@ -29,7 +31,7 @@
 }
 
 .serviceIcon {
-    height:18px;
+    height: 18px;
     width: 18px;
 }
 

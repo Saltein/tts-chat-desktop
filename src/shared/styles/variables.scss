@@ -74,11 +74,13 @@ $text-color: var(--color-text);
 
     // Оформление консоли
     --color-console-hover: #e6ebf5;
-    
+
     --color-text-console-info: #617484;
     --color-text-console-error: #d74848;
     --color-text-console-warning: #e87d32;
     --color-text-console-system: #215acd;
+
+    --color-background-stream-status: #0001;
 }
 
 [data-theme="dark"] {
@@ -138,6 +140,8 @@ $text-color: var(--color-text);
     --color-background-console-error: #d7484811;
     --color-background-console-warning: #e87d3211;
     --color-background-console-system: #709df811;
+
+    --color-background-stream-status: #fff1;
 }
 
 // ================================

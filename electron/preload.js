@@ -95,6 +95,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
         onInfo: (videoId) => ipcRenderer.invoke("youtube-info", videoId),
     },
 
+    twitch: {
+        getStreamInfo: (
+            connectObj, // connectObj: { twitchAppId, twitchAppSecret, channelName }
+        ) => ipcRenderer.invoke("twitch-get-stream-info", connectObj),
+    },
+
     ttsConsole: {
         onMessage: (callback) => {
             const handler = (_, data) => callback(data);

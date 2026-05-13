@@ -14,11 +14,25 @@ import { EmoteProvider } from "../shared/context/emotes/EmoteContext";
 import { initYoutubeChatListener } from "../features/live-chat/lib/youtube/youtubeChatListener";
 import { useEffect } from "react";
 import { useStartsWith } from "../shared/hooks/useStartsWith";
-
-const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+import {
+    initTwitchListener,
+    stopTwitchPolling,
+} from "../features/live-chat/lib/twitch/twitchListener";
+import { useSelector } from "react-redux";
+import {
+    selectTwitchConnectionData,
+    selectTwitchConnectionStatus,
+} from "../entities/connection/model/slice";
+import { getTwitchChannelName } from "../shared/lib/getTwitchChannelName";
 
 function App() {
     const { starts, isWidget } = useStartsWith();
+
+    const twitchChannelNameRaw = useSelector(selectTwitchConnectionData);
+    const twitchChannelName = getTwitchChannelName(
+        twitchChannelNameRaw.chatChannelName,
+    );
+    const twitchConnected = useSelector(selectTwitchConnectionStatus);
 
     useTTSServer(isWidget);
 
@@ -37,6 +51,18 @@ function App() {
             initTTSConsoleListener();
         }
     }, [isWidget]);
+
+    useEffect(() => {
+        if (!isWidget && twitchChannelName && twitchConnected) {
+            initTwitchListener(twitchChannelName);
+        } else if (!twitchChannelName || !twitchConnected) {
+            stopTwitchPolling();
+        }
+
+        return () => {
+            stopTwitchPolling();
+        };
+    }, [twitchChannelName, isWidget, twitchConnected]);
 
     if (isWidget) {
         if (starts("/widget/chat")) {
@@ -61,16 +87,14 @@ function App() {
     }
 
     return (
-        <GoogleOAuthProvider clientId={clientId}>
-            <EmoteProvider>
-                <div className={s.App}>
-                    {!isWidget && <SendToWidget />}
-                    <UpdateNotice />
-                    <NoticeStack />
-                    <GlobalPage />
-                </div>
-            </EmoteProvider>
-        </GoogleOAuthProvider>
+        <EmoteProvider>
+            <div className={s.App}>
+                {!isWidget && <SendToWidget />}
+                <UpdateNotice />
+                <NoticeStack />
+                <GlobalPage />
+            </div>
+        </EmoteProvider>
     );
 }
 

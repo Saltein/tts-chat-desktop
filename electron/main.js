@@ -480,6 +480,104 @@ ipcMain.handle("youtube-info", async (_, videoId) => {
     }
 });
 
+// ================= Twitch Info =================
+let twitchAccessToken = null;
+let tokenExpirationTime = null;
+
+async function getTwitchAccessToken(twitchAppId, twitchAppSecret) {
+    // Проверяем, есть ли валидный токен (с запасом в 1 час)
+    if (
+        twitchAccessToken &&
+        tokenExpirationTime &&
+        Date.now() < tokenExpirationTime - 3600000
+    ) {
+        return twitchAccessToken;
+    }
+
+    try {
+        const params = new URLSearchParams({
+            client_id: twitchAppId,
+            client_secret: twitchAppSecret,
+            grant_type: "client_credentials",
+        });
+
+        const response = await fetch("https://id.twitch.tv/oauth2/token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: params.toString(),
+        });
+
+        const data = await response.json();
+
+        if (data.access_token) {
+            twitchAccessToken = data.access_token;
+            // Токен живет expires_in секунд, устанавливаем время истечения
+            tokenExpirationTime = Date.now() + data.expires_in * 1000;
+            console.log(
+                "[TWITCH] Token получен, истекает через",
+                data.expires_in,
+                "секунд",
+            );
+            return twitchAccessToken;
+        } else {
+            console.error("[TWITCH] Ошибка получения токена:", data);
+            return null;
+        }
+    } catch (error) {
+        console.error("[TWITCH] Ошибка запроса токена:", error);
+        return null;
+    }
+}
+
+// Обработчик для получения информации о стриме Twitch
+ipcMain.handle("twitch-get-stream-info", async (_, connectObj) => {
+    try {
+        const token = await getTwitchAccessToken(connectObj.twitchAppId, connectObj.twitchAppSecret);
+        if (!token) {
+            console.error("[TWITCH] Нет токена доступа");
+            return null;
+        }
+
+        const url = `https://api.twitch.tv/helix/streams?user_login=${connectObj.channelName.toLowerCase()}`;
+
+        const response = await fetch(url, {
+            headers: {
+                "Client-ID": connectObj.twitchAppId,
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            console.error("[TWITCH] Ошибка API:", data);
+            return null;
+        }
+
+        if (data.data && data.data.length > 0) {
+            const stream = data.data[0];
+            return {
+                isLive: true,
+                viewers: stream.viewer_count, // Количество зрителей
+                title: stream.title,
+                gameName: stream.game_name,
+                startedAt: stream.started_at,
+                thumbnailUrl: stream.thumbnail_url,
+            };
+        } else {
+            return {
+                isLive: false,
+                viewerCount: 0,
+            };
+        }
+    } catch (error) {
+        console.error("[TWITCH] Ошибка получения информации:", error);
+        return null;
+    }
+});
+
 // ================= TTS =================
 ipcMain.handle("tts-start", async () => {
     const isDev = !app.isPackaged;

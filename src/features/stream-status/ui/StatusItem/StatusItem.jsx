@@ -3,12 +3,14 @@ import YoutubeIcon from "../../../../shared/assets/icons/youtube-color-svgrepo-c
 import VkIcon from "../../../../shared/assets/icons/vk-video-logo.svg?react";
 import ViewersIcon from "../../../../shared/assets/icons/eye.svg?react";
 import LikesIcon from "../../../../shared/assets/icons/like.svg?react";
+import TwitchIcon from "../../../../shared/assets/icons/twitch-logo.svg?react";
 
 export const StatusItem = ({ info, service }) => {
     return (
         <div className={s.wrapper}>
             {service === "youtube" && <YoutubeIcon className={s.serviceIcon} />}
             {service === "vk" && <VkIcon className={s.serviceIcon} />}
+            {service === "twitch" && <TwitchIcon className={s.serviceIcon} />}
             <div className={s.info}>
                 {info.viewers != null && (
                     <div className={`${s.viewers} ${s.metric}`}>

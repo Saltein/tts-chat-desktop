@@ -9,6 +9,9 @@ let initialState = {
         likes: 0,
         viewers: 0,
     },
+    twitch: {
+        viewers: 0,
+    },
 };
 
 const streamStatusSlice = createSlice({
@@ -28,12 +31,22 @@ const streamStatusSlice = createSlice({
         setVkViewers: (state, action) => {
             state.vk.viewers = action.payload;
         },
+
+        setTwitchViewers: (state, action) => {
+            state.twitch.viewers = action.payload;
+        },
     },
 });
 
-export const { setYoutubeLikes, setYoutubeViewers, setVkLikes, setVkViewers } =
-    streamStatusSlice.actions;
+export const {
+    setYoutubeLikes,
+    setYoutubeViewers,
+    setVkLikes,
+    setVkViewers,
+    setTwitchViewers,
+} = streamStatusSlice.actions;
 export default streamStatusSlice.reducer;
 
 export const selectYoutubeStatus = (state) => state.streamStatus.youtube;
 export const selectVkStatus = (state) => state.streamStatus.vk;
+export const selectTwitchStatus = (state) => state.streamStatus.twitch;

@@ -50,7 +50,7 @@ export function startWidgetServer(sendNotice) {
             );
 
             // Запускаем WebSocket сервер и ЖДЕМ его готовности
-            await startVkWebSocketServer(sendNotice);
+            await startWebSocketServer(sendNotice);
 
             // Только после полной готовности WebSocket сервера,
             // отправляем сигнал для запуска TTS сервера
@@ -71,7 +71,7 @@ export function startWidgetServer(sendNotice) {
 let clients = new Map(); // clientId -> { ws, channel, userId }
 let channels = new Map(); // channel -> Set of clientIds
 
-function startVkWebSocketServer(sendNotice) {
+function startWebSocketServer(sendNotice) {
     return new Promise((resolve, reject) => {
         wss = new WebSocketServer({ port: WS_PORT });
 

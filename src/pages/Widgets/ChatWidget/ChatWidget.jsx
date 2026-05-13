@@ -95,7 +95,12 @@ export const ChatWidget = () => {
 
     useEffect(() => {
         if (messages.length === 0) return;
-        dispatch(setWidgetMessage(messages[messages.length - 1].text));
+
+        const lastMessage = messages[messages.length - 1];
+
+        if (lastMessage.text.type !== "message") return;
+        
+        dispatch(setWidgetMessage(lastMessage.text));
     }, [messages, dispatch]);
 
     if (!isConnected) {

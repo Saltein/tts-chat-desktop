@@ -23,12 +23,8 @@ export const useInitYoutubeInfoListener = () => {
     useEffect(() => {
         if (!youtubeId || !youtubeConnected) return;
 
-        console.log("[App.jsx] youtubeId", youtubeId);
-
         async function updateInfo() {
             const info = await window.electronAPI.youtube.onInfo(youtubeId);
-
-            console.log("[App.jsx] info", info);
 
             dispatch(setYoutubeLikes(info.likes));
             dispatch(setYoutubeViewers(info.viewers));

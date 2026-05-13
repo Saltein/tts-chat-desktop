@@ -435,7 +435,6 @@ ipcMain.handle("youtube-disconnect", async () => {
 ipcMain.handle("youtube-info", async (_, videoId) => {
     try {
         const info = await youtube.getInfo(videoId);
-        console.log("[main.js] youtube info", info);
 
         return {
             title: info.basic_info.title,

@@ -24,6 +24,7 @@ import {
     selectTwitchConnectionStatus,
 } from "../entities/connection/model/slice";
 import { getTwitchChannelName } from "../shared/lib/getTwitchChannelName";
+import { StatisticsWidget } from "../pages/Widgets/StatisticsWidget/StatisticsWidget";
 
 function App() {
     const { starts, isWidget } = useStartsWith();
@@ -71,17 +72,21 @@ function App() {
                     <ChatWidget />
                 </EmoteProvider>
             );
-        } else if (starts("/widget/qrcode")) {
+        }
+        if (starts("/widget/qrcode")) {
             return (
-                <EmoteProvider>
-                    <QRWidget
-                        value={"https://t.me/saltein"}
-                        logoImage={TgLogo}
-                        text={text}
-                        frequency={300}
-                        showTime={30}
-                    />
-                </EmoteProvider>
+                <QRWidget
+                    value={"https://t.me/saltein"}
+                    logoImage={TgLogo}
+                    text={text}
+                    frequency={300}
+                    showTime={30}
+                />
+            );
+        }
+        if (starts("/widget/statistics")) {
+            return (
+                <StatisticsWidget />
             );
         }
     }

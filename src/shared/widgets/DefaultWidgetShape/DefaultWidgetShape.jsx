@@ -41,6 +41,7 @@ export const DefaultWidgetShape = ({
     initialStateMinimized = true,
     globalStateMinimized,
     dispatcherStateMinimized,
+    TitleChildComponent,
 }) => {
     const [widgetOpen, setWidgetOpen] = useState(globalStateMinimized !== undefined ? globalStateMinimized : initialStateMinimized);
 
@@ -121,6 +122,7 @@ export const DefaultWidgetShape = ({
                                 dispatch(dispatcherStateMinimized(!widgetOpen));
                         }
                     }}
+                    ChildComponent={TitleChildComponent}
                 />
             )}
 

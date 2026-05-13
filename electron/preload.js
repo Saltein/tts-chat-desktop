@@ -85,6 +85,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
             return () =>
                 ipcRenderer.removeListener("youtube-disconnected", handler);
         },
+
+        onInfo: (videoId) => ipcRenderer.invoke("youtube-info", videoId),
     },
 
     ttsConsole: {

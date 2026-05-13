@@ -10,7 +10,7 @@ export function initYoutubeChatListener() {
 
     // Подписка на входящие сообщения Youtube
     window.electronAPI.youtube.onMessage((msg) => {
-        console.log("[youtubeChatListener], message:", msg);
+        // console.log("[youtubeChatListener], message:", msg);
         store.dispatch(setNewYoutubeMessage(msg));
     });
 

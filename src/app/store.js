@@ -6,12 +6,7 @@ import messageCustomizationReducer from "../entities/message/model/slice";
 import inAppNoticesReducer from "../features/in-app-notices/model/slice";
 import ttsConsoleReducer from "../features/tts-console/model/slice";
 import liveChatReducer from "../features/live-chat/model/slice";
-
-const preloadedState = {
-    // user: {
-    //     token: localStorage.getItem('token') || null,
-    // },
-};
+import streamStatusReducer from "../features/stream-status/model/slice";
 
 export const store = configureStore({
     reducer: {
@@ -22,6 +17,6 @@ export const store = configureStore({
         inAppNotices: inAppNoticesReducer,
         ttsConsole: ttsConsoleReducer,
         liveChat: liveChatReducer,
+        streamStatus: streamStatusReducer,
     },
-    preloadedState,
 });

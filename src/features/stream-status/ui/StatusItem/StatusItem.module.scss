@@ -1,0 +1,38 @@
+@use "../../../../shared/styles/variables.scss" as *;
+
+.wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-xs;
+    background-color: var(--color-surface);
+    padding: $spacing-xxs $spacing-xs;
+    border-radius: $border-radius-md;
+    margin-right: $spacing-xs;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    gap: 0;
+}
+
+.metric {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xxs;
+}
+
+.number {
+    font-family: monospace;
+}
+
+.serviceIcon {
+    height: 16px;
+    width: 16px;
+}
+
+.icon {
+    height: 16px;
+    width: 16px;
+}

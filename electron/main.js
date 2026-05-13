@@ -311,6 +311,8 @@ ipcMain.handle("vk-disconnect", async () => {
 });
 
 // ================= YouTube CONNECT =================
+const youtube = await Innertube.create();
+
 ipcMain.handle("youtube-connect", async (_, videoId) => {
     const connectionId = ++youtubeConnectionId;
     // убиваем старый чат
@@ -320,7 +322,6 @@ ipcMain.handle("youtube-connect", async (_, videoId) => {
     }
 
     try {
-        const youtube = await Innertube.create();
         const info = await youtube.getInfo(videoId);
         const livechat = info.getLiveChat();
 
@@ -343,7 +344,7 @@ ipcMain.handle("youtube-connect", async (_, videoId) => {
         mainWindow?.webContents.send("notice", {
             id: genRandStr(),
             type: "success",
-            message: `Подключено к чату YouTube`,
+            message: `Подключено к чату YouTube: ${info?.basic_info?.channel?.name}`,
         });
 
         livechat.on("chat-update", (action) => {
@@ -427,6 +428,28 @@ ipcMain.handle("youtube-disconnect", async () => {
     });
 
     return true;
+});
+
+// =================================================== Likes - Viewers ===================================================
+// ================= Youtube Info =================
+ipcMain.handle("youtube-info", async (_, videoId) => {
+    try {
+        const info = await youtube.getInfo(videoId);
+        console.log("[main.js] youtube info", info);
+
+        return {
+            title: info.basic_info.title,
+            live: info.basic_info.is_live,
+            viewers:
+                info.basic_info.concurrent_view_count ||
+                info.primary_info?.view_count?.original_view_count,
+            likes: info.basic_info.like_count,
+            views: info.basic_info.view_count,
+        };
+    } catch (err) {
+        console.error("[main.js] youtube info error:", err);
+        return null;
+    }
 });
 
 // ================= TTS =================

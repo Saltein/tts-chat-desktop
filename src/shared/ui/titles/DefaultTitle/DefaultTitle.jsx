@@ -13,6 +13,7 @@ export const DefaultTitle = ({
     fontWeight,
     onClick,
     cursor,
+    ChildComponent,
 }) => {
     const styles = {
         margin: margin && margin,
@@ -24,12 +25,18 @@ export const DefaultTitle = ({
         fontWeight: fontWeight ?? undefined,
         textAlign: alignContent && alignContent,
         cursor: cursor && cursor,
+    };
+
+    const titleStyle = {
         ...titleStyles,
     };
 
     return (
-        <h2 className={s.title} style={styles} onClick={onClick}>
-            {title}
-        </h2>
+        <div className={s.wrapper} style={titleStyle}>
+            <h2 className={s.title} style={styles} onClick={onClick}>
+                {title}
+            </h2>
+            {ChildComponent && <ChildComponent />}
+        </div>
     );
 };

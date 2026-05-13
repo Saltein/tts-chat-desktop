@@ -36,7 +36,7 @@ export const useWebSocket = (channelName, userId) => {
         ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                console.log("[useWebSocket] 📨 Received message:", data);
+                // console.log("[useWebSocket] 📨 Received message:", data);
 
                 switch (data.type) {
                     case "joined-channel":
@@ -46,8 +46,8 @@ export const useWebSocket = (channelName, userId) => {
                         );
                         break;
 
-                    case "message":
-                        { let messageText = data.message;
+                    case "message": {
+                        let messageText = data.message;
                         try {
                             const parsed = JSON.parse(data.message);
                             messageText = parsed;
@@ -64,7 +64,8 @@ export const useWebSocket = (channelName, userId) => {
                         };
 
                         setMessages((prev) => [...prev, newMessage]);
-                        break; }
+                        break;
+                    }
 
                     case "user-joined":
                         console.log(`User ${data.userId} joined`);
@@ -121,7 +122,7 @@ export const useWebSocket = (channelName, userId) => {
                     channel: channelName,
                 };
                 wsRef.current.send(JSON.stringify(messageData));
-                console.log("[useWebSocket] 📤 Sent message:", messageData);
+                // console.log("[useWebSocket] 📤 Sent message:", messageData);
             } else {
                 console.warn("[useWebSocket] WebSocket not connected");
             }
@@ -141,7 +142,7 @@ export const useWebSocket = (channelName, userId) => {
                     channel: channelName,
                 };
                 wsRef.current.send(JSON.stringify(messageData));
-                console.log("[useWebSocket] 📡 Broadcast:", messageData);
+                // console.log("[useWebSocket] 📡 Broadcast:", messageData);
             } else {
                 console.warn("[useWebSocket] WebSocket not connected");
             }

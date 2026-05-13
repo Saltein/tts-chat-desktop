@@ -1,7 +1,16 @@
 @use "../../../styles/variables.scss" as *;
 
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    padding: $spacing-xxs;
+}
+
 .title {
     font-size: $font-size-lg;
     font-weight: 700;
     padding: $spacing-md;
+    flex: 1;
 }

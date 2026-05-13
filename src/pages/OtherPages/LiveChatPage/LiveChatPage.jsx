@@ -3,6 +3,7 @@ import { LiveChat } from "../../../features/live-chat/ui/LiveChat/LiveChat";
 import { DefaultWidgetShape } from "../../../shared/widgets/DefaultWidgetShape/DefaultWidgetShape";
 import { ChatSettings } from "../../../widgets/settings/ChatSettings/ChatSettings";
 import s from "./LiveChatPage.module.scss";
+import { StreamStatus } from "../../../features/stream-status/ui/StreamStatus";
 
 export const LiveChatPage = () => {
     const isMicroWindow = useMediaQuery({
@@ -19,6 +20,7 @@ export const LiveChatPage = () => {
                 paddingBlock={"0"}
                 flex={1}
                 overflowBlock={"hidden"}
+                TitleChildComponent={StreamStatus}
             >
                 <LiveChat />
             </DefaultWidgetShape>

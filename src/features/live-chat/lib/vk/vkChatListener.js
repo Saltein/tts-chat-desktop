@@ -3,6 +3,7 @@ import {
     setNewVkMessage,
     setVkConnectionStatus,
 } from "../../../../entities/connection/model/slice";
+import { setVkLikes, setVkViewers } from "../../../stream-status/model/slice";
 
 let initialized = false;
 
@@ -23,5 +24,15 @@ export function initVkChatListener() {
 
     window.electronAPI.vk.onDisconnected(() => {
         store.dispatch(setVkConnectionStatus(false));
+    });
+
+    window.electronAPI.vk.onInfo((info) => {
+        console.log("[vkChatListener], info:", info);
+        if (info.type === "likes") {
+            store.dispatch(setVkLikes(info.data));
+        }
+        if (info.type === "viewers") {
+            store.dispatch(setVkViewers(info.data));
+        }
     });
 }

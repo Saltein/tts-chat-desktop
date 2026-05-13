@@ -236,6 +236,36 @@ ipcMain.handle("vk-connect", async (_, channel) => {
             });
         });
 
+        /*
+        🔁 Обновление библиотеки
+        
+        Когда выйдет новая версия:
+        npm update vklive-message-client
+
+        Потом:
+        npx patch-package vklive-message-client
+        */
+        client.on("raw", (pushData) => {
+            if (
+                pushData?.push?.pub?.data?.counter &&
+                pushData?.push?.pub?.data?.type === "stream_like_counter"
+            ) {
+                mainWindow?.webContents.send("vk-info", {
+                    type: "likes",
+                    data: pushData?.push?.pub?.data?.counter,
+                });
+            }
+            if (
+                pushData?.push?.pub?.data?.data?.stream?.viewers &&
+                pushData?.push?.pub?.data?.type === "stream_slot_online_status"
+            ) {
+                mainWindow?.webContents.send("vk-info", {
+                    type: "viewers",
+                    data: pushData?.push?.pub?.data?.data?.stream?.viewers,
+                });
+            }
+        });
+
         client.on("error", (err) => {
             console.error("[VK] error:", err);
 
@@ -430,7 +460,6 @@ ipcMain.handle("youtube-disconnect", async () => {
     return true;
 });
 
-// =================================================== Likes - Viewers ===================================================
 // ================= Youtube Info =================
 ipcMain.handle("youtube-info", async (_, videoId) => {
     try {

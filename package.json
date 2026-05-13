@@ -18,7 +18,7 @@
         "publish:mac": "npm run build && electron-builder --mac --publish always",
         "publish:linux": "npm run build && electron-builder --linux --publish always",
         "publish:all": "npm run build && electron-builder --win --mac --linux --publish always",
-        "postinstall": "electron-builder install-app-deps && node patch-parser.js"
+        "postinstall": "electron-builder install-app-deps && node patch-parser.js && patch-package"
     },
     "build": {
         "productName": "TTS-Chat-Desktop",
@@ -73,6 +73,7 @@
         "electron-updater": "^6.8.3",
         "express": "^5.2.1",
         "nginx": "^1.1.0",
+        "patch-package": "^8.0.1",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "react-markdown": "^10.1.0",

@@ -1,0 +1,26 @@
+diff --git a/node_modules/vklive-message-client/lib/client.js b/node_modules/vklive-message-client/lib/client.js
+index b1260a8..d6fd253 100644
+--- a/node_modules/vklive-message-client/lib/client.js
++++ b/node_modules/vklive-message-client/lib/client.js
+@@ -67,6 +67,9 @@ class VKPLMessageClient extends EventEmitter {
+             ? `${config.wsServer}?cf_protocol_version=v2`
+             : this.wsServerUrl;
+         this.centrifugeClient = new CentrifugeClient(this.wsServerUrl, this.api);
++        this.centrifugeClient.on("raw", (data) => {
++            this.emit("raw", data);
++        });
+         this.centrifugeClient.on("message", (message) => this.onCentrifugoMessage(message));
+         this.centrifugeClient.on("reconnect", () => this.onReconnect());
+     }
+diff --git a/node_modules/vklive-message-client/lib/services/CentrifugeClient.js b/node_modules/vklive-message-client/lib/services/CentrifugeClient.js
+index 7a8a9cb..252f24a 100644
+--- a/node_modules/vklive-message-client/lib/services/CentrifugeClient.js
++++ b/node_modules/vklive-message-client/lib/services/CentrifugeClient.js
+@@ -139,6 +139,7 @@ export class CentrifugeClient extends EventEmitter {
+             console.error(error);
+             return;
+         }
++        this.emit("raw", data);
+         if (VKPLMessageClient.debugLog) {
+             console.warn("[debug:websocket] new message", JSON.stringify(data, null, 4));
+         }

@@ -60,6 +60,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
             ipcRenderer.on("vk-disconnected", handler);
             return () => ipcRenderer.removeListener("vk-disconnected", handler);
         },
+
+        onInfo: (callback) => {
+            ipcRenderer.on("vk-info", (_, data) => {
+                callback(data);
+            });
+        },
     },
 
     youtube: {

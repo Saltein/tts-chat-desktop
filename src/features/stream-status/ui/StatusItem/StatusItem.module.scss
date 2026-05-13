@@ -2,12 +2,13 @@
 
 .wrapper {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: $spacing-xs;
     background-color: var(--color-surface);
-    padding: $spacing-xxs $spacing-xs;
+    padding: $spacing-xxs $spacing-sm;
     border-radius: $border-radius-md;
     margin-right: $spacing-xs;
+    height: 40px;
 }
 
 .info {
@@ -28,8 +29,8 @@
 }
 
 .serviceIcon {
-    height: 16px;
-    width: 16px;
+    height:18px;
+    width: 18px;
 }
 
 .icon {

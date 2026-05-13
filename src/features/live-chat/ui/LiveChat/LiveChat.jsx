@@ -14,6 +14,7 @@ import { selectChatFullscreen, toggleChatFullscreen } from "../../model/slice";
 import { useScrollChat } from "../../../../shared/hooks/useScrollChat";
 import DownIcon from "../../../../shared/assets/icons/chevron-down.svg?react";
 import { ScrollToBottomButton } from "../../../../shared/ui";
+import { StreamStatus } from "../../../stream-status/ui/StreamStatus";
 
 const EXAMPLE_MESSAGE = {
     message: "Так будут выглядеть сообщения из чата",
@@ -56,6 +57,11 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
                     className={`${s.header} ${isFullScreened ? s.fullscreen : ""}`}
                 >
                     <div className={s.draggable} />
+                    {isFullScreened && (
+                        <div className={s.streamInfo}>
+                            <StreamStatus />
+                        </div>
+                    )}
                     <div
                         className={s.fullscreenButton}
                         onClick={toggleFullscreen}

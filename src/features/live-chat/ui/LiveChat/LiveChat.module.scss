@@ -17,7 +17,7 @@
         bottom: 0;
         z-index: 1000;
         background-color: var(--color-surface);
-        padding: $spacing-sm;
+        padding: $spacing-sm $spacing-xxs;
     }
 
     &.preview {
@@ -49,12 +49,12 @@
 }
 
 .header {
+    position: absolute;
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
     height: 48px;
-    position: absolute;
     right: 0;
     top: 0;
 
@@ -68,6 +68,13 @@
     width: calc(100% - 48px);
     height: 100%;
     -webkit-app-region: drag;
+}
+
+.streamInfo {
+    position: fixed;
+    right: 40px;
+    top: $spacing-xxs;
+    z-index: 1001;
 }
 
 .wrapper_Chat {

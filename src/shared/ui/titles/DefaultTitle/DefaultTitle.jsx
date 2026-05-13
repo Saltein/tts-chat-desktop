@@ -25,14 +25,11 @@ export const DefaultTitle = ({
         fontWeight: fontWeight ?? undefined,
         textAlign: alignContent && alignContent,
         cursor: cursor && cursor,
-    };
-
-    const titleStyle = {
         ...titleStyles,
     };
 
     return (
-        <div className={s.wrapper} style={titleStyle}>
+        <div className={s.wrapper}>
             <h2 className={s.title} style={styles} onClick={onClick}>
                 {title}
             </h2>

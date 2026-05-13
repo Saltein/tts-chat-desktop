@@ -221,7 +221,7 @@ export const selectVkConnectionStatus = (state) =>
 export const selectMessages = (state) => state.connection.messages;
 export const selectLastSeveralMessages = createSelector(
     [selectMessages],
-    (messages) => messages.slice(-1000),
+    (messages) => messages.slice(-150),
 );
 export const selectLastMessage = createSelector([selectMessages], (messages) =>
     messages.slice(-1),

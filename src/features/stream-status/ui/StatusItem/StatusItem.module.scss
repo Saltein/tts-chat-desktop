@@ -7,10 +7,7 @@
     background-color: var(--color-background-stream-status);
     padding: $spacing-xxs $spacing-sm;
     border-radius: $border-radius-md;
-    margin-right: $spacing-xs;
     height: 40px;
-
-    backdrop-filter: blur(2px);
 }
 
 .info {

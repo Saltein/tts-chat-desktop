@@ -10,7 +10,7 @@ export const SettingColorPicker = ({ title, value, onChange, alignContent="cente
                 paddingLeft={"0"}
                 paddingRight={"0"}
                 title={title}
-                titleStyles={{ fontSize: "0.9rem" }}
+                titleStyles={{ fontSize: "1rem" }}
                 fontWeight={"400"}
                 alignContent={alignContent}
             />

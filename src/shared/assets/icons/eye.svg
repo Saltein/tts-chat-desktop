@@ -1,10 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo
-Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-        d="M15.0007 12C15.0007 13.6569 13.6576 15 12.0007 15C10.3439 15 9.00073 13.6569 9.00073 12C9.00073 10.3431 10.3439 9 12.0007 9C13.6576 9 15.0007 10.3431 15.0007 12Z"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-    <path
-        d="M12.0012 5C7.52354 5 3.73326 7.94288 2.45898 12C3.73324 16.0571 7.52354 19 12.0012 19C16.4788 19 20.2691 16.0571 21.5434 12C20.2691 7.94291 16.4788 5 12.0012 5Z"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="800px" height="800px" viewBox="1 1 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- pupil -->
+    <path fill-rule="evenodd" clip-rule="evenodd"
+        d="M12 15.2C13.933 15.2 15.4 13.7 15.4 12C15.4 10.3 13.933 8.8 12 8.8C10.067 8.8 8.6 10.3 8.6 12C8.6 13.7 10.067 15.2 12 15.2ZM12 13.6C11.2 13.6 10.6 12.85 10.6 12C10.6 11.15 11.2 10.4 12 10.4C12.8 10.4 13.4 11.15 13.4 12C13.4 12.85 12.8 13.6 12 13.6Z"
+        color="currentColor" />
+
+    <!-- outer eye (less stretched, more rounded) -->
+    <path fill-rule="evenodd" clip-rule="evenodd"
+        d="M12 5.2C8.2 5.2 5.2 7.6 3.4 9.6C2.3 10.8 2.3 13.2 3.4 14.4C5.2 16.4 8.2 18.8 12 18.8C15.8 18.8 18.8 16.4 20.6 14.4C21.7 13.2 21.7 10.8 20.6 9.6C18.8 7.6 15.8 5.2 12 5.2ZM4.8 10.4C6.4 8.8 8.8 7.4 12 7.4C15.2 7.4 17.6 8.8 19.2 10.4C19.8 11.1 19.8 12.9 19.2 13.6C17.6 15.2 15.2 16.6 12 16.6C8.8 16.6 6.4 15.2 4.8 13.6C4.2 12.9 4.2 11.1 4.8 10.4Z"
+        color="currentColor" />
+
 </svg>

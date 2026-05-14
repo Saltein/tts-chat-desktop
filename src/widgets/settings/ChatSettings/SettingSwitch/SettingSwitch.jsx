@@ -1,7 +1,7 @@
 import { DefaultSwitch, DefaultTitle } from "../../../../shared/ui";
 import s from "./SettingSwitch.module.scss";
 
-export const SettingSwitch = ({ title, state, onSwitch }) => {
+export const SettingSwitch = ({ title, state, onSwitch, disabled = false }) => {
     return (
         <div className={`${s.container}`}>
             <DefaultTitle
@@ -13,7 +13,7 @@ export const SettingSwitch = ({ title, state, onSwitch }) => {
                 titleStyles={{ fontSize: "1rem" }}
                 fontWeight={"400"}
             />
-            <DefaultSwitch state={state} onSwitch={onSwitch} />
+            <DefaultSwitch state={state} onSwitch={onSwitch} disabled={disabled} />
         </div>
     );
 };

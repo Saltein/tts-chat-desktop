@@ -97,6 +97,11 @@ export const DefaultButton = ({
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setActualTitle(title);
+    }, [title]);
+
+    useEffect(() => {
         return () => {
             if (timerRef.current) {
                 clearTimeout(timerRef.current);

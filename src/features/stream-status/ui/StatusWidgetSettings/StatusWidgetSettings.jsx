@@ -213,7 +213,7 @@ export const StatusWidgetSettings = () => {
                             title={title}
                             onClick={() => {
                                 dispatch(resetStyles());
-                                changeTitle("Сброшено");
+                                changeTitle();
                             }}
                             height="32px"
                             color={"var(--color-warning"}

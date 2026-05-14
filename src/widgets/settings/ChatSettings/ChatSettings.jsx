@@ -10,7 +10,6 @@ import {
 import s from "./ChatSettings.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { setWidgetMessage } from "../../../entities/connection/model/slice";
-import { convertObjToStr } from "../../../shared/lib/convertObjToStr";
 import {
     resetMessageStyles,
     selectFontSize,
@@ -53,9 +52,10 @@ import { nameColors } from "../../../shared/lib/generateColorFromUsername";
 import { useNavigate } from "react-router-dom";
 import { WidgetUrlBlock } from "../../../shared/ui/WidgetUrlBlock/WidgetUrlBlock";
 import { useChangeAfterButtonTitle } from "../../../shared/hooks/useChangeAfterButtonTitle";
+import { useWebSocket } from "../../../shared/hooks/useWebSocket";
 
 export const ChatSettings = ({ full = true }) => {
-    const [link, setLink] = useState("");
+    const { isConnected, sendMessage } = useWebSocket("client", "client");
 
     const navigate = useNavigate();
 
@@ -63,6 +63,8 @@ export const ChatSettings = ({ full = true }) => {
         mainTitle: "Сбросить настройки",
         tempTitle: "Сброшено",
     });
+
+    const [link, setLink] = useState("");
 
     const [lifetime, setLifetime] = useState(
         useSelector(selectMessageLifeTime),
@@ -97,32 +99,14 @@ export const ChatSettings = ({ full = true }) => {
     const currentMessageDisappearing = useSelector(selectMessageDisappearing);
     const currentPreview = useSelector(selectPreview);
 
-    const chatCustomizationQueryParamObj = {
-        messageNameBackground: String(currentMessageNameBackground),
-        messageNameBackgroundColor: currentMessageNameBackgroundColor,
-        messageNameBackgroundOpacity: currentMessageNameBackgroundOpacity,
-        messageNameBorder: String(currentMessageNameBorder),
-        serviceIcon: String(serviceIconLocal),
-
-        messageBackgroundColor: currentMessageBackgroundColor,
-        messageBackgroundOpacity: currentMessageBackgroundOpacity,
-        messageTextColor: currentMessageTextColor,
-        messageBorder: String(messageBorderLocal),
-
-        messageGap: String(useSelector(selectMessageGap)),
-        messageLifeTime: lifetime,
-        fontSize: String(currentFontSize),
-    };
+    const currentMessageGap = useSelector(selectMessageGap);
 
     const baseUrl = import.meta.env.VITE_BASE_URL_WIDGET || "";
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const queryParamList = [chatCustomizationQueryParamObj];
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setLink(`${baseUrl}/#/widget/chat?${convertObjToStr(queryParamList)}`);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [...queryParamList, baseUrl, queryParamList]);
+        setLink(`${baseUrl}/#/widget/chat`);
+    }, [baseUrl]);
 
     useEffect(() => {
         dispatch(setMessageBorder(messageBorderLocal));
@@ -190,6 +174,46 @@ export const ChatSettings = ({ full = true }) => {
         navigate("/live-chat");
     };
 
+    useEffect(() => {
+        const stylesObject = {
+            nameBackground: currentMessageNameBackground,
+            nameBorder: currentMessageNameBorder,
+            nameBackgroundColor: currentMessageNameBackgroundColor,
+            nameBackgroundOpacity: currentMessageNameBackgroundOpacity,
+            serviceIcon: serviceIconLocal,
+
+            messageBorder: messageBorderLocal,
+            messageBackgroundColor: currentMessageBackgroundColor,
+            messageBackgroundOpacity: currentMessageBackgroundOpacity,
+            messageTextColor: currentMessageTextColor,
+
+            fontSize: currentFontSize,
+            messageGap: currentMessageGap,
+            messageLifeTime: lifetime,
+        };
+
+        if (isConnected) {
+            sendMessage(
+                JSON.stringify({ ...stylesObject, type: "chatStyles" }),
+            );
+        }
+    }, [
+        isConnected,
+        sendMessage,
+        currentMessageNameBackground,
+        currentFontSize,
+        currentMessageBackgroundColor,
+        currentMessageBackgroundOpacity,
+        currentMessageGap,
+        currentMessageNameBorder,
+        currentMessageNameBackgroundColor,
+        currentMessageTextColor,
+        currentMessageNameBackgroundOpacity,
+        serviceIconLocal,
+        messageBorderLocal,
+        lifetime,
+    ]);
+
     if (!full) {
         return (
             <WidgetUrlBlock link={link} handleToSettings={handleToSettings} />
@@ -206,7 +230,7 @@ export const ChatSettings = ({ full = true }) => {
                 title={title}
                 onClick={() => {
                     dispatch(resetMessageStyles());
-                    changeTitle("Сброшено");
+                    changeTitle();
                 }}
                 height="32px"
                 color={"var(--color-warning"}

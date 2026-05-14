@@ -15,6 +15,7 @@ const loadSettings = () => {
                     ttsOn: parsed.twitch?.ttsOn ?? false, // Булево значение
                     voice: parsed.twitch?.voice ?? "random",
                 },
+                clearTrigger: parsed.clearTrigger ?? "random string",
             };
         }
     } catch (error) {
@@ -30,6 +31,7 @@ const loadSettings = () => {
             ttsOn: false, // Булево значение
             voice: "random",
         },
+        clearTrigger: "random string",
     };
 };
 
@@ -47,6 +49,7 @@ const saveToLocalStorage = (state) => {
                     ttsOn: state.twitch.ttsOn,
                     voice: state.twitch.voice,
                 },
+                clearTrigger: state.clearTrigger,
             }),
         );
     } catch (error) {
@@ -70,10 +73,15 @@ const ttsSettingsSlice = createSlice({
             state.twitch.voice = action.payload;
             saveToLocalStorage(state);
         },
+        setClearTrigger: (state, action) => {
+            state.clearTrigger = action.payload;
+            saveToLocalStorage(state);
+        },
         resetSettings: () => {
             const defaultState = {
                 common: { speechVolume: 50 },
                 twitch: { ttsOn: true, voice: "random" },
+                clearTrigger: "random string",
             };
             saveToLocalStorage(defaultState);
             return defaultState;
@@ -85,6 +93,7 @@ export const {
     setSpeechVolume,
     setTwitchTTSOn,
     setTwitchVoice,
+    setClearTrigger,
     resetSettings,
 } = ttsSettingsSlice.actions;
 
@@ -94,3 +103,4 @@ export const selectSpeechVolume = (state) =>
     state.ttsSettings.common.speechVolume;
 export const selectTwitchTTSOn = (state) => state.ttsSettings.twitch.ttsOn;
 export const selectTwitchVoice = (state) => state.ttsSettings.twitch.voice;
+export const selectClearTrigger = (state) => state.ttsSettings.clearTrigger;

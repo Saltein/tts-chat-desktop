@@ -3,6 +3,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useSelector } from "react-redux";
 import {
+    selectClearTrigger,
     selectSpeechVolume,
     selectTwitchTTSOn,
     selectTwitchVoice,
@@ -25,6 +26,8 @@ export const TTSChat = () => {
     const revoiceMessage = useSelector(selectRevoiceMessage);
     const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
     const twitchVoice = useSelector(selectTwitchVoice);
+
+    const clearTrigger = useSelector(selectClearTrigger);
 
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
 
@@ -237,6 +240,30 @@ export const TTSChat = () => {
             return skip;
         }
     }, []);
+
+    useEffect(() => {
+        if (clearTrigger) {
+            // Очищаем очереди
+            normalQueueRef.current = [];
+            priorityQueueRef.current = [];
+
+            // Останавливаем текущее воспроизведение
+            if (audioRef.current) {
+                audioRef.current.pause();
+                if (audioRef.current.src) {
+                    URL.revokeObjectURL(audioRef.current.src);
+                }
+            }
+
+            // Сбрасываем состояние
+            isPlayingRef.current = false;
+            if (pausedUrlRef.current) {
+                URL.revokeObjectURL(pausedUrlRef.current);
+                pausedUrlRef.current = null;
+            }
+            pausedTimeRef.current = 0;
+        }
+    }, [clearTrigger]);
 
     return (
         <div className={s.wrapper}>

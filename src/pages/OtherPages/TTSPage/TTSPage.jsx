@@ -4,6 +4,7 @@ import {
     selectSpeechVolume,
     selectTwitchTTSOn,
     selectTwitchVoice,
+    setClearTrigger,
     setSpeechVolume,
     setTwitchTTSOn,
     setTwitchVoice,
@@ -23,6 +24,7 @@ import {
     selectConsoleWidgetOpen,
     setConsoleWidgetOpen,
 } from "../../../features/tts-console/model/slice";
+import { genRandStr } from "../../../shared/lib/genRandStr";
 
 export const TTSPage = () => {
     const dispatch = useDispatch();
@@ -74,6 +76,7 @@ export const TTSPage = () => {
     }, [optionList.length, fetchSpeakers]);
 
     const handleSwitch = () => {
+        dispatch(setClearTrigger(genRandStr()));
         dispatch(setTwitchTTSOn(!isTwitchTTSOn));
         isTwitchTTSOn && dispatch(clearConsoleMessages());
     };

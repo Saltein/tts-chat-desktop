@@ -1,7 +1,8 @@
 @use "../../../shared/styles/variables.scss" as *;
 
 .wrapper {
-    height: 100vh;
+    height: 50vh;
+    zoom: 2;
 }
 
 .chatWrapper {

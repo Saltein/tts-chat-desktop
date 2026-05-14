@@ -66,17 +66,11 @@ export const ChatSettings = ({ full = true }) => {
 
     const [link, setLink] = useState("");
 
-    const [lifetime, setLifetime] = useState(
-        useSelector(selectMessageLifeTime),
-    );
-    const [messageBorderLocal, setMessageBorderLocal] = useState(
-        useSelector(selectMessageBorder),
-    );
-    const [serviceIconLocal, setServiceIconLocal] = useState(
-        useSelector(selectServiceIcon),
-    );
-
     const dispatch = useDispatch();
+
+    const currentMessageBorder = useSelector(selectMessageBorder);
+    const currentServiceIcon = useSelector(selectServiceIcon);
+    const currentMessageLifeTime = useSelector(selectMessageLifeTime);
 
     const currentMessageBackgroundColor = useSelector(selectMessageBackground);
     const currentMessageBackgroundOpacity = useSelector(
@@ -108,18 +102,10 @@ export const ChatSettings = ({ full = true }) => {
         setLink(`${baseUrl}/#/widget/chat`);
     }, [baseUrl]);
 
-    useEffect(() => {
-        dispatch(setMessageBorder(messageBorderLocal));
-    }, [messageBorderLocal, dispatch]);
-
-    useEffect(() => {
-        dispatch(setServiceIcon(serviceIconLocal));
-    }, [serviceIconLocal, dispatch]);
-
     const onChangeLifeTime = (e) => {
         const value = e.target.value;
         if (value === "") {
-            setLifetime(0);
+            dispatch(setMessageLifeTime(0));
             return;
         }
         if (
@@ -128,7 +114,7 @@ export const ChatSettings = ({ full = true }) => {
             !isNaN(parseFloat(value)) &&
             isFinite(value)
         ) {
-            setLifetime(parseFloat(value) * 1000);
+            dispatch(setMessageLifeTime(parseFloat(value) * 1000));
         }
     };
 
@@ -142,10 +128,6 @@ export const ChatSettings = ({ full = true }) => {
 
     const handlePickTextColor = (e) => {
         dispatch(setMessageTextColor(e.target.value));
-    };
-
-    const handleChangeLifeTime = () => {
-        dispatch(setMessageLifeTime(lifetime));
     };
 
     const getRandomService = () => {
@@ -180,16 +162,16 @@ export const ChatSettings = ({ full = true }) => {
             nameBorder: currentMessageNameBorder,
             nameBackgroundColor: currentMessageNameBackgroundColor,
             nameBackgroundOpacity: currentMessageNameBackgroundOpacity,
-            serviceIcon: serviceIconLocal,
+            serviceIcon: currentServiceIcon,
 
-            messageBorder: messageBorderLocal,
+            messageBorder: currentMessageBorder,
             messageBackgroundColor: currentMessageBackgroundColor,
             messageBackgroundOpacity: currentMessageBackgroundOpacity,
             messageTextColor: currentMessageTextColor,
 
             fontSize: currentFontSize,
             messageGap: currentMessageGap,
-            messageLifeTime: lifetime,
+            messageLifeTime: currentMessageLifeTime,
         };
 
         if (isConnected) {
@@ -209,9 +191,9 @@ export const ChatSettings = ({ full = true }) => {
         currentMessageNameBackgroundColor,
         currentMessageTextColor,
         currentMessageNameBackgroundOpacity,
-        serviceIconLocal,
-        messageBorderLocal,
-        lifetime,
+        currentServiceIcon,
+        currentMessageBorder,
+        currentMessageLifeTime,
     ]);
 
     if (!full) {
@@ -288,8 +270,10 @@ export const ChatSettings = ({ full = true }) => {
 
             <SettingSwitch
                 title={"Значок сервиса"}
-                state={serviceIconLocal}
-                onSwitch={setServiceIconLocal}
+                state={currentServiceIcon}
+                onSwitch={() => {
+                    dispatch(setServiceIcon(!currentServiceIcon));
+                }}
             />
 
             <DefaultDivider />
@@ -305,8 +289,10 @@ export const ChatSettings = ({ full = true }) => {
 
             <SettingSwitch
                 title={"Обводка"}
-                state={messageBorderLocal}
-                onSwitch={setMessageBorderLocal}
+                state={currentMessageBorder}
+                onSwitch={() => {
+                    dispatch(setMessageBorder(!currentMessageBorder));
+                }}
             />
 
             <div className={`${s.colorContainer} ${s.container}`}>
@@ -361,9 +347,8 @@ export const ChatSettings = ({ full = true }) => {
             <SettingApplyInput
                 title={"Исчезнут через (с)"}
                 placeholder={"Время в секундах"}
-                value={lifetime / 1000}
+                value={currentMessageLifeTime / 1000}
                 onChange={onChangeLifeTime}
-                dispatcher={handleChangeLifeTime}
             />
 
             <DefaultDivider />

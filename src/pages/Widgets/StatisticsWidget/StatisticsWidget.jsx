@@ -7,6 +7,7 @@ import {
     setServiceIconSize,
     setStatusBackgroundColor,
     setStatusBackgroundOpacity,
+    setStatusBorderRadius,
     setStatusFontSize,
     setStatusPreviewBackgroundOn,
     setStatusTextColor,
@@ -70,6 +71,7 @@ export const StatisticsWidget = () => {
             dispatch(setStatusFontSize(textObj.fontSize));
             dispatch(setStatusBackgroundOpacity(textObj.backgroundOpacity));
             dispatch(setServiceIconSize(textObj.serviceIconSize));
+            dispatch(setStatusBorderRadius(textObj.borderRadius));
         }
     }, [messages, dispatch]);
 

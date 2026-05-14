@@ -17,6 +17,7 @@ const loadStyle = () => {
                 textColor: parsed.textColor ?? "#fff",
                 backgroundColor: parsed.backgroundColor ?? "#2a2a2a",
                 backgroundOpacity: parsed.backgroundOpacity ?? 1,
+                borderRadius: parsed.borderRadius ?? "12px",
             };
         }
     } catch (e) {
@@ -32,6 +33,7 @@ const loadStyle = () => {
         textColor: "#fff",
         backgroundColor: "#2a2a2a",
         backgroundOpacity: 1,
+        borderRadius: "12px",
     };
 };
 
@@ -114,6 +116,10 @@ const streamStatusSlice = createSlice({
             state.style.backgroundOpacity = action.payload;
             saveStyle(state.style);
         },
+        setStatusBorderRadius: (state, action) => {
+            state.style.borderRadius = action.payload;
+            saveStyle(state.style);
+        },
         // styles reset
         resetStyles: (state) => {
             state.style.previewBackgroundOn = false;
@@ -145,6 +151,7 @@ export const {
     setStatusTextColor,
     setStatusBackgroundColor,
     setStatusBackgroundOpacity,
+    setStatusBorderRadius,
     // styles reset
     resetStyles,
 } = streamStatusSlice.actions;
@@ -173,3 +180,5 @@ export const selectStatusBackgroundColor = (state) =>
     state.streamStatus.style.backgroundColor;
 export const selectStatusBackgroundOpacity = (state) =>
     state.streamStatus.style.backgroundOpacity;
+export const selectStatusBorderRadius = (state) =>
+    state.streamStatus.style.borderRadius;

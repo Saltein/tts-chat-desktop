@@ -20,6 +20,7 @@ import {
     selectServiceIconSize,
     selectStatusBackgroundColor,
     selectStatusBackgroundOpacity,
+    selectStatusBorderRadius,
     selectStatusFontSize,
     selectStatusPreviewBackgroundOn,
     selectStatusTextColor,
@@ -28,6 +29,7 @@ import {
     setServiceIconSize,
     setStatusBackgroundColor,
     setStatusBackgroundOpacity,
+    setStatusBorderRadius,
     setStatusFontSize,
     setStatusPreviewBackgroundOn,
     setStatusTextColor,
@@ -74,6 +76,7 @@ export const StatusWidgetSettings = () => {
     const fontSize = useSelector(selectStatusFontSize);
     const backgroundOpacity = useSelector(selectStatusBackgroundOpacity);
     const serviceIconSize = useSelector(selectServiceIconSize);
+    const borderRadius = useSelector(selectStatusBorderRadius);
 
     const handleOpenSettings = () => {
         setSettingsOpen(true);
@@ -93,6 +96,7 @@ export const StatusWidgetSettings = () => {
             fontSize,
             backgroundOpacity,
             serviceIconSize,
+            borderRadius,
         };
 
         if (isConnected) {
@@ -111,6 +115,7 @@ export const StatusWidgetSettings = () => {
         fontSize,
         backgroundOpacity,
         serviceIconSize,
+        borderRadius,
     ]);
 
     return (
@@ -277,6 +282,16 @@ export const StatusWidgetSettings = () => {
                             selector={selectStatusBackgroundOpacity}
                             dispatcher={setStatusBackgroundOpacity}
                             isCoefficient
+                        />
+
+                        <SettingSlider
+                            title={"Радиус закругления краев"}
+                            selector={selectStatusBorderRadius}
+                            dispatcher={setStatusBorderRadius}
+                            min={1}
+                            max={32}
+                            step={1}
+                            postfix={"px"}
                         />
 
                         <DefaultDivider />

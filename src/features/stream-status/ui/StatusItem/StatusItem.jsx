@@ -9,6 +9,7 @@ import {
     selectServiceIconSize,
     selectStatusBackgroundColor,
     selectStatusBackgroundOpacity,
+    selectStatusBorderRadius,
     selectStatusFontSize,
     selectStatusTextColor,
 } from "../../model/slice";
@@ -20,6 +21,7 @@ export const StatusItem = ({ info, service, isWidget }) => {
     const textColor = useSelector(selectStatusTextColor);
     const backgroundColor = useSelector(selectStatusBackgroundColor);
     const backgroundOpacity = useSelector(selectStatusBackgroundOpacity);
+    const borderRadius = useSelector(selectStatusBorderRadius);
 
     const wrapperHeightNumber =
         40 + (fontSize * (fontSize - 12 < 1 ? 1 : fontSize - 12)) / 10 - 2;
@@ -35,6 +37,7 @@ export const StatusItem = ({ info, service, isWidget }) => {
             ? wrapperHeightNumber / 2 - serviceIconSize / 2 + "px"
             : undefined,
         height: wrapperHeight,
+        borderRadius: borderRadius ? borderRadius : undefined,
     };
 
     const serviceIconStyle = {

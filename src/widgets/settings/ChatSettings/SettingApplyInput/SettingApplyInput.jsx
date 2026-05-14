@@ -2,7 +2,7 @@ import { DefaultButton, DefaultInput, DefaultTitle } from "../../../../shared/ui
 import { SimpleWidgetShape } from "../../../../shared/widgets/SimpleWidgetShape/SimpleWidgetShape";
 import s from "./SettingApplyInput.module.scss";
 
-export const SettingApplyInput = ({title, placeholder, value, width = "72px", onChange, dispatcher}) => {
+export const SettingApplyInput = ({title, placeholder, value, width = "72px", onChange, onClick}) => {
     return (
         <SimpleWidgetShape>
             <DefaultTitle
@@ -27,7 +27,7 @@ export const SettingApplyInput = ({title, placeholder, value, width = "72px", on
                     height="24px"
                     title={"Применить"}
                     flex={1}
-                    onClick={dispatcher}
+                    onClick={onClick}
                 />
             </div>
         </SimpleWidgetShape>

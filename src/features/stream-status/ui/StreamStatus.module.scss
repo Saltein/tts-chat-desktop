@@ -3,11 +3,11 @@
 .wrapper_StreamStatus {
     display: flex;
     align-items: start;
-    width: 100%;
 
     gap: $spacing-xs;
 
     &.widget {
+        width: 100%;
         &.stretchInWidth {
             & > * {
                 flex: 1;

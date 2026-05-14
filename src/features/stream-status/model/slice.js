@@ -1,5 +1,49 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const STORAGE_KEY = "streamStatusStyle";
+
+// загрузка style
+const loadStyle = () => {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            return {
+                previewBackgroundOn: parsed.previewBackgroundOn ?? false,
+                stretchInWidth: parsed.stretchInWidth ?? false,
+                verticalArrange: parsed.verticalArrange ?? false,
+                serviceIconSize: parsed.serviceIconSize ?? 16,
+                fontSize: parsed.fontSize ?? 12,
+                textColor: parsed.textColor ?? "#fff",
+                backgroundColor: parsed.backgroundColor ?? "#2a2a2a",
+                backgroundOpacity: parsed.backgroundOpacity ?? 1,
+            };
+        }
+    } catch (e) {
+        console.error("Error loading streamStatus style:", e);
+    }
+
+    return {
+        previewBackgroundOn: false,
+        stretchInWidth: false,
+        verticalArrange: false,
+        serviceIconSize: 16,
+        fontSize: 12,
+        textColor: "#fff",
+        backgroundColor: "#2a2a2a",
+        backgroundOpacity: 1,
+    };
+};
+
+// сохранение style
+const saveStyle = (style) => {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(style));
+    } catch (e) {
+        console.error("Error saving streamStatus style:", e);
+    }
+};
+
 let initialState = {
     youtube: {
         likes: 0,
@@ -12,16 +56,7 @@ let initialState = {
     twitch: {
         viewers: 0,
     },
-    style: {
-        previewBackgroundOn: false,
-        stretchInWidth: false,
-        verticalArrange: false,
-        serviceIconSize: 16,
-        fontSize: 12,
-        textColor: "#fff",
-        backgroundColor: "#2a2a2a",
-        backgroundOpacity: 1,
-    },
+    style: loadStyle(),
 };
 
 const streamStatusSlice = createSlice({
@@ -46,30 +81,50 @@ const streamStatusSlice = createSlice({
             state.twitch.viewers = action.payload;
         },
 
-        //styles
+        // styles
         setStatusPreviewBackgroundOn: (state, action) => {
             state.style.previewBackgroundOn = action.payload;
+            saveStyle(state.style);
         },
         setStretchInWidth: (state, action) => {
             state.style.stretchInWidth = action.payload;
+            saveStyle(state.style);
         },
         setVerticalArrange: (state, action) => {
             state.style.verticalArrange = action.payload;
+            saveStyle(state.style);
         },
         setServiceIconSize: (state, action) => {
             state.style.serviceIconSize = action.payload;
+            saveStyle(state.style);
         },
         setStatusFontSize: (state, action) => {
             state.style.fontSize = action.payload;
+            saveStyle(state.style);
         },
         setStatusTextColor: (state, action) => {
             state.style.textColor = action.payload;
+            saveStyle(state.style);
         },
         setStatusBackgroundColor: (state, action) => {
             state.style.backgroundColor = action.payload;
+            saveStyle(state.style);
         },
         setStatusBackgroundOpacity: (state, action) => {
             state.style.backgroundOpacity = action.payload;
+            saveStyle(state.style);
+        },
+        // styles reset
+        resetStyles: (state) => {
+            state.style.previewBackgroundOn = false;
+            state.style.stretchInWidth = false;
+            state.style.verticalArrange = false;
+            state.style.serviceIconSize = 16;
+            state.style.fontSize = 12;
+            state.style.textColor = "#fff";
+            state.style.backgroundColor = "#2a2a2a";
+            state.style.backgroundOpacity = 1;
+            saveStyle(state.style);
         },
     },
 });
@@ -80,7 +135,8 @@ export const {
     setVkLikes,
     setVkViewers,
     setTwitchViewers,
-    //styles
+
+    // styles
     setStatusPreviewBackgroundOn,
     setStretchInWidth,
     setVerticalArrange,
@@ -89,9 +145,13 @@ export const {
     setStatusTextColor,
     setStatusBackgroundColor,
     setStatusBackgroundOpacity,
+    // styles reset
+    resetStyles,
 } = streamStatusSlice.actions;
+
 export default streamStatusSlice.reducer;
 
+// selectors
 export const selectYoutubeStatus = (state) => state.streamStatus.youtube;
 export const selectVkStatus = (state) => state.streamStatus.vk;
 export const selectTwitchStatus = (state) => state.streamStatus.twitch;

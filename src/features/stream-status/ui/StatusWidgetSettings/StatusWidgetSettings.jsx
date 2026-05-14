@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import { WidgetUrlBlock } from "../../../../shared/ui/WidgetUrlBlock/WidgetUrlBlock";
 import s from "./StatusWidgetSettings.module.scss";
-import { convertObjToStr } from "../../../../shared/lib/convertObjToStr";
 import { DefaultModalWindow } from "../../../../shared/ui/DefaultModalWindow/DefaultModalWindow";
 import { StreamStatus } from "../StreamStatus";
 import {
+    DefaultButton,
     DefaultDivider,
     DefaultSwitch,
     DefaultTitle,
@@ -16,6 +16,7 @@ import VkIcon from "../../../../shared/assets/icons/vk-video-logo.svg?react";
 import { SettingSwitch } from "../../../../widgets/settings/ChatSettings/SettingSwitch/SettingSwitch";
 import { useDispatch, useSelector } from "react-redux";
 import {
+    resetStyles,
     selectServiceIconSize,
     selectStatusBackgroundColor,
     selectStatusBackgroundOpacity,
@@ -40,13 +41,21 @@ import {
 } from "../../../../entities/connection/model/slice";
 import { SettingSlider } from "../../../../widgets/settings/ChatSettings/SettingSlider/SettingSlider";
 import { SettingColorPicker } from "../../../../widgets/settings/ChatSettings/SettingsColorPicker/SettingColorPicker";
+import { useWebSocket } from "../../../../shared/hooks/useWebSocket";
+import { useChangeAfterButtonTitle } from "../../../../shared/hooks/useChangeAfterButtonTitle";
 
 export const StatusWidgetSettings = () => {
     const baseUrl = import.meta.env.VITE_BASE_URL_WIDGET || "";
     const dispatch = useDispatch();
+    const { isConnected, sendMessage } = useWebSocket("client", "client");
+
+    const { title, changeTitle } = useChangeAfterButtonTitle({
+        mainTitle: "Сбросить настройки",
+        tempTitle: "Сброшено",
+    });
 
     const [link, setLink] = useState("");
-    const [settingsOpen, setSettingsOpen] = useState(true);
+    const [settingsOpen, setSettingsOpen] = useState(false);
     const [previewServices, setPreviewServices] = useState({
         twitch: true,
         youtube: true,
@@ -62,17 +71,47 @@ export const StatusWidgetSettings = () => {
     const verticalArrange = useSelector(selectVerticalArrange);
     const textColor = useSelector(selectStatusTextColor);
     const backgroundColor = useSelector(selectStatusBackgroundColor);
-
-    useEffect(() => {
-        const queryParamList = [{}];
-        setLink(
-            `${baseUrl}/#/widget/statistics?${convertObjToStr(queryParamList)}`,
-        );
-    }, [baseUrl]);
+    const fontSize = useSelector(selectStatusFontSize);
+    const backgroundOpacity = useSelector(selectStatusBackgroundOpacity);
+    const serviceIconSize = useSelector(selectServiceIconSize);
 
     const handleOpenSettings = () => {
         setSettingsOpen(true);
     };
+
+    useEffect(() => {
+        setLink(`${baseUrl}/#/widget/statistics`);
+    }, [baseUrl]);
+
+    useEffect(() => {
+        const stylesObject = {
+            previewBackgroundOn,
+            stretchInWidth,
+            verticalArrange,
+            textColor,
+            backgroundColor,
+            fontSize,
+            backgroundOpacity,
+            serviceIconSize,
+        };
+
+        if (isConnected) {
+            sendMessage(
+                JSON.stringify({ ...stylesObject, type: "statisticsStyles" }),
+            );
+        }
+    }, [
+        isConnected,
+        sendMessage,
+        previewBackgroundOn,
+        stretchInWidth,
+        verticalArrange,
+        textColor,
+        backgroundColor,
+        fontSize,
+        backgroundOpacity,
+        serviceIconSize,
+    ]);
 
     return (
         <div className={s.wrapper}>
@@ -170,6 +209,19 @@ export const StatusWidgetSettings = () => {
 
                         <DefaultDivider />
 
+                        <DefaultButton
+                            title={title}
+                            onClick={() => {
+                                dispatch(resetStyles());
+                                changeTitle("Сброшено");
+                            }}
+                            height="32px"
+                            color={"var(--color-warning"}
+                            hold
+                        />
+
+                        <DefaultDivider />
+
                         <DefaultTitle
                             paddingTop={"0"}
                             paddingBottom={"0"}
@@ -260,6 +312,16 @@ export const StatusWidgetSettings = () => {
                                 alignContent="start"
                             />
                         </div>
+
+                        <DefaultDivider />
+
+                        <DefaultButton
+                            title={"Ок"}
+                            onClick={() => {
+                                setSettingsOpen(false);
+                            }}
+                            height="32px"
+                        />
                     </div>
                 </DefaultModalWindow>
             )}

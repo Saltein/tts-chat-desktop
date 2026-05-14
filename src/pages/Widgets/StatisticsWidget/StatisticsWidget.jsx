@@ -4,7 +4,15 @@ import s from "./StatisticsWidget.module.scss";
 import { useWebSocket } from "../../../shared/hooks/useWebSocket";
 import { useEffect } from "react";
 import {
+    setServiceIconSize,
+    setStatusBackgroundColor,
+    setStatusBackgroundOpacity,
+    setStatusFontSize,
+    setStatusPreviewBackgroundOn,
+    setStatusTextColor,
+    setStretchInWidth,
     setTwitchViewers,
+    setVerticalArrange,
     setVkLikes,
     setVkViewers,
     setYoutubeLikes,
@@ -39,6 +47,7 @@ export const StatisticsWidget = () => {
             dispatch(setVkConnectionStatus(textObj.vkConnected));
         }
 
+        // stats
         if (type === "ytStats") {
             dispatch(setYoutubeLikes(textObj.likes));
             dispatch(setYoutubeViewers(textObj.viewers));
@@ -49,6 +58,18 @@ export const StatisticsWidget = () => {
         }
         if (type === "twStats") {
             dispatch(setTwitchViewers(textObj.viewers));
+        }
+
+        // styles
+        if (type === "statisticsStyles") {
+            dispatch(setStatusPreviewBackgroundOn(textObj.previewBackgroundOn));
+            dispatch(setStretchInWidth(textObj.stretchInWidth));
+            dispatch(setVerticalArrange(textObj.verticalArrange));
+            dispatch(setStatusTextColor(textObj.textColor));
+            dispatch(setStatusBackgroundColor(textObj.backgroundColor));
+            dispatch(setStatusFontSize(textObj.fontSize));
+            dispatch(setStatusBackgroundOpacity(textObj.backgroundOpacity));
+            dispatch(setServiceIconSize(textObj.serviceIconSize));
         }
     }, [messages, dispatch]);
 

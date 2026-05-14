@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setWidgetMessage } from "../../../entities/connection/model/slice";
 import { convertObjToStr } from "../../../shared/lib/convertObjToStr";
 import {
+    resetMessageStyles,
     selectFontSize,
     selectMessageBackground,
     selectMessageBackgroundOpacity,
@@ -51,11 +52,17 @@ import { getRandomInt } from "../../../shared/lib/getRandomInt";
 import { nameColors } from "../../../shared/lib/generateColorFromUsername";
 import { useNavigate } from "react-router-dom";
 import { WidgetUrlBlock } from "../../../shared/ui/WidgetUrlBlock/WidgetUrlBlock";
+import { useChangeAfterButtonTitle } from "../../../shared/hooks/useChangeAfterButtonTitle";
 
 export const ChatSettings = ({ full = true }) => {
     const [link, setLink] = useState("");
 
     const navigate = useNavigate();
+
+    const { title, changeTitle } = useChangeAfterButtonTitle({
+        mainTitle: "Сбросить настройки",
+        tempTitle: "Сброшено",
+    });
 
     const [lifetime, setLifetime] = useState(
         useSelector(selectMessageLifeTime),
@@ -184,12 +191,27 @@ export const ChatSettings = ({ full = true }) => {
     };
 
     if (!full) {
-        return <WidgetUrlBlock link={link} handleToSettings={handleToSettings}/>;
+        return (
+            <WidgetUrlBlock link={link} handleToSettings={handleToSettings} />
+        );
     }
 
     return (
         <div className={s.wrapper}>
             <WidgetUrlBlock link={link} />
+
+            <DefaultDivider />
+
+            <DefaultButton
+                title={title}
+                onClick={() => {
+                    dispatch(resetMessageStyles());
+                    changeTitle("Сброшено");
+                }}
+                height="32px"
+                color={"var(--color-warning"}
+                hold
+            />
 
             <DefaultDivider />
 

@@ -62,7 +62,8 @@ const saveToLocalStorage = (state) => {
     localStorage.setItem("chatCustomization", JSON.stringify(state));
 };
 
-const handleClearLocalStorage = () => localStorage.removeItem("chatCustomization");
+const handleClearLocalStorage = () =>
+    localStorage.removeItem("chatCustomization");
 
 const messageCustomizationSlice = createSlice({
     name: "messageCustomization",
@@ -132,6 +133,25 @@ const messageCustomizationSlice = createSlice({
             saveToLocalStorage(state);
         },
 
+        // styles reset
+        resetMessageStyles: (state) => {
+            state.messageNameBackground = true;
+            state.messageNameBackgroundColor = "#1e1e1e";
+            state.messageNameBackgroundOpacity = 1;
+            state.messageNameBorder = true;
+            state.serviceIcon = true;
+            state.messageBackground = "#2a2a2a";
+            state.messageBackgroundOpacity = 1;
+            state.messageBorder = true;
+            state.messageTextColor = "#ffffff";
+            state.messageLifeTime = 30000;
+            state.messageGap = "8";
+            state.fontSize = 20;
+            state.messageDisappearing = true;
+            state.preview = false;
+            saveToLocalStorage(state);
+        },
+
         // Clear
         clearLocalStorage: () => {
             handleClearLocalStorage();
@@ -164,6 +184,7 @@ export const {
     togglePreview,
 
     // Clear
+    resetMessageStyles,
     clearLocalStorage,
 } = messageCustomizationSlice.actions;
 

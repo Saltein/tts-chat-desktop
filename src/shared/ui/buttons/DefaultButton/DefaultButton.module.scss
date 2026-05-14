@@ -1,4 +1,4 @@
-@use '../../../styles/variables.scss' as *;
+@use "../../../styles/variables.scss" as *;
 
 .wrapper {
     position: relative;
@@ -9,7 +9,9 @@
     width: 100%;
     border: 1px solid var(--color-border);
     border-radius: $border-radius-md;
-    transition: background-color $transition-medium, transform $transition-medium;
+    transition:
+        background-color $transition-medium,
+        transform $transition-medium;
     cursor: pointer;
     background-color: var(--color-accent);
     font-size: 1rem;
@@ -21,6 +23,22 @@
     }
 }
 
+.text {
+    position: relative;
+    z-index: 2;
+}
+
+.progressBar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.6);
+    transition: width 16ms linear;
+    z-index: 1;
+    pointer-events: none;
+}
+
 .wrapper:hover .shine {
     transform: translateX(100%) rotate(-60deg);
     transition: 0.7s;
@@ -28,13 +46,17 @@
 
 .wrapper:hover {
     filter: brightness(0.9);
-    transition: background-color $transition-fast, transform $transition-medium;
+    transition:
+        background-color $transition-fast,
+        transform $transition-medium;
 }
 
 .wrapper:active {
     filter: brightness(0.7);
     transform: scale(0.97);
-    transition: background-color $transition-fast, transform 0.05s;
+    transition:
+        background-color $transition-fast,
+        transform 0.05s;
 }
 
 .wrapper.disabled:hover {
@@ -55,6 +77,8 @@
     position: absolute;
     width: 100%;
     transform: translateX(-70%) rotate(-60deg);
+    z-index: 1;
+    pointer-events: none;
 }
 
 .shine1 {

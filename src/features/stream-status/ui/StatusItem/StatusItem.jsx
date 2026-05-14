@@ -15,19 +15,16 @@ import {
 import { hexToRgbString } from "../../../../shared/lib/hexToRgbString";
 
 export const StatusItem = ({ info, service, isWidget }) => {
-    console.log("[StatusItem] isWidget", isWidget);
-
     const serviceIconSize = useSelector(selectServiceIconSize);
     const fontSize = useSelector(selectStatusFontSize);
     const textColor = useSelector(selectStatusTextColor);
     const backgroundColor = useSelector(selectStatusBackgroundColor);
     const backgroundOpacity = useSelector(selectStatusBackgroundOpacity);
 
-    const wrapperHeight =
-        40 +
-        (fontSize * (fontSize - 12 < 1 ? 1 : fontSize - 12)) / 10 -
-        2 +
-        "px";
+    const wrapperHeightNumber =
+        40 + (fontSize * (fontSize - 12 < 1 ? 1 : fontSize - 12)) / 10 - 2;
+
+    const wrapperHeight = wrapperHeightNumber + "px";
 
     const wrapperStyles = {
         backgroundColor:
@@ -35,7 +32,7 @@ export const StatusItem = ({ info, service, isWidget }) => {
                 ? `rgba(${hexToRgbString(backgroundColor)}, ${backgroundOpacity})`
                 : undefined,
         paddingLeft: isWidget
-            ? wrapperHeight / 2 - serviceIconSize / 2 + "px"
+            ? wrapperHeightNumber / 2 - serviceIconSize / 2 + "px"
             : undefined,
         height: wrapperHeight,
     };

@@ -329,7 +329,7 @@ export const StatusWidgetSettings = () => {
                             title={"Радиус закругления краев"}
                             selector={selectStatusBorderRadius}
                             dispatcher={setStatusBorderRadius}
-                            min={1}
+                            min={0}
                             max={32}
                             step={1}
                             postfix={"px"}

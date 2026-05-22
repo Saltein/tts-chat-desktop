@@ -40,7 +40,7 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
 
     const styles = {
         backgroundColor: backgroundColor ?? undefined,
-        gap: messageGap ? messageGap + "px" : "8px",
+        gap: messageGap ? messageGap + "px" : "0px",
         overflowY: isWidget ? "hidden" : "auto",
     };
 

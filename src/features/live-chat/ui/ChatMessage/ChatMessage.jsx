@@ -224,7 +224,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const wrapperStyles = {
         backgroundColor: `rgba(${hexToRgbString(messageBackground)}, ${messageBackgroundOpacity})`,
         border: messageBorder === false ? `1px solid #00000000` : undefined,
-        borderRadius: messageBorderRadius + "px",
+        borderRadius: messageBorderRadius ? messageBorderRadius + "px" : "0px",
     };
 
     const nameStyles = {

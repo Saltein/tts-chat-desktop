@@ -317,7 +317,7 @@ export const ChatSettings = ({ full = true }) => {
                 title={"Радиус закругления"}
                 selector={selectMessageBorderRadius}
                 dispatcher={setMessageBorderRadius}
-                min={1}
+                min={0}
                 max={21}
                 postfix={"px"}
             />

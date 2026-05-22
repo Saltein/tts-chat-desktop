@@ -54,7 +54,7 @@ export const StatusItem = ({ info, service, isWidget }) => {
                   twitchOwnHeightOn && service === "twitch"
                       ? undefined
                       : wrapperHeight,
-              borderRadius: borderRadius ? borderRadius : undefined,
+              borderRadius: borderRadius ? borderRadius : "0px",
           }
         : {
               height: "40px",

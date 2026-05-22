@@ -16,6 +16,7 @@ import {
     selectMessageBackground,
     selectMessageBackgroundOpacity,
     selectMessageBorder,
+    selectMessageBorderRadius,
     selectMessageDisappearing,
     selectMessageGap,
     selectMessageLifeTime,
@@ -30,6 +31,7 @@ import {
     setMessageBackground,
     setMessageBackgroundOpacity,
     setMessageBorder,
+    setMessageBorderRadius,
     setMessageGap,
     setMessageLifeTime,
     setMessageNameBackground,
@@ -89,6 +91,7 @@ export const ChatSettings = ({ full = true }) => {
 
     const currentMessageTextColor = useSelector(selectMessageTextColor);
     const currentFontSize = useSelector(selectFontSize);
+    const currentMessageBorderRadius = useSelector(selectMessageBorderRadius);
 
     const currentMessageDisappearing = useSelector(selectMessageDisappearing);
     const currentPreview = useSelector(selectPreview);
@@ -169,6 +172,7 @@ export const ChatSettings = ({ full = true }) => {
             messageBackgroundColor: currentMessageBackgroundColor,
             messageBackgroundOpacity: currentMessageBackgroundOpacity,
             messageTextColor: currentMessageTextColor,
+            messageBorderRadius: currentMessageBorderRadius,
 
             fontSize: currentFontSize,
             messageGap: currentMessageGap,
@@ -203,6 +207,7 @@ export const ChatSettings = ({ full = true }) => {
         currentMessageNameBorder,
         currentMessageNameBackgroundColor,
         currentMessageTextColor,
+        currentMessageBorderRadius,
         currentMessageNameBackgroundOpacity,
         currentServiceIcon,
         currentMessageBorder,
@@ -306,6 +311,15 @@ export const ChatSettings = ({ full = true }) => {
                 onSwitch={() => {
                     dispatch(setMessageBorder(!currentMessageBorder));
                 }}
+            />
+
+            <SettingSlider
+                title={"Радиус закругления"}
+                selector={selectMessageBorderRadius}
+                dispatcher={setMessageBorderRadius}
+                min={1}
+                max={21}
+                postfix={"px"}
             />
 
             <div className={`${s.colorContainer} ${s.container}`}>

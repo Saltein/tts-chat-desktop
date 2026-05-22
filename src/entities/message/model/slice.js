@@ -13,6 +13,7 @@ let initialState = {
     messageBackgroundOpacity: 1,
     messageBorder: true,
     messageTextColor: "#ffffff",
+    borderRadius: 12,
 
     // General
     messageLifeTime: 30000,
@@ -42,11 +43,12 @@ try {
             messageBackgroundOpacity: saved.messageBackgroundOpacity ?? 1,
             messageBorder: saved.messageBorder ?? true,
             messageTextColor: saved.messageTextColor ?? "",
+            borderRadius: saved.borderRadius ?? 12,
 
             // General
             messageLifeTime: saved.messageLifeTime ?? 30000,
             messageGap: saved.messageGap ?? "8",
-            fontSize: saved.fontSize ?? "16px",
+            fontSize: saved.fontSize ?? 16,
 
             // In app
             messageDisappearing: saved.messageDisappearing ?? true,
@@ -108,6 +110,10 @@ const messageCustomizationSlice = createSlice({
             state.messageTextColor = action.payload;
             saveToLocalStorage(state);
         },
+        setMessageBorderRadius: (state, action) => {
+            state.borderRadius = action.payload;
+            saveToLocalStorage(state);
+        },
 
         // General
         setMessageLifeTime: (state, action) => {
@@ -144,6 +150,7 @@ const messageCustomizationSlice = createSlice({
             state.messageBackgroundOpacity = 1;
             state.messageBorder = true;
             state.messageTextColor = "#ffffff";
+            state.borderRadius = 12;
             state.messageLifeTime = 30000;
             state.messageGap = "8";
             state.fontSize = 20;
@@ -173,6 +180,7 @@ export const {
     setMessageBackgroundOpacity,
     setMessageBorder,
     setMessageTextColor,
+    setMessageBorderRadius,
 
     // General
     setMessageLifeTime,
@@ -212,6 +220,8 @@ export const selectMessageBorder = (state) =>
     state.messageCustomization.messageBorder;
 export const selectMessageTextColor = (state) =>
     state.messageCustomization.messageTextColor;
+export const selectMessageBorderRadius = (state) =>
+    state.messageCustomization.borderRadius;
 
 // General
 export const selectMessageLifeTime = (state) =>

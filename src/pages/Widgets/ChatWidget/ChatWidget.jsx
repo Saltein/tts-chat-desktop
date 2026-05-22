@@ -7,6 +7,7 @@ import {
     setMessageBackground,
     setMessageBackgroundOpacity,
     setMessageBorder,
+    setMessageBorderRadius,
     setMessageGap,
     setMessageLifeTime,
     setMessageNameBackground,
@@ -61,6 +62,7 @@ export const ChatWidget = () => {
                 ),
             );
             dispatch(setMessageTextColor(lastMessage.text.messageTextColor));
+            dispatch(setMessageBorderRadius(lastMessage.text.messageBorderRadius));
 
             dispatch(setFontSize(lastMessage.text.fontSize));
             dispatch(setMessageGap(lastMessage.text.messageGap));

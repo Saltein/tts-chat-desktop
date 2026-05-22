@@ -7,6 +7,7 @@ import {
     selectMessageBackground,
     selectMessageBackgroundOpacity,
     selectMessageBorder,
+    selectMessageBorderRadius,
     selectMessageDisappearing,
     selectMessageNameBackground,
     selectMessageNameBackgroundColor,
@@ -112,10 +113,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         });
 
         if (isWidget) {
-            const newHtml = cleanHtml.replaceAll(
-                "assets://",
-                "/assets/",
-            );
+            const newHtml = cleanHtml.replaceAll("assets://", "/assets/");
             console.log("newHtml", newHtml);
             return newHtml;
         }
@@ -156,6 +154,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     ); // число от 0 до 1
     const fontSize = useSelector(selectFontSize);
     const messageDisappearing = useSelector(selectMessageDisappearing);
+    const messageBorderRadius = useSelector(selectMessageBorderRadius);
 
     const ttsOn = useSelector(selectTwitchTTSOn);
 
@@ -225,12 +224,14 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const wrapperStyles = {
         backgroundColor: `rgba(${hexToRgbString(messageBackground)}, ${messageBackgroundOpacity})`,
         border: messageBorder === false ? `1px solid #00000000` : undefined,
+        borderRadius: messageBorderRadius + "px",
     };
 
     const nameStyles = {
         color: nameColor,
         fontSize: fontSize + "px",
     };
+
     const nameBackgroundStyles = {
         borderColor:
             messageNameBorder === false
@@ -241,6 +242,8 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         backgroundColor: messageNameBackground
             ? `rgba(${hexToRgbString(messageNameBackgroundColor)}, ${messageNameBackgroundOpacity})`
             : "transparent",
+        borderRadius:
+            messageBorderRadius - 4 <= 0 ? 0 : messageBorderRadius - 4 + "px",
     };
 
     const textStyles = {

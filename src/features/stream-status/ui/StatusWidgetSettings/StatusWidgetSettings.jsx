@@ -17,6 +17,7 @@ import { SettingSwitch } from "../../../../widgets/settings/ChatSettings/Setting
 import { useDispatch, useSelector } from "react-redux";
 import {
     resetStyles,
+    selectServiceIconOn,
     selectServiceIconSize,
     selectStatusBackgroundColor,
     selectStatusBackgroundOpacity,
@@ -25,7 +26,9 @@ import {
     selectStatusPreviewBackgroundOn,
     selectStatusTextColor,
     selectStretchInWidth,
+    selectTwitchOwnHeightOn,
     selectVerticalArrange,
+    setServiceIconOn,
     setServiceIconSize,
     setStatusBackgroundColor,
     setStatusBackgroundOpacity,
@@ -34,6 +37,7 @@ import {
     setStatusPreviewBackgroundOn,
     setStatusTextColor,
     setStretchInWidth,
+    setTwitchOwnHeightOn,
     setVerticalArrange,
 } from "../../model/slice";
 import {
@@ -77,6 +81,8 @@ export const StatusWidgetSettings = () => {
     const backgroundOpacity = useSelector(selectStatusBackgroundOpacity);
     const serviceIconSize = useSelector(selectServiceIconSize);
     const borderRadius = useSelector(selectStatusBorderRadius);
+    const serviceIconOn = useSelector(selectServiceIconOn);
+    const twitchOwnHeightOn = useSelector(selectTwitchOwnHeightOn);
 
     const handleOpenSettings = () => {
         setSettingsOpen(true);
@@ -87,6 +93,7 @@ export const StatusWidgetSettings = () => {
     }, [baseUrl]);
 
     useEffect(() => {
+        // ================================= Отправка стилей в виджет =================================
         const stylesObject = {
             previewBackgroundOn,
             stretchInWidth,
@@ -97,13 +104,27 @@ export const StatusWidgetSettings = () => {
             backgroundOpacity,
             serviceIconSize,
             borderRadius,
+            serviceIconOn,
+            twitchOwnHeightOn,
         };
 
+        let interval;
+
         if (isConnected) {
+            interval = setInterval(() => {
+                sendMessage(
+                    JSON.stringify({
+                        ...stylesObject,
+                        type: "statisticsStyles",
+                    }),
+                );
+            }, 1000);
             sendMessage(
                 JSON.stringify({ ...stylesObject, type: "statisticsStyles" }),
             );
         }
+
+        return () => clearInterval(interval);
     }, [
         isConnected,
         sendMessage,
@@ -116,6 +137,8 @@ export const StatusWidgetSettings = () => {
         backgroundOpacity,
         serviceIconSize,
         borderRadius,
+        serviceIconOn,
+        twitchOwnHeightOn,
     ]);
 
     return (
@@ -249,6 +272,24 @@ export const StatusWidgetSettings = () => {
                             state={verticalArrange}
                             onSwitch={() => {
                                 dispatch(setVerticalArrange(!verticalArrange));
+                            }}
+                        />
+
+                        <SettingSwitch
+                            title={"Показывать значок"}
+                            state={serviceIconOn}
+                            onSwitch={() => {
+                                dispatch(setServiceIconOn(!serviceIconOn));
+                            }}
+                        />
+
+                        <SettingSwitch
+                            title={"Своя высота для Twitch"}
+                            state={twitchOwnHeightOn}
+                            onSwitch={() => {
+                                dispatch(
+                                    setTwitchOwnHeightOn(!twitchOwnHeightOn),
+                                );
                             }}
                         />
 

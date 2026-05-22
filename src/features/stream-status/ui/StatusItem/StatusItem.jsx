@@ -6,12 +6,14 @@ import LikesIcon from "../../../../shared/assets/icons/like.svg?react";
 import TwitchIcon from "../../../../shared/assets/icons/twitch-logo.svg?react";
 import { useSelector } from "react-redux";
 import {
+    selectServiceIconOn,
     selectServiceIconSize,
     selectStatusBackgroundColor,
     selectStatusBackgroundOpacity,
     selectStatusBorderRadius,
     selectStatusFontSize,
     selectStatusTextColor,
+    selectTwitchOwnHeightOn,
 } from "../../model/slice";
 import { hexToRgbString } from "../../../../shared/lib/hexToRgbString";
 
@@ -22,63 +24,79 @@ export const StatusItem = ({ info, service, isWidget }) => {
     const backgroundColor = useSelector(selectStatusBackgroundColor);
     const backgroundOpacity = useSelector(selectStatusBackgroundOpacity);
     const borderRadius = useSelector(selectStatusBorderRadius);
+    const serviceIconOn = useSelector(selectServiceIconOn);
+    const twitchOwnHeightOn = useSelector(selectTwitchOwnHeightOn);
 
     const wrapperHeightNumber =
         40 + (fontSize * (fontSize - 12 < 1 ? 1 : fontSize - 12)) / 10 - 2;
 
     const wrapperHeight = wrapperHeightNumber + "px";
 
-    const wrapperStyles = {
-        backgroundColor:
-            isWidget && backgroundColor && backgroundOpacity
-                ? `rgba(${hexToRgbString(backgroundColor)}, ${backgroundOpacity})`
-                : undefined,
-        paddingLeft: isWidget
-            ? wrapperHeightNumber / 2 - serviceIconSize / 2 + "px"
-            : undefined,
-        height: wrapperHeight,
-        borderRadius: borderRadius ? borderRadius : undefined,
-    };
+    const wrapperStyles = isWidget
+        ? {
+              backgroundColor:
+                  backgroundColor && backgroundOpacity
+                      ? `rgba(${hexToRgbString(backgroundColor)}, ${backgroundOpacity})`
+                      : undefined,
+              padding: "4px 12px",
+              paddingLeft: serviceIconOn
+                  ? twitchOwnHeightOn && service === "twitch"
+                      ? undefined
+                      : wrapperHeightNumber / 2 - serviceIconSize / 2 + "px"
+                  : undefined,
+              paddingRight: serviceIconOn
+                  ? twitchOwnHeightOn && service === "twitch"
+                      ? undefined
+                      : wrapperHeightNumber / 2 - serviceIconSize / 2 + "px"
+                  : undefined,
 
-    const serviceIconStyle = {
-        width: serviceIconSize ? serviceIconSize : undefined,
-        height: serviceIconSize ? serviceIconSize : undefined,
-    };
+              height:
+                  twitchOwnHeightOn && service === "twitch"
+                      ? undefined
+                      : wrapperHeight,
+              borderRadius: borderRadius ? borderRadius : undefined,
+          }
+        : {
+              height: "40px",
+          };
 
-    const infoStyles = {
-        fontSize: fontSize ? fontSize : undefined,
-    };
+    const serviceIconStyle = isWidget
+        ? {
+              width: serviceIconSize ? serviceIconSize : undefined,
+              height: serviceIconSize ? serviceIconSize : undefined,
+          }
+        : {};
 
-    const metricConStyles = {
-        color: textColor ? textColor : undefined,
-    };
+    const infoStyles = isWidget
+        ? {
+              fontSize: fontSize ? fontSize : undefined,
+          }
+        : {};
 
-    const iconStyles = {
-        width: fontSize ? fontSize + 2 : undefined,
-        height: fontSize ? fontSize + 2 : undefined,
-        fill: textColor ? textColor : undefined,
-    };
+    const metricConStyles = isWidget
+        ? {
+              color: textColor ? textColor : undefined,
+          }
+        : {};
 
-    const textStyles = {
-        color: textColor ? textColor : undefined,
-    };
+    const iconStyles = isWidget
+        ? {
+              width: fontSize ? fontSize + 2 : undefined,
+              height: fontSize ? fontSize + 2 : undefined,
+              fill: textColor ? textColor : undefined,
+          }
+        : { fill: "var(--color-text)" };
+
+    const textStyles = isWidget
+        ? {
+              color: textColor ? textColor : undefined,
+          }
+        : {};
 
     return (
         <div className={s.wrapper} style={wrapperStyles}>
-            {service === "youtube" && (
-                <YoutubeIcon
-                    className={s.serviceIcon}
-                    style={serviceIconStyle}
-                />
-            )}
-            {service === "vk" && (
-                <VkIcon className={s.serviceIcon} style={serviceIconStyle} />
-            )}
-            {service === "twitch" && (
-                <TwitchIcon
-                    className={s.serviceIcon}
-                    style={serviceIconStyle}
-                />
+            {serviceIconOn && service && (
+                <ServiceIcon service={service} iconStyles={serviceIconStyle} />
             )}
             <div className={s.info} style={infoStyles}>
                 {info.viewers != null && (
@@ -104,4 +122,16 @@ export const StatusItem = ({ info, service, isWidget }) => {
             </div>
         </div>
     );
+};
+
+const ServiceIcon = ({ service, iconStyles }) => {
+    if (service === "youtube") {
+        return <YoutubeIcon className={s.serviceIcon} style={iconStyles} />;
+    }
+    if (service === "vk") {
+        return <VkIcon className={s.serviceIcon} style={iconStyles} />;
+    }
+    if (service === "twitch") {
+        return <TwitchIcon className={s.serviceIcon} style={iconStyles} />;
+    }
 };

@@ -157,6 +157,7 @@ export const ChatSettings = ({ full = true }) => {
     };
 
     useEffect(() => {
+        // ================================ Отправка стилей в виджет ================================
         const stylesObject = {
             nameBackground: currentMessageNameBackground,
             nameBorder: currentMessageNameBorder,
@@ -174,11 +175,23 @@ export const ChatSettings = ({ full = true }) => {
             messageLifeTime: currentMessageLifeTime,
         };
 
+        let interval;
+
         if (isConnected) {
+            interval = setInterval(() => {
+                sendMessage(
+                    JSON.stringify({
+                        ...stylesObject,
+                        type: "chatStyles",
+                    }),
+                );
+            }, 1000);
             sendMessage(
                 JSON.stringify({ ...stylesObject, type: "chatStyles" }),
             );
         }
+
+        return () => clearInterval(interval);
     }, [
         isConnected,
         sendMessage,

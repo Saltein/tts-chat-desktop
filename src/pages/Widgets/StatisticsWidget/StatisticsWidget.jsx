@@ -4,6 +4,7 @@ import s from "./StatisticsWidget.module.scss";
 import { useWebSocket } from "../../../shared/hooks/useWebSocket";
 import { useEffect } from "react";
 import {
+    setServiceIconOn,
     setServiceIconSize,
     setStatusBackgroundColor,
     setStatusBackgroundOpacity,
@@ -72,6 +73,7 @@ export const StatisticsWidget = () => {
             dispatch(setStatusBackgroundOpacity(textObj.backgroundOpacity));
             dispatch(setServiceIconSize(textObj.serviceIconSize));
             dispatch(setStatusBorderRadius(textObj.borderRadius));
+            dispatch(setServiceIconOn(textObj.serviceIconOn));
         }
     }, [messages, dispatch]);
 

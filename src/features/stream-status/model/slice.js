@@ -18,6 +18,8 @@ const loadStyle = () => {
                 backgroundColor: parsed.backgroundColor ?? "#2a2a2a",
                 backgroundOpacity: parsed.backgroundOpacity ?? 1,
                 borderRadius: parsed.borderRadius ?? "12px",
+                serviceIconOn: parsed.serviceIconOn ?? true,
+                twitchOwnHeightOn: parsed.twitchOwnHeightOn ?? false,
             };
         }
     } catch (e) {
@@ -34,6 +36,8 @@ const loadStyle = () => {
         backgroundColor: "#2a2a2a",
         backgroundOpacity: 1,
         borderRadius: "12px",
+        serviceIconOn: true,
+        twitchOwnHeightOn: false,
     };
 };
 
@@ -120,6 +124,14 @@ const streamStatusSlice = createSlice({
             state.style.borderRadius = action.payload;
             saveStyle(state.style);
         },
+        setServiceIconOn: (state, action) => {
+            state.style.serviceIconOn = action.payload;
+            saveStyle(state.style);
+        },
+        setTwitchOwnHeightOn: (state, action) => {
+            state.style.twitchOwnHeightOn = action.payload;
+            saveStyle(state.style);
+        },
         // styles reset
         resetStyles: (state) => {
             state.style.previewBackgroundOn = false;
@@ -130,6 +142,9 @@ const streamStatusSlice = createSlice({
             state.style.textColor = "#fff";
             state.style.backgroundColor = "#2a2a2a";
             state.style.backgroundOpacity = 1;
+            state.style.borderRadius = 12;
+            state.style.serviceIconOn = true;
+            state.style.twitchOwnHeightOn = false;
             saveStyle(state.style);
         },
     },
@@ -152,6 +167,8 @@ export const {
     setStatusBackgroundColor,
     setStatusBackgroundOpacity,
     setStatusBorderRadius,
+    setServiceIconOn,
+    setTwitchOwnHeightOn,
     // styles reset
     resetStyles,
 } = streamStatusSlice.actions;
@@ -182,3 +199,7 @@ export const selectStatusBackgroundOpacity = (state) =>
     state.streamStatus.style.backgroundOpacity;
 export const selectStatusBorderRadius = (state) =>
     state.streamStatus.style.borderRadius;
+export const selectServiceIconOn = (state) =>
+    state.streamStatus.style.serviceIconOn;
+export const selectTwitchOwnHeightOn = (state) =>
+    state.streamStatus.style.twitchOwnHeightOn;

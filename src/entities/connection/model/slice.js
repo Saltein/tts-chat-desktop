@@ -92,6 +92,18 @@ const saveVkToLocalStorage = (vk) => {
     );
 };
 
+const speakers = ["aidar", "baya", "kseniya", "xenia", "eugene"];
+const saveNicknameVoiceToLocalStorage = (nickname) => {
+    const voices = JSON.parse(localStorage.getItem("voices")) || {};
+    localStorage.setItem(
+        "voices",
+        JSON.stringify({
+            ...voices,
+            [nickname]: speakers[Math.floor(Math.random() * speakers.length)],
+        }),
+    );
+};
+
 const connectionSlice = createSlice({
     name: "connection",
     initialState,
@@ -105,6 +117,10 @@ const connectionSlice = createSlice({
             state.twitch.connectionStatus = action.payload;
         },
         setNewTwitchMessage: (state, action) => {
+            console.log("[setNewTwitchMessage]", action.payload);
+            saveNicknameVoiceToLocalStorage(
+                action.payload?.tags?.["display-name"],
+            );
             const message = {
                 ...action.payload,
                 time: Date.now(),
@@ -126,6 +142,8 @@ const connectionSlice = createSlice({
             state.youtube.connectionStatus = action.payload;
         },
         setNewYoutubeMessage: (state, action) => {
+            console.log("[setNewYoutubeMessage]", action.payload);
+            saveNicknameVoiceToLocalStorage(action.payload?.user);
             const message = {
                 ...action.payload,
                 time: Date.now(),
@@ -147,6 +165,8 @@ const connectionSlice = createSlice({
             state.vk.connectionStatus = action.payload;
         },
         setNewVkMessage: (state, action) => {
+            console.log("[setNewVkMessage]", action.payload);
+            saveNicknameVoiceToLocalStorage(action.payload?.user);
             const message = {
                 ...action.payload,
                 time: Date.now(),

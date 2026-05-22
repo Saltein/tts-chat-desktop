@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+    selectOwnVoice,
     selectSpeechVolume,
     selectTwitchTTSOn,
     selectTwitchVoice,
@@ -8,6 +9,7 @@ import {
     setSpeechVolume,
     setTwitchTTSOn,
     setTwitchVoice,
+    toggleOwnVoice,
 } from "../../../features/tts-chat/model/slice";
 import {
     DefaultOption,
@@ -32,6 +34,7 @@ export const TTSPage = () => {
     const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
     const twitchVoice = useSelector(selectTwitchVoice);
     const consoleWidgetOpen = useSelector(selectConsoleWidgetOpen);
+    const ownVoice = useSelector(selectOwnVoice);
 
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
     const [optionList, setOptionList] = useState([]);
@@ -75,7 +78,7 @@ export const TTSPage = () => {
         return () => clearInterval(interval);
     }, [optionList.length, fetchSpeakers]);
 
-    const handleSwitch = () => {
+    const handleTTSOnSwitch = () => {
         dispatch(setClearTrigger(genRandStr()));
         dispatch(setTwitchTTSOn(!isTwitchTTSOn));
         isTwitchTTSOn && dispatch(clearConsoleMessages());
@@ -94,6 +97,7 @@ export const TTSPage = () => {
                 paddingBlock={"16px"}
                 flexDirection={"column"}
                 display={"flex"}
+                minimizable
             >
                 <DefaultOption
                     name={"Включить озвучку сообщений?"}
@@ -115,7 +119,37 @@ export const TTSPage = () => {
 
                     <DefaultSwitch
                         state={isTwitchTTSOn}
-                        onSwitch={handleSwitch}
+                        onSwitch={handleTTSOnSwitch}
+                    />
+                </DefaultOption>
+
+                <DefaultOption
+                    name={"У каждого свой голос"}
+                    position={"relative"}
+                >
+                    <div className={s.info}>
+                        <InfoQuestion
+                            info={
+                                <>
+                                    <span>У каждого пользователя будет</span>
+                                    <span>
+                                        фиксированный голос, выбранный случайно.
+                                    </span>
+                                    <span>
+                                        Пользователь может его изменить,
+                                    </span>
+                                    <span>
+                                        написав в чат: <b>"!голос"</b>
+                                    </span>
+                                </>
+                            }
+                        />
+                    </div>
+                    <DefaultSwitch
+                        state={ownVoice}
+                        onSwitch={() => {
+                            dispatch(toggleOwnVoice());
+                        }}
                     />
                 </DefaultOption>
 

@@ -11,9 +11,14 @@ export const DefaultSelectList = ({
     currentSelection,
     onSelect,
     onClick,
+    height,
 }) => {
     const dispatch = useDispatch();
     const [isSelectionOpen, setIsSelectionOpen] = useState(false);
+
+    const optionStyles = {
+        height: height ? height + "px" : undefined,
+    }
 
     const handleOpenSelection = () => {
         if (isSelectionOpen) {
@@ -37,6 +42,7 @@ export const DefaultSelectList = ({
             <div
                 className={`${s.selectedOption} ${isSelectionOpen ? s.open : ""}`}
                 onClick={handleOpenSelection}
+                style={optionStyles}
             >
                 <span className={s.option}>{currentSelection}</span>
                 <ChevronDown
@@ -59,6 +65,7 @@ export const DefaultSelectList = ({
                                   <div
                                       className={`${s.option}`}
                                       key={index + option}
+                                      style={optionStyles}
                                   >
                                       <div
                                           className={s.skeletonSpan}

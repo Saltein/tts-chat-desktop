@@ -149,40 +149,26 @@ export const TTSPage = () => {
                     />
                 </DefaultOption>
 
-                <div className={s.settingsBlock}>
-                    <DefaultWidgetShape
-                        title="Громкость сообщений"
-                        width={"fit-content"}
-                        margin={"0"}
-                        padding={"0 16px 16px 16px"}
-                        noBlock
-                        justifyTitle={"center"}
-                        backgroundColor={"var(--color-items)"}
-                    >
-                        <DefaultSlider
-                            dispatcher={setSpeechVolume}
-                            selector={selectSpeechVolume}
-                        />
-                    </DefaultWidgetShape>
+                <DefaultOption name={"Голос"} disabled={ownVoice}>
+                    <DefaultSelectList
+                        currentSelection={twitchVoice}
+                        options={optionList}
+                        onSelect={handleVoiceSelect}
+                        onClick={fetchSpeakers}
+                        height={32}
+                    />
+                </DefaultOption>
 
-                    <DefaultWidgetShape
-                        title="Голос"
-                        width={"fit-content"}
-                        margin={"0"}
-                        padding={"0 16px 16px 16px"}
-                        noBlock
-                        justifyTitle={"center"}
-                        backgroundColor={"var(--color-items)"}
-                        disabled={ownVoice}
-                    >
-                        <DefaultSelectList
-                            currentSelection={twitchVoice}
-                            options={optionList}
-                            onSelect={handleVoiceSelect}
-                            onClick={fetchSpeakers}
-                        />
-                    </DefaultWidgetShape>
-                </div>
+                <DefaultOption
+                    name={"Громкость сообщений"}
+                    position={"relative"}
+                >
+                    <DefaultSlider
+                        dispatcher={setSpeechVolume}
+                        selector={selectSpeechVolume}
+                        height={24}
+                    />
+                </DefaultOption>
             </DefaultWidgetShape>
             <DefaultWidgetShape
                 marginLeft={"0"}

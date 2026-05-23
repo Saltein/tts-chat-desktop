@@ -44,6 +44,7 @@ export const DefaultWidgetShape = ({
     dispatcherStateMinimized,
     TitleChildComponent,
     position,
+    disabled = false,
 }) => {
     const [widgetOpen, setWidgetOpen] = useState(
         globalStateMinimized !== undefined
@@ -76,6 +77,8 @@ export const DefaultWidgetShape = ({
         flex: !widgetOpen ? undefined : (flex ?? undefined),
         cursor: onClick ? "pointer" : "default",
         position: position ?? undefined,
+        opacity: disabled ? 0.5 : undefined,
+        pointerEvents: disabled ? "none" : undefined,
     };
 
     if (paddingTop || paddingBottom || paddingLeft || paddingRight) {

@@ -128,6 +128,8 @@ export const TTSChat = () => {
                 ? voicesMap[userName] || twitchVoice
                 : twitchVoice;
 
+            console.log("[TTS] speaker", speaker, userName, ownVoice);
+
             let noEmoteText = textMessage;
 
             try {
@@ -174,7 +176,14 @@ export const TTSChat = () => {
                 console.error("Ошибка запроса к TTS серверу:", err);
             }
         },
-        [baseUrl, isTwitchTTSOn, stripEmotesFromRawText, twitchVoice, playNext],
+        [
+            baseUrl,
+            isTwitchTTSOn,
+            stripEmotesFromRawText,
+            twitchVoice,
+            playNext,
+            ownVoice,
+        ],
     );
 
     const handleAudioEnd = useCallback(() => {

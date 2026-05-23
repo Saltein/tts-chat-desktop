@@ -177,6 +177,7 @@ export const TTSPage = () => {
                         noBlock
                         justifyTitle={"center"}
                         backgroundColor={"var(--color-items)"}
+                        disabled={ownVoice}
                     >
                         <DefaultSelectList
                             currentSelection={twitchVoice}

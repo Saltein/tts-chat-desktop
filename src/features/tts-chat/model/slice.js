@@ -16,7 +16,7 @@ const loadSettings = () => {
                     voice: parsed.twitch?.voice ?? "random",
                 },
                 clearTrigger: parsed.clearTrigger ?? "random string",
-                ownVoice: parsed.ownVoice ?? true,
+                ownVoice: parsed.ownVoice ?? false,
             };
         }
     } catch (error) {
@@ -33,7 +33,7 @@ const loadSettings = () => {
             voice: "random",
         },
         clearTrigger: "random string",
-        ownVoice: true,
+        ownVoice: false,
     };
 };
 

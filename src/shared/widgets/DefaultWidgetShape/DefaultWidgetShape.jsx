@@ -77,7 +77,7 @@ export const DefaultWidgetShape = ({
         flex: !widgetOpen ? undefined : (flex ?? undefined),
         cursor: onClick ? "pointer" : "default",
         position: position ?? undefined,
-        opacity: disabled ? 0.5 : undefined,
+        opacity: disabled ? 0.3 : undefined,
         pointerEvents: disabled ? "none" : undefined,
     };
 

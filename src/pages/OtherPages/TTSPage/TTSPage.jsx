@@ -63,12 +63,8 @@ export const TTSPage = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             if (optionList.length > 0) {
-                console.log("optionList.length > 0", optionList.length);
-
                 return;
             } else {
-                console.log("optionList.length else", optionList.length);
-
                 fetchSpeakers();
             }
         }, 1000);

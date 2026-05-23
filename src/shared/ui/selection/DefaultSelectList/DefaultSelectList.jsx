@@ -18,7 +18,7 @@ export const DefaultSelectList = ({
 
     const optionStyles = {
         height: height ? height + "px" : undefined,
-    }
+    };
 
     const handleOpenSelection = () => {
         if (isSelectionOpen) {
@@ -84,6 +84,7 @@ export const DefaultSelectList = ({
                                       className={`${s.option} ${currentSelection === option ? s.current : ""}`}
                                       key={index + option}
                                       onClick={() => handleSelect(option)}
+                                      style={optionStyles}
                                   >
                                       <span>{option}</span>
                                   </div>

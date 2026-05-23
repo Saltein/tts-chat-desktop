@@ -64,6 +64,8 @@ export const TTSPage = () => {
         const interval = setInterval(() => {
             if (optionList.length > 0) {
                 return;
+            } else if (!isTwitchTTSOn) {
+                return;
             } else {
                 fetchSpeakers();
             }
@@ -72,7 +74,7 @@ export const TTSPage = () => {
             clearInterval(interval);
         }
         return () => clearInterval(interval);
-    }, [optionList.length, fetchSpeakers]);
+    }, [optionList.length, fetchSpeakers, isTwitchTTSOn]);
 
     const handleTTSOnSwitch = () => {
         dispatch(setClearTrigger(genRandStr()));

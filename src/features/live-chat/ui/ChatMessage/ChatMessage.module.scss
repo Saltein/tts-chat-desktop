@@ -3,7 +3,7 @@
 .wrapper {
     position: relative;
     min-width: 0;
-    
+
     border: 1px solid var(--color-border);
     padding: $spacing-xxs $spacing-xs;
     border-radius: $border-radius-lg;
@@ -62,7 +62,7 @@
     white-space: nowrap;
     gap: 0;
     max-width: 100%;
-    min-width: 0; 
+    min-width: 0;
 
     &.noBackground {
         left: -6px;
@@ -71,6 +71,11 @@
         box-shadow: none;
         padding: 0 $spacing-xs 0 $spacing-xxs;
         gap: $spacing-xxs;
+    }
+
+    &:hover {
+        border: 1px solid var(--color-accent);
+        background-color: var(--color-accent-transparent) !important;
     }
 }
 

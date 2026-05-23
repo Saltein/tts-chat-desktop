@@ -89,6 +89,7 @@ const ttsSettingsSlice = createSlice({
             saveToLocalStorage(state);
         },
         addWhiteListItem: (state, action) => {
+            if (state.whiteList.some((item) => item.name === action.payload)) return;
             state.whiteList.push({ name: action.payload, id: genRandStr() });
             saveToLocalStorage(state);
         },

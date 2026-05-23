@@ -38,7 +38,11 @@ import {
 } from "../../../../entities/connection/model/slice";
 import { genRandStr } from "../../../../shared/lib/genRandStr";
 import { addNotice } from "../../../in-app-notices/model/slice";
-import { selectTwitchTTSOn } from "../../../tts-chat/model/slice";
+import {
+    addWhiteListItem,
+    selectTwitchTTSOn,
+    selectWhiteList,
+} from "../../../tts-chat/model/slice";
 import { useEmoteContext } from "../../../../shared/context/emotes/EmoteContext";
 import DOMPurify from "dompurify";
 import { useStartsWith } from "../../../../shared/hooks/useStartsWith";
@@ -159,6 +163,8 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const messageBorderRadius = useSelector(selectMessageBorderRadius);
 
     const ttsOn = useSelector(selectTwitchTTSOn);
+
+    const whiteList = useSelector(selectWhiteList);
 
     const isModerator =
         message.tags?.badges?.moderator ||
@@ -321,6 +327,27 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         }
     };
 
+    const handleAddWhiteListItem = () => {
+        if (whiteList.some((item) => item.name === messageName)) {
+            dispatch(
+                addNotice({
+                    id: genRandStr(),
+                    type: "warning",
+                    message: "Пользователь уже добавлен",
+                }),
+            );
+            return;
+        }
+        dispatch(addWhiteListItem(messageName));
+        dispatch(
+            addNotice({
+                id: genRandStr(),
+                type: "success",
+                message: "Пользователь добавлен в белый список",
+            }),
+        );
+    };
+
     return (
         <div
             className={`${s.wrapper} ${isFading ? s.fadeOut : ""} ${messageNameBackground ? "" : s.noNameBackground}`}
@@ -335,6 +362,11 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
                 className={`${s.name} 
                 ${messageNameBackground ? "" : s.noBackground}`}
                 style={{ ...nameBackgroundStyles }}
+                title={"Добавить в белый список"}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddWhiteListItem();
+                }}
             >
                 {serviceIcon && (
                     <Icon

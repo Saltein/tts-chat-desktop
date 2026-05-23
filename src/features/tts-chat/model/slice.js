@@ -18,6 +18,7 @@ const loadSettings = () => {
                 },
                 clearTrigger: parsed.clearTrigger ?? "random string",
                 ownVoice: parsed.ownVoice ?? false,
+                whiteListOn: parsed.whiteListOn ?? false,
                 whiteList: parsed.whiteList ?? [],
             };
         }
@@ -36,6 +37,7 @@ const loadSettings = () => {
         },
         clearTrigger: "random string",
         ownVoice: false,
+        whiteListOn: false,
         whiteList: [],
     };
 };
@@ -56,6 +58,7 @@ const saveToLocalStorage = (state) => {
                 },
                 clearTrigger: state.clearTrigger,
                 ownVoice: state.ownVoice,
+                whiteListOn: state.whiteListOn,
                 whiteList: state.whiteList,
             }),
         );
@@ -88,14 +91,19 @@ const ttsSettingsSlice = createSlice({
             state.ownVoice = !state.ownVoice;
             saveToLocalStorage(state);
         },
+        toggleWhiteList: (state) => {
+            state.whiteListOn = !state.whiteListOn;
+            saveToLocalStorage(state);
+        },
         addWhiteListItem: (state, action) => {
-            if (state.whiteList.some((item) => item.name === action.payload)) return;
+            if (state.whiteList.some((item) => item.name === action.payload))
+                return;
             state.whiteList.push({ name: action.payload, id: genRandStr() });
             saveToLocalStorage(state);
         },
         removeFromWhiteList: (state, action) => {
             state.whiteList = state.whiteList.filter(
-                (item) => item.id !== action.payload,
+                (item) => item.name !== action.payload,
             );
             saveToLocalStorage(state);
         },
@@ -123,6 +131,7 @@ export const {
     setTwitchVoice,
     setClearTrigger,
     toggleOwnVoice,
+    toggleWhiteList,
     addWhiteListItem,
     removeFromWhiteList,
     clearWhiteList,
@@ -137,4 +146,5 @@ export const selectTwitchTTSOn = (state) => state.ttsSettings.twitch.ttsOn;
 export const selectTwitchVoice = (state) => state.ttsSettings.twitch.voice;
 export const selectClearTrigger = (state) => state.ttsSettings.clearTrigger;
 export const selectOwnVoice = (state) => state.ttsSettings.ownVoice;
+export const selectWhiteListOn = (state) => state.ttsSettings.whiteListOn;
 export const selectWhiteList = (state) => state.ttsSettings.whiteList;

@@ -139,3 +139,20 @@
     height: 24px;
     width: 24px;
 }
+
+.soundIcon {
+    position: relative;
+    height: 14px;
+    width: 14px;
+}
+
+.soundIconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: $spacing-xxs;
+    border-radius: $border-radius-sm;
+    &:hover {
+        background-color: var(--color-error);
+    }
+}

@@ -27,6 +27,7 @@ import VkVideoIcon from "../../../../shared/assets/icons/vk-video-logo.svg?react
 import TTSChatIcon from "../../../../shared/assets/icons/ttschat-logo.svg?react";
 import WrenchIcon from "../../../../shared/assets/icons/wrench.svg?react";
 import SoundIcon from "../../../../shared/assets/icons/sound.svg?react";
+import SoundWaveIcon from "../../../../shared/assets/icons/sound2.svg?react";
 
 import {
     generateColorFromUsername,
@@ -40,8 +41,10 @@ import { genRandStr } from "../../../../shared/lib/genRandStr";
 import { addNotice } from "../../../in-app-notices/model/slice";
 import {
     addWhiteListItem,
+    removeFromWhiteList,
     selectTwitchTTSOn,
     selectWhiteList,
+    selectWhiteListOn,
 } from "../../../tts-chat/model/slice";
 import { useEmoteContext } from "../../../../shared/context/emotes/EmoteContext";
 import DOMPurify from "dompurify";
@@ -165,6 +168,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const ttsOn = useSelector(selectTwitchTTSOn);
 
     const whiteList = useSelector(selectWhiteList);
+    const whiteListOn = useSelector(selectWhiteListOn);
 
     const isModerator =
         message.tags?.badges?.moderator ||
@@ -183,6 +187,11 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         message?.raw?.push?.pub?.data?.data?.user?.isOwner ||
         message?.isOwner ||
         null;
+
+    const isVoiced =
+        whiteList.some((item) => item.name === messageName) && whiteListOn;
+
+    console.log("[ChatMessage] isVoiced:", isVoiced);
 
     let nameColor;
     let borderColor;
@@ -348,6 +357,17 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         );
     };
 
+    const handleRemoveWhiteListItem = () => {
+        dispatch(removeFromWhiteList(messageName));
+        dispatch(
+            addNotice({
+                id: genRandStr(),
+                type: "warning",
+                message: "Пользователь удален из белого списка",
+            }),
+        );
+    };
+
     return (
         <div
             className={`${s.wrapper} ${isFading ? s.fadeOut : ""} ${messageNameBackground ? "" : s.noNameBackground}`}
@@ -378,12 +398,34 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
                         }}
                     />
                 )}
+                {isVoiced && (
+                    <div
+                        className={s.soundIconWrapper}
+                        title="Убрать из белого списка"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveWhiteListItem();
+                        }}
+                    >
+                        <SoundWaveIcon
+                            className={s.soundIcon}
+                            style={{
+                                width: fontSize,
+                                height: fontSize,
+                            }}
+                        />
+                    </div>
+                )}
                 <span className={s.nameText} style={nameStyles}>
                     {messageName}
                     {isModerator && (
                         <WrenchIcon
                             className={s.wrenchIcon}
                             fill="var(--color-moderator)"
+                            style={{
+                                width: fontSize / 1.5,
+                                height: fontSize / 1.5,
+                            }}
                         />
                     )}
                     {!messageNameBackground && " :"}

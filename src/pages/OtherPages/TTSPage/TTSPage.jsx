@@ -5,11 +5,13 @@ import {
     selectSpeechVolume,
     selectTwitchTTSOn,
     selectTwitchVoice,
+    selectWhiteListOn,
     setClearTrigger,
     setSpeechVolume,
     setTwitchTTSOn,
     setTwitchVoice,
     toggleOwnVoice,
+    toggleWhiteList,
 } from "../../../features/tts-chat/model/slice";
 import {
     DefaultButton,
@@ -39,6 +41,7 @@ export const TTSPage = () => {
     const twitchVoice = useSelector(selectTwitchVoice);
     const consoleWidgetOpen = useSelector(selectConsoleWidgetOpen);
     const ownVoice = useSelector(selectOwnVoice);
+    const whiteListOn = useSelector(selectWhiteListOn);
 
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
 
@@ -180,15 +183,33 @@ export const TTSPage = () => {
 
                 <DefaultDivider />
 
-                <DefaultOption name={"Белый список озвучки"} position={"relative"}>
-                    <DefaultButton
-                        title={"Редактировать"}
-                        height={"24px"}
-                        width={"144px"}
-                        onClick={() => {
-                            setWhiteListOpen((prev) => !prev);
+                <DefaultOption
+                    name={"Белый список озвучки"}
+                    position={"relative"}
+                >
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
                         }}
-                    />
+                    >
+                        <DefaultButton
+                            title={"Редактировать"}
+                            height={"24px"}
+                            width={"144px"}
+                            onClick={() => {
+                                setWhiteListOpen((prev) => !prev);
+                            }}
+                        />
+                        <DefaultSwitch
+                            state={whiteListOn}
+                            onSwitch={() => {
+                                dispatch(toggleWhiteList());
+                            }}
+                        />
+                    </div>
+
                     {whiteListOpen && (
                         <DefaultModalWindow
                             onClose={() => {

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/immutability */
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
     selectClearTrigger,
     selectOwnVoice,
@@ -14,6 +14,7 @@ import s from "./TTSChat.module.scss";
 import {
     selectLastMessage,
     selectRevoiceMessage,
+    setNextVoiceForNickname,
 } from "../../../entities/connection/model/slice";
 
 import { useEmoteContext } from "../../../shared/context/emotes/EmoteContext";
@@ -29,7 +30,7 @@ export const TTSChat = () => {
     const clearTrigger = useSelector(selectClearTrigger);
     const ownVoice = useSelector(selectOwnVoice);
 
-    const voicesMap = JSON.parse(localStorage.getItem("voices")) || {};
+    const dispatch = useDispatch();
 
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
 
@@ -108,22 +109,34 @@ export const TTSChat = () => {
         }
     }, [playNext]);
 
+    const getMessageAndName = (messageObj) => {
+        let textMessage = "";
+        let userName = "";
+        let nextVoice = false;
+        if (messageObj?.service === "twitch") {
+            textMessage = stripEmotesFromRawText(messageObj?.message);
+            userName = messageObj?.tags["display-name"];
+        } else if (messageObj?.service === "vk") {
+            textMessage = messageObj.clearMessage;
+            userName = messageObj.user;
+        } else if (messageObj?.service === "youtube") {
+            textMessage = messageObj.clearMessage;
+            userName = messageObj.user;
+        }
+        if (textMessage.includes("!голос")) {
+            nextVoice = true;
+            textMessage = textMessage.replace("!голос", "");
+        }
+        return { textMessage, userName, nextVoice };
+    };
+
     const handleSpeak = useCallback(
         async (messageObj, isPriority = false) => {
+            const voicesMap = JSON.parse(localStorage.getItem("voices")) || {};
             if (!isTwitchTTSOn) return;
 
-            let textMessage = "";
-            let userName = "";
-            if (messageObj?.service === "twitch") {
-                textMessage = stripEmotesFromRawText(messageObj?.message);
-                userName = messageObj?.tags["display-name"];
-            } else if (messageObj?.service === "vk") {
-                textMessage = messageObj.clearMessage;
-                userName = messageObj.user;
-            } else if (messageObj?.service === "youtube") {
-                textMessage = messageObj.clearMessage;
-                userName = messageObj.user;
-            }
+            const { textMessage, userName } = getMessageAndName(messageObj);
+
             const speaker = ownVoice
                 ? voicesMap[userName] || twitchVoice
                 : twitchVoice;
@@ -210,6 +223,16 @@ export const TTSChat = () => {
             handleSpeak(message, false);
         }
     }, [message, handleSpeak]);
+
+    // Обработка следующего голоса
+    useEffect(() => {
+        if (message) {
+            const { userName, nextVoice } = getMessageAndName(message);
+            if (nextVoice) {
+                dispatch(setNextVoiceForNickname(userName));
+            }
+        }
+    }, [message, dispatch]);
 
     // Обработка приоритетных сообщений (revoice)
     useEffect(() => {

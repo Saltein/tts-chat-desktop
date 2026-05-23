@@ -95,7 +95,7 @@ const saveVkToLocalStorage = (vk) => {
 const speakers = ["aidar", "baya", "kseniya", "xenia", "eugene"];
 const saveNicknameVoiceToLocalStorage = (nickname) => {
     const voices = JSON.parse(localStorage.getItem("voices")) || {};
-    
+
     if (!Object.prototype.hasOwnProperty.call(voices, nickname)) {
         localStorage.setItem(
             "voices",
@@ -108,6 +108,33 @@ const saveNicknameVoiceToLocalStorage = (nickname) => {
     }
 };
 
+const nextVoice = (nickname) => {
+    const voices = JSON.parse(localStorage.getItem("voices")) || {};
+
+    if (!Object.prototype.hasOwnProperty.call(voices, nickname)) {
+        localStorage.setItem(
+            "voices",
+            JSON.stringify({
+                ...voices,
+                [nickname]:
+                    speakers[Math.floor(Math.random() * speakers.length)],
+            }),
+        );
+    } else {
+        const currentVoice = voices[nickname];
+        const currentIndex = speakers.indexOf(currentVoice);
+        const nextIndex = (currentIndex + 1) % speakers.length;
+        const nextVoiceName = speakers[nextIndex];
+
+        localStorage.setItem(
+            "voices",
+            JSON.stringify({
+                ...voices,
+                [nickname]: nextVoiceName,
+            }),
+        );
+    }
+};
 const connectionSlice = createSlice({
     name: "connection",
     initialState,
@@ -200,6 +227,10 @@ const connectionSlice = createSlice({
         setRevoiceMessage: (state, action) => {
             state.revoiceMessage = action.payload;
         },
+
+        setNextVoiceForNickname: (state, action) => {
+            nextVoice(action.payload);
+        },
     },
 });
 
@@ -222,6 +253,8 @@ export const {
     resetConnection,
 
     setRevoiceMessage,
+
+    setNextVoiceForNickname,
 } = connectionSlice.actions;
 
 export default connectionSlice.reducer;

@@ -1,6 +1,7 @@
 import { DefaultWidgetShape } from "../../widgets/DefaultWidgetShape/DefaultWidgetShape";
 import s from "./DefaultModalWindow.module.scss";
 import { createPortal } from "react-dom";
+import CloseIcon from "../../assets/icons/close.svg?react";
 
 export const DefaultModalWindow = ({
     children,
@@ -23,10 +24,20 @@ export const DefaultModalWindow = ({
                 padding={padding && padding}
                 title={title}
                 justifyTitle={"center"}
+                TitleChildComponent={CloseButton}
+                titleChildComponentProps={{ onClose }}
             >
                 {children}
             </DefaultWidgetShape>
         </div>,
         document.body,
+    );
+};
+
+const CloseButton = ({ onClose }) => {
+    return (
+        <div className={s.closeButton} onClick={onClose} title="Закрыть окно">
+            <CloseIcon className={s.icon} />
+        </div>
     );
 };

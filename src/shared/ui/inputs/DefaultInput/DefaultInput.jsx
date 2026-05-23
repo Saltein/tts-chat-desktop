@@ -7,16 +7,19 @@ export const DefaultInput = ({
     type = "text",
     value,
     onChange = () => {},
+    onKeyPress,
     width,
     height,
     align,
     flex,
+    padding,
 }) => {
     const inputStyles = {
         width,
         height,
         textAlign: align ?? undefined,
         flex,
+        padding,
     };
 
     return (
@@ -27,6 +30,7 @@ export const DefaultInput = ({
                 type={type}
                 value={value}
                 onChange={onChange}
+                onKeyPress={onKeyPress}
                 style={inputStyles}
             />
             {info && <InfoQuestion info={info} />}

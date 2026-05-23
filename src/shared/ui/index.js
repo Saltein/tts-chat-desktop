@@ -4,6 +4,7 @@ export { DefaultDivider } from "./dividers/DefaultDivider/DefaultDivider";
 export { ConnectionSwitch } from "./switches/ConnectionSwitch/ConnectionSwitch";
 export { DefaultSwitch } from "./switches/DefaultSwitch/DefaultSwitch";
 export { DefaultInput } from "./inputs/DefaultInput/DefaultInput";
+export { DefaultSearch } from "./inputs/DefaultSearch/DefaultSearch";
 export { DefaultButton } from "./buttons/DefaultButton/DefaultButton";
 export { DefaultWarning } from "./warnings";
 export { DefaultSlider } from "./sliders";

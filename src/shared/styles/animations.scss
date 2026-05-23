@@ -39,27 +39,27 @@
 
     0%,
     100% {
-        transform: rotate(45deg);
+        transform: rotate(0deg);
     }
 
     15% {
-        transform: rotate(60deg);
+        transform: rotate(10deg);
     }
 
     30% {
-        transform: rotate(30deg);
+        transform: rotate(-10deg);
     }
 
     45% {
-        transform: rotate(60deg);
+        transform: rotate(10deg);
     }
 
     60% {
-        transform: rotate(30deg);
+        transform: rotate(-10deg);
     }
 
     75% {
-        transform: rotate(60deg);
+        transform: rotate(10deg);
     }
 }
 

@@ -1,5 +1,6 @@
 // features/tts-chat/model/slice.js
 import { createSlice } from "@reduxjs/toolkit";
+import { genRandStr } from "../../../shared/lib/genRandStr";
 
 // Функция загрузки настроек из localStorage
 const loadSettings = () => {
@@ -17,6 +18,7 @@ const loadSettings = () => {
                 },
                 clearTrigger: parsed.clearTrigger ?? "random string",
                 ownVoice: parsed.ownVoice ?? false,
+                whiteList: parsed.whiteList ?? [],
             };
         }
     } catch (error) {
@@ -34,6 +36,7 @@ const loadSettings = () => {
         },
         clearTrigger: "random string",
         ownVoice: false,
+        whiteList: [],
     };
 };
 
@@ -53,6 +56,7 @@ const saveToLocalStorage = (state) => {
                 },
                 clearTrigger: state.clearTrigger,
                 ownVoice: state.ownVoice,
+                whiteList: state.whiteList,
             }),
         );
     } catch (error) {
@@ -84,11 +88,27 @@ const ttsSettingsSlice = createSlice({
             state.ownVoice = !state.ownVoice;
             saveToLocalStorage(state);
         },
+        addWhiteListItem: (state, action) => {
+            state.whiteList.push({ name: action.payload, id: genRandStr() });
+            saveToLocalStorage(state);
+        },
+        removeFromWhiteList: (state, action) => {
+            state.whiteList = state.whiteList.filter(
+                (item) => item.id !== action.payload,
+            );
+            saveToLocalStorage(state);
+        },
+        clearWhiteList: (state) => {
+            state.whiteList = [];
+            saveToLocalStorage(state);
+        },
         resetSettings: () => {
             const defaultState = {
                 common: { speechVolume: 50 },
                 twitch: { ttsOn: true, voice: "random" },
                 clearTrigger: "random string",
+                ownVoice: false,
+                whiteList: [],
             };
             saveToLocalStorage(defaultState);
             return defaultState;
@@ -102,6 +122,9 @@ export const {
     setTwitchVoice,
     setClearTrigger,
     toggleOwnVoice,
+    addWhiteListItem,
+    removeFromWhiteList,
+    clearWhiteList,
     resetSettings,
 } = ttsSettingsSlice.actions;
 
@@ -113,3 +136,4 @@ export const selectTwitchTTSOn = (state) => state.ttsSettings.twitch.ttsOn;
 export const selectTwitchVoice = (state) => state.ttsSettings.twitch.voice;
 export const selectClearTrigger = (state) => state.ttsSettings.clearTrigger;
 export const selectOwnVoice = (state) => state.ttsSettings.ownVoice;
+export const selectWhiteList = (state) => state.ttsSettings.whiteList;

@@ -34,6 +34,7 @@
     gap: $spacing-md;
     padding: 0 $spacing-md;
     border-radius: $border-radius-lg;
+    overflow-y: auto;
 }
 
 .minimizeIconWrapper {

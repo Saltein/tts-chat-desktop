@@ -1,0 +1,34 @@
+@use "../../../styles/variables.scss" as *;
+
+.wrapper_DefaultSearch {
+    position: relative;
+}
+
+.searchIcon {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.clearButton {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+
+    cursor: pointer;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+}

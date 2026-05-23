@@ -43,6 +43,7 @@ export const DefaultWidgetShape = ({
     globalStateMinimized,
     dispatcherStateMinimized,
     TitleChildComponent,
+    titleChildComponentProps,
     position,
     disabled = false,
 }) => {
@@ -136,6 +137,7 @@ export const DefaultWidgetShape = ({
                             }
                         }}
                         ChildComponent={TitleChildComponent}
+                        titleChildComponentProps={titleChildComponentProps}
                     />
                     {minimizable && (
                         <div

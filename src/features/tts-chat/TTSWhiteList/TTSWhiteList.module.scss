@@ -1,0 +1,23 @@
+@use "../../../shared/styles/variables.scss" as *;
+
+.wrapper_TTSWhiteList {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    width: 100%;
+    padding: 16px 0;
+}
+
+.inputContainer {
+    display: flex;
+    width: 100%;
+    gap: $spacing-xs;
+}
+
+.whiteListContainer {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    height: calc(100vh - 280px);
+    overflow-y: auto;
+}

@@ -330,6 +330,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
             <div className={s.revoiceWrapper}>
                 <SoundIcon className={s.revoiceIcon} />
             </div>
+
             <div
                 className={`${s.name} 
                 ${messageNameBackground ? "" : s.noBackground}`}

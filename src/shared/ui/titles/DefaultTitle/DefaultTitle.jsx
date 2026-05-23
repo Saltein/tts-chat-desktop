@@ -14,6 +14,7 @@ export const DefaultTitle = ({
     onClick,
     cursor,
     ChildComponent,
+    titleChildComponentProps,
 }) => {
     const styles = {
         margin: margin && margin,
@@ -33,7 +34,7 @@ export const DefaultTitle = ({
             <h2 className={s.title} style={styles} onClick={onClick}>
                 {title}
             </h2>
-            {ChildComponent && <ChildComponent />}
+            {ChildComponent && <ChildComponent {...titleChildComponentProps} />}
         </div>
     );
 };

@@ -12,6 +12,8 @@ import {
     toggleOwnVoice,
 } from "../../../features/tts-chat/model/slice";
 import {
+    DefaultButton,
+    DefaultDivider,
     DefaultOption,
     DefaultSelectList,
     DefaultSlider,
@@ -27,6 +29,8 @@ import {
     setConsoleWidgetOpen,
 } from "../../../features/tts-console/model/slice";
 import { genRandStr } from "../../../shared/lib/genRandStr";
+import { DefaultModalWindow } from "../../../shared/ui/DefaultModalWindow/DefaultModalWindow";
+import { TTSWhiteList } from "../../../features/tts-chat/TTSWhiteList/TTSWhiteList";
 
 export const TTSPage = () => {
     const dispatch = useDispatch();
@@ -37,7 +41,9 @@ export const TTSPage = () => {
     const ownVoice = useSelector(selectOwnVoice);
 
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
+
     const [optionList, setOptionList] = useState([]);
+    const [whiteListOpen, setWhiteListOpen] = useState(true);
 
     const fetchSpeakers = useCallback(async () => {
         try {
@@ -170,6 +176,30 @@ export const TTSPage = () => {
                         selector={selectSpeechVolume}
                         height={24}
                     />
+                </DefaultOption>
+
+                <DefaultDivider />
+
+                <DefaultOption name={"Белый список озвучки"} position={"relative"}>
+                    <DefaultButton
+                        title={"Редактировать"}
+                        height={"24px"}
+                        width={"144px"}
+                        onClick={() => {
+                            setWhiteListOpen((prev) => !prev);
+                        }}
+                    />
+                    {whiteListOpen && (
+                        <DefaultModalWindow
+                            onClose={() => {
+                                setWhiteListOpen(false);
+                            }}
+                            title={"Белый список озвучки"}
+                            padding={"0"}
+                        >
+                            <TTSWhiteList />
+                        </DefaultModalWindow>
+                    )}
                 </DefaultOption>
             </DefaultWidgetShape>
             <DefaultWidgetShape

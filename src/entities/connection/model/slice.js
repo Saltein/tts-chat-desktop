@@ -94,6 +94,7 @@ const saveVkToLocalStorage = (vk) => {
 
 const speakers = ["aidar", "baya", "kseniya", "xenia", "eugene"];
 const saveNicknameVoiceToLocalStorage = (nickname) => {
+    if (nickname === "Тестер сообщений") return;
     const voices = JSON.parse(localStorage.getItem("voices")) || {};
 
     if (!Object.prototype.hasOwnProperty.call(voices, nickname)) {

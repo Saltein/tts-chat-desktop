@@ -80,6 +80,8 @@ function isAllowedImage(src) {
 export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const { parseText, isReady } = useEmoteContext();
 
+    console.log("[ChatMessage] message:", message);
+
     const { isWidget } = useStartsWith();
 
     const messageName = message.tags

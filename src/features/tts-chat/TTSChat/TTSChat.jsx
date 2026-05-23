@@ -114,15 +114,18 @@ export const TTSChat = () => {
         let userName = "";
         let nextVoice = false;
         if (messageObj?.service === "twitch") {
-            textMessage = stripEmotesFromRawText(messageObj?.message);
-            userName = messageObj?.tags["display-name"];
+            textMessage = stripEmotesFromRawText(
+                messageObj?.message || messageObj?.text,
+            );
+            userName = messageObj?.tags?.["display-name"] || messageObj?.user;
         } else if (messageObj?.service === "vk") {
-            textMessage = messageObj.clearMessage;
-            userName = messageObj.user;
+            textMessage = messageObj?.clearMessage || messageObj?.text;
+            userName = messageObj?.user || messageObj?.user;
         } else if (messageObj?.service === "youtube") {
-            textMessage = messageObj.clearMessage;
-            userName = messageObj.user;
+            textMessage = messageObj?.clearMessage || messageObj?.text;
+            userName = messageObj?.user || messageObj?.user;
         }
+
         if (textMessage.includes("!голос")) {
             nextVoice = true;
             textMessage = textMessage.replace("!голос", "");

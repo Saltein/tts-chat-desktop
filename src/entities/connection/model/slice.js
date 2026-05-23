@@ -95,13 +95,17 @@ const saveVkToLocalStorage = (vk) => {
 const speakers = ["aidar", "baya", "kseniya", "xenia", "eugene"];
 const saveNicknameVoiceToLocalStorage = (nickname) => {
     const voices = JSON.parse(localStorage.getItem("voices")) || {};
-    localStorage.setItem(
-        "voices",
-        JSON.stringify({
-            ...voices,
-            [nickname]: speakers[Math.floor(Math.random() * speakers.length)],
-        }),
-    );
+    
+    if (!Object.prototype.hasOwnProperty.call(voices, nickname)) {
+        localStorage.setItem(
+            "voices",
+            JSON.stringify({
+                ...voices,
+                [nickname]:
+                    speakers[Math.floor(Math.random() * speakers.length)],
+            }),
+        );
+    }
 };
 
 const connectionSlice = createSlice({

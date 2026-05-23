@@ -3,6 +3,7 @@
 import { useSelector } from "react-redux";
 import {
     selectClearTrigger,
+    selectOwnVoice,
     selectSpeechVolume,
     selectTwitchTTSOn,
     selectTwitchVoice,
@@ -25,8 +26,10 @@ export const TTSChat = () => {
     const revoiceMessage = useSelector(selectRevoiceMessage);
     const isTwitchTTSOn = useSelector(selectTwitchTTSOn);
     const twitchVoice = useSelector(selectTwitchVoice);
-
     const clearTrigger = useSelector(selectClearTrigger);
+    const ownVoice = useSelector(selectOwnVoice);
+
+    const voicesMap = JSON.parse(localStorage.getItem("voices")) || {};
 
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
 
@@ -109,23 +112,23 @@ export const TTSChat = () => {
         async (messageObj, isPriority = false) => {
             if (!isTwitchTTSOn) return;
 
-            let noEmoteText;
+            let textMessage = "";
+            let userName = "";
             if (messageObj?.service === "twitch") {
-                noEmoteText = stripEmotesFromRawText(
-                    messageObj?.message || messageObj?.text,
-                );
-            } else if (messageObj.clearMessage) {
-                noEmoteText = messageObj.clearMessage;
-            } else {
-                noEmoteText =
-                    messageObj?.message?.text ||
-                    messageObj?.message ||
-                    messageObj?.text;
+                textMessage = stripEmotesFromRawText(messageObj?.message);
+                userName = messageObj?.tags["display-name"];
+            } else if (messageObj?.service === "vk") {
+                textMessage = messageObj.clearMessage;
+                userName = messageObj.user;
+            } else if (messageObj?.service === "youtube") {
+                textMessage = messageObj.clearMessage;
+                userName = messageObj.user;
             }
-            console.log(
-                `[TTS] parsed text (${isPriority ? "PRIORITY" : "normal"}):`,
-                noEmoteText,
-            );
+            const speaker = ownVoice
+                ? voicesMap[userName] || twitchVoice
+                : twitchVoice;
+
+            let noEmoteText = textMessage;
 
             try {
                 const res = await fetch(`${baseUrl}/api/speak`, {
@@ -133,7 +136,7 @@ export const TTSChat = () => {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         text: transliterateMessage(noEmoteText),
-                        speaker: twitchVoice,
+                        speaker: speaker,
                     }),
                 });
 

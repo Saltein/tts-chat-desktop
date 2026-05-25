@@ -50,6 +50,7 @@ export const TTSChat = () => {
     const isPlayingRef = useRef(false);
     const pausedUrlRef = useRef(null); // Сохраняем URL при паузе
     const pausedTimeRef = useRef(0); // Сохраняем время паузы
+    const lastProcessedMessageIdRef = useRef(null);
 
     const playNext = useCallback(() => {
         if (isPlayingRef.current) return;
@@ -228,17 +229,39 @@ export const TTSChat = () => {
         resumeFromPause(); // Проверяем, нужно ли возобновить паузу
     }, [resumeFromPause]);
 
+    // Функция для получения уникального ID сообщения
+    const getMessageId = (messageObj) => {
+        if (!messageObj) return null;
+        // Используем комбинацию сервиса, времени и текста для уникальности
+        return `${messageObj.service}_${messageObj.timestamp || messageObj.id || Date.now()}_${messageObj.user || messageObj.tags?.["display-name"]}`;
+    };
+
     // Обработка обычных сообщений
     useEffect(() => {
+        if (!message) return;
+
         const { userName } = getMessageAndName(message);
         const shouldSkip =
             (whiteListOn &&
                 !whiteList.some((user) => user.name === userName)) ||
             (blackListOn && blackList.some((user) => user.name === userName));
-        if (message) {
-            if (shouldSkip) return;
-            handleSpeak(message, false);
+
+        if (shouldSkip) return;
+
+        // Получаем ID текущего сообщения
+        const currentMessageId = getMessageId(message);
+
+        // Если это сообщение уже было озвучено - пропускаем
+        if (lastProcessedMessageIdRef.current === currentMessageId) {
+            console.log("[TTS] Сообщение уже озвучено, пропускаем");
+            return;
         }
+
+        // Озвучиваем новое сообщение
+        handleSpeak(message, false);
+
+        // Запоминаем ID озвученного сообщения
+        lastProcessedMessageIdRef.current = currentMessageId;
     }, [message, handleSpeak, whiteListOn, whiteList, blackListOn, blackList]);
 
     // Обработка следующего голоса

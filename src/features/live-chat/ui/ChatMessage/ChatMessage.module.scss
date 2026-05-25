@@ -142,6 +142,7 @@
 
 .soundIcon {
     position: relative;
+    left: 1px;
     height: 14px;
     width: 14px;
 }
@@ -152,7 +153,9 @@
     justify-content: center;
     margin-right: $spacing-xxs;
     border-radius: $border-radius-sm;
+    background-color: var(--color-error-transparent);
+
     &:hover {
-        background-color: var(--color-error);
+        background-color: var(--color-error) !important;
     }
 }

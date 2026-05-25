@@ -87,8 +87,6 @@ function isAllowedImage(src) {
 export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const { parseText, isReady } = useEmoteContext();
 
-    console.log("[ChatMessage] message:", message);
-
     const { isWidget } = useStartsWith();
 
     const messageName = message.tags
@@ -123,7 +121,6 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
 
         if (isWidget) {
             const newHtml = cleanHtml.replaceAll("assets://", "/assets/");
-            console.log("newHtml", newHtml);
             return newHtml;
         }
         // 2. парсим HTML чтобы проверить <img>
@@ -191,8 +188,6 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const isVoiced =
         whiteList.some((item) => item.name === messageName) && whiteListOn;
 
-    console.log("[ChatMessage] isVoiced:", isVoiced);
-
     let nameColor;
     let borderColor;
     if (message.color) {
@@ -209,7 +204,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         if (message.service === "youtube") nameColor = "var(--color-sponsor)";
     }
     if (isModerator === "1" || isModerator === true) {
-        nameColor = "var(--color-moderator)";
+        nameColor = "#5B99FF";
         borderColor = "var(--color-moderator)";
     }
     if (isOwner) {
@@ -384,8 +379,10 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
                 style={{ ...nameBackgroundStyles }}
                 title={"Добавить в белый список"}
                 onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddWhiteListItem();
+                    if (whiteListOn) {
+                        e.stopPropagation();
+                        handleAddWhiteListItem();
+                    }
                 }}
             >
                 {serviceIcon && (
@@ -398,13 +395,16 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
                         }}
                     />
                 )}
-                {isVoiced && (
+                {isVoiced && !isWidget && (
                     <div
                         className={s.soundIconWrapper}
                         title="Убрать из белого списка"
                         onClick={(e) => {
                             e.stopPropagation();
                             handleRemoveWhiteListItem();
+                        }}
+                        style={{
+                            backgroundColor: nameColor + "66",
                         }}
                     >
                         <SoundWaveIcon

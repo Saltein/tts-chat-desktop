@@ -134,7 +134,7 @@ export const ChatSettings = ({ full = true }) => {
     };
 
     const getRandomService = () => {
-        const services = ["vk", "twitch", "youtube", "ttschat"];
+        const services = ["vk", "twitch", "youtube"];
         return services[getRandomInt(0, services.length - 1)];
     };
 

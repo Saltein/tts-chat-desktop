@@ -7,6 +7,8 @@ import {
     selectSpeechVolume,
     selectTwitchTTSOn,
     selectTwitchVoice,
+    selectWhiteList,
+    selectWhiteListOn,
 } from "../model/slice";
 
 import s from "./TTSChat.module.scss";
@@ -29,6 +31,8 @@ export const TTSChat = () => {
     const twitchVoice = useSelector(selectTwitchVoice);
     const clearTrigger = useSelector(selectClearTrigger);
     const ownVoice = useSelector(selectOwnVoice);
+    const whiteListOn = useSelector(selectWhiteListOn);
+    const whiteList = useSelector(selectWhiteList);
 
     const dispatch = useDispatch();
 
@@ -135,10 +139,10 @@ export const TTSChat = () => {
 
     const handleSpeak = useCallback(
         async (messageObj, isPriority = false) => {
+            const { textMessage, userName } = getMessageAndName(messageObj);
+
             const voicesMap = JSON.parse(localStorage.getItem("voices")) || {};
             if (!isTwitchTTSOn) return;
-
-            const { textMessage, userName } = getMessageAndName(messageObj);
 
             const speaker = ownVoice
                 ? voicesMap[userName] || twitchVoice
@@ -222,10 +226,17 @@ export const TTSChat = () => {
 
     // Обработка обычных сообщений
     useEffect(() => {
+        const { userName } = getMessageAndName(message);
         if (message) {
+            if (
+                whiteListOn &&
+                !whiteList.some((user) => user.name === userName)
+            ) {
+                return;
+            }
             handleSpeak(message, false);
         }
-    }, [message, handleSpeak]);
+    }, [message, handleSpeak, whiteListOn, whiteList]);
 
     // Обработка следующего голоса
     useEffect(() => {

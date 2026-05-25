@@ -4,11 +4,11 @@ import { removeFromWhiteList } from "../../model/slice";
 import RemoveIcon from "../../../../shared/assets/icons/close.svg?react";
 
 export const WhiteListItem = ({ item }) => {
-    const { name, id } = item;
+    const { name } = item;
     const dispatch = useDispatch();
 
     const handleRemove = () => {
-        dispatch(removeFromWhiteList(id));
+        dispatch(removeFromWhiteList(name));
     };
 
     return (

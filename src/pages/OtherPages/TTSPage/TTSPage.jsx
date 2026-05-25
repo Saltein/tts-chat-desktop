@@ -46,7 +46,7 @@ export const TTSPage = () => {
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
 
     const [optionList, setOptionList] = useState([]);
-    const [whiteListOpen, setWhiteListOpen] = useState(true);
+    const [whiteListOpen, setWhiteListOpen] = useState(false);
 
     const fetchSpeakers = useCallback(async () => {
         try {

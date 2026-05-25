@@ -36,7 +36,14 @@ export const DefaultModalWindow = ({
 
 const CloseButton = ({ onClose }) => {
     return (
-        <div className={s.closeButton} onClick={onClose} title="Закрыть окно">
+        <div
+            className={s.closeButton}
+            onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+            }}
+            title="Закрыть окно"
+        >
             <CloseIcon className={s.icon} />
         </div>
     );

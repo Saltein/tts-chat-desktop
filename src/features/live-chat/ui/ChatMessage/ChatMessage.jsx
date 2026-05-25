@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-escape */
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import s from "./ChatMessage.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -27,7 +28,8 @@ import VkVideoIcon from "../../../../shared/assets/icons/vk-video-logo.svg?react
 import TTSChatIcon from "../../../../shared/assets/icons/ttschat-logo.svg?react";
 import WrenchIcon from "../../../../shared/assets/icons/wrench.svg?react";
 import SoundIcon from "../../../../shared/assets/icons/sound.svg?react";
-import SoundWaveIcon from "../../../../shared/assets/icons/sound2.svg?react";
+import WhiteListIcon from "../../../../shared/assets/icons/sound-max.svg?react";
+import BlackListIcon from "../../../../shared/assets/icons/sound-mute.svg?react";
 
 import {
     generateColorFromUsername,
@@ -40,8 +42,12 @@ import {
 import { genRandStr } from "../../../../shared/lib/genRandStr";
 import { addNotice } from "../../../in-app-notices/model/slice";
 import {
+    addBlackListItem,
     addWhiteListItem,
+    removeFromBlackList,
     removeFromWhiteList,
+    selectBlackList,
+    selectBlackListOn,
     selectTwitchTTSOn,
     selectWhiteList,
     selectWhiteListOn,
@@ -140,6 +146,9 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     }, [messageText, message?.service, parseText, isReady, isWidget]);
 
     const [isFading, setIsFading] = useState(false);
+    const [moderateMenuOpen, setModerateMenuOpen] = useState(false);
+    const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+    const nameRef = useRef(null);
 
     const dispatch = useDispatch();
     const theme = useTheme().theme;
@@ -167,6 +176,9 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     const whiteList = useSelector(selectWhiteList);
     const whiteListOn = useSelector(selectWhiteListOn);
 
+    const blackList = useSelector(selectBlackList);
+    const blackListOn = useSelector(selectBlackListOn);
+
     const isModerator =
         message.tags?.badges?.moderator ||
         message.tags?.["is-moderator"] ||
@@ -187,6 +199,9 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
 
     const isVoiced =
         whiteList.some((item) => item.name === messageName) && whiteListOn;
+
+    const isMuted =
+        blackList.some((item) => item.name === messageName) && blackListOn;
 
     let nameColor;
     let borderColor;
@@ -293,6 +308,29 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         }
     }, [messageName, dispatch, message.id]);
 
+    // Закрытие меню при клике вне
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            // Получаем элемент меню
+            const menuElement = document.querySelector(`.${s.moderateMenu}`);
+
+            if (
+                moderateMenuOpen &&
+                nameRef.current &&
+                !nameRef.current.contains(event.target) &&
+                menuElement &&
+                !menuElement.contains(event.target) // Добавляем проверку на клик внутри меню
+            ) {
+                setModerateMenuOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [moderateMenuOpen]);
+
     let Icon;
     if (message?.service === "twitch") {
         Icon = TwitchIcon;
@@ -303,6 +341,9 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
     } else if (message?.service === "ttschat") {
         Icon = TTSChatIcon;
     }
+
+    const inWhiteList = whiteList.some((item) => item.name === messageName);
+    const inBlackList = blackList.some((item) => item.name === messageName);
 
     const handleRevoice = async () => {
         dispatch(setRevoiceMessage({ ...message, id: genRandStr() }));
@@ -331,35 +372,110 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
         }
     };
 
-    const handleAddWhiteListItem = () => {
-        if (whiteList.some((item) => item.name === messageName)) {
+    const handleAddListItem = (black = false) => {
+        console.log("add", black, messageName);
+
+        let list = black ? blackList : whiteList;
+        if (list.some((item) => item.name === messageName)) {
             dispatch(
                 addNotice({
                     id: genRandStr(),
                     type: "warning",
-                    message: "Пользователь уже добавлен",
+                    message: `Пользователь уже добавлен в ${black ? "черный" : "белый"} список`,
                 }),
             );
             return;
         }
-        dispatch(addWhiteListItem(messageName));
+        dispatch(
+            black
+                ? addBlackListItem(messageName)
+                : addWhiteListItem(messageName),
+        );
         dispatch(
             addNotice({
                 id: genRandStr(),
                 type: "success",
-                message: "Пользователь добавлен в белый список",
+                message: `Пользователь добавлен в ${black ? "черный" : "белый"} список`,
             }),
         );
+        setModerateMenuOpen(false);
     };
 
-    const handleRemoveWhiteListItem = () => {
-        dispatch(removeFromWhiteList(messageName));
+    const handleRemoveListItem = (black = false) => {
+        console.log("remove", black, messageName);
+        dispatch(
+            black
+                ? removeFromBlackList(messageName)
+                : removeFromWhiteList(messageName),
+        );
         dispatch(
             addNotice({
                 id: genRandStr(),
                 type: "warning",
-                message: "Пользователь удален из белого списка",
+                message: `Пользователь удален из ${black ? "черного" : "белого"} списка`,
             }),
+        );
+        setModerateMenuOpen(false);
+    };
+
+    const handleOpenMenu = (e) => {
+        e.stopPropagation();
+        if (nameRef.current) {
+            const rect = nameRef.current.getBoundingClientRect();
+            setMenuPosition({
+                top: rect.top - 32,
+                left: rect.left + window.scrollX,
+            });
+            setModerateMenuOpen(true);
+        }
+    };
+
+    const ModerateMenuPortal = () => {
+        if (!moderateMenuOpen) return null;
+
+        return createPortal(
+            <div
+                className={s.moderateMenu}
+                style={{
+                    position: "absolute",
+                    top: menuPosition.top,
+                    left: menuPosition.left,
+                    zIndex: 10000,
+                }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {inWhiteList ? (
+                    <div
+                        className={`${s.moderateMenuItem} ${s.white}`}
+                        onClick={() => handleRemoveListItem()}
+                    >
+                        Убрать из <b>белого</b> списка
+                    </div>
+                ) : (
+                    <div
+                        className={`${s.moderateMenuItem} ${s.white}`}
+                        onClick={() => handleAddListItem()}
+                    >
+                        Добавить в <b>белый</b> список
+                    </div>
+                )}
+                {inBlackList ? (
+                    <div
+                        className={`${s.moderateMenuItem} ${s.black}`}
+                        onClick={() => handleRemoveListItem(true)}
+                    >
+                        Убрать из <b>черного</b> списка
+                    </div>
+                ) : (
+                    <div
+                        className={`${s.moderateMenuItem} ${s.black}`}
+                        onClick={() => handleAddListItem(true)}
+                    >
+                        Добавить в <b>черный</b> список
+                    </div>
+                )}
+            </div>,
+            document.body,
         );
     };
 
@@ -370,20 +486,15 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
             onClick={handleRevoice}
         >
             <div className={s.revoiceWrapper}>
-                <SoundIcon className={s.revoiceIcon} />
+                <WhiteListIcon className={s.revoiceIcon} />
             </div>
 
             <div
+                ref={nameRef}
                 className={`${s.name} 
                 ${messageNameBackground ? "" : s.noBackground}`}
                 style={{ ...nameBackgroundStyles }}
-                title={"Добавить в белый список"}
-                onClick={(e) => {
-                    if (whiteListOn) {
-                        e.stopPropagation();
-                        handleAddWhiteListItem();
-                    }
-                }}
+                onClick={handleOpenMenu}
             >
                 {serviceIcon && (
                     <Icon
@@ -398,20 +509,31 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
                 {isVoiced && !isWidget && (
                     <div
                         className={s.soundIconWrapper}
-                        title="Убрать из белого списка"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveWhiteListItem();
+                        style={{
+                            backgroundColor: nameColor.length === 7 ? nameColor + "55" : undefined,
                         }}
+                    >
+                        <WhiteListIcon
+                            className={s.soundIcon}
+                            style={{
+                                width: fontSize - 2,
+                                height: fontSize - 2,
+                            }}
+                        />
+                    </div>
+                )}
+                {isMuted && !isWidget && (
+                    <div
+                        className={s.soundIconWrapper}
                         style={{
                             backgroundColor: nameColor + "66",
                         }}
                     >
-                        <SoundWaveIcon
+                        <BlackListIcon
                             className={s.soundIcon}
                             style={{
-                                width: fontSize,
-                                height: fontSize,
+                                width: fontSize - 2,
+                                height: fontSize - 2,
                             }}
                         />
                     </div>
@@ -436,6 +558,7 @@ export const ChatMessage = memo(({ message, timeBeforeDisappear }) => {
                 style={textStyles}
                 dangerouslySetInnerHTML={{ __html: parsedMessage }}
             />
+            <ModerateMenuPortal />
         </div>
     );
 });

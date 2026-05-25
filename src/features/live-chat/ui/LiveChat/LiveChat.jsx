@@ -56,7 +56,9 @@ export const LiveChat = ({ backgroundColor, isWidget }) => {
                 <div
                     className={`${s.header} ${isFullScreened ? s.fullscreen : ""}`}
                 >
-                    <div className={s.draggable} />
+                    <div
+                        className={`${s.header2} ${isFullScreened ? s.fullscreen : ""}`}
+                    />
                     {isFullScreened && (
                         <div className={s.streamInfo}>
                             <StreamStatus />

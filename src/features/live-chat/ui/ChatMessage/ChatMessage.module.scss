@@ -127,35 +127,58 @@
     top: $spacing-xxs;
     right: $spacing-xxs;
     z-index: 100;
+    border: 1px solid var(--color-border);
     border-radius: $border-radius-md;
     box-shadow: $shadow-md;
     background-color: var(--color-surface);
-    height: 28px;
-    width: 28px;
+    height: 32px;
+    width: 32px;
     pointer-events: none;
 }
 
 .revoiceIcon {
-    height: 24px;
-    width: 24px;
+    height: 20px;
+    width: 20px;
 }
 
 .soundIcon {
     position: relative;
-    left: 1px;
     height: 14px;
     width: 14px;
 }
 
 .soundIconWrapper {
+    padding: 1px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: $spacing-xxs;
     border-radius: $border-radius-sm;
-    background-color: var(--color-error-transparent);
+    background-color: var(--color-accent-transparent);
 
     &:hover {
         background-color: var(--color-error) !important;
+    }
+}
+
+.moderateMenu {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    background-color: var(--color-surface-transparent);
+    border: 1px solid var(--color-border);
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $border-radius-md;
+    backdrop-filter: blur(8px);
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+.moderateMenuItem {
+    cursor: pointer;
+    color: var(--color-muted);
+
+    &:hover {
+        transform: scale(1.03);
+        color: var(--color-text);
     }
 }

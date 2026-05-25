@@ -22,8 +22,12 @@ export const PatchNoteButton = () => {
             <PatchNoteIcon className={s.icon} />
             {isModalOpen && (
                 <DefaultModalWindow
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={() => {
+                        console.log("close");
+                        setIsModalOpen(false);
+                    }}
                     title={"Список изменений"}
+                    padding={"0"}
                 >
                     <div className={s.markdown}>
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>

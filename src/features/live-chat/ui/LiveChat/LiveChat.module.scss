@@ -64,10 +64,12 @@
     }
 }
 
-.draggable {
+.header2 {
     width: calc(100% - 48px);
     height: 100%;
-    -webkit-app-region: drag;
+    &.fullscreen {
+        -webkit-app-region: drag;
+    }
 }
 
 .streamInfo {

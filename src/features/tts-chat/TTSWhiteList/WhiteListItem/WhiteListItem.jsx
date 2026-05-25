@@ -1,14 +1,14 @@
 import { useDispatch } from "react-redux";
 import s from "./WhiteListItem.module.scss";
-import { removeFromWhiteList } from "../../model/slice";
+import { removeFromBlackList, removeFromWhiteList } from "../../model/slice";
 import RemoveIcon from "../../../../shared/assets/icons/close.svg?react";
 
-export const WhiteListItem = ({ item }) => {
+export const WhiteListItem = ({ item, black }) => {
     const { name } = item;
     const dispatch = useDispatch();
 
     const handleRemove = () => {
-        dispatch(removeFromWhiteList(name));
+        dispatch(black ? removeFromBlackList(name) : removeFromWhiteList(name));
     };
 
     return (

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+    selectBlackListOn,
     selectOwnVoice,
     selectSpeechVolume,
     selectTwitchTTSOn,
@@ -10,8 +11,10 @@ import {
     setSpeechVolume,
     setTwitchTTSOn,
     setTwitchVoice,
+    toggleBlackList,
     toggleOwnVoice,
     toggleWhiteList,
+    setBlackListOn,
 } from "../../../features/tts-chat/model/slice";
 import {
     DefaultButton,
@@ -42,11 +45,13 @@ export const TTSPage = () => {
     const consoleWidgetOpen = useSelector(selectConsoleWidgetOpen);
     const ownVoice = useSelector(selectOwnVoice);
     const whiteListOn = useSelector(selectWhiteListOn);
+    const blackListOn = useSelector(selectBlackListOn);
 
     const baseUrl = import.meta.env.VITE_BASE_URL_API || "";
 
     const [optionList, setOptionList] = useState([]);
     const [whiteListOpen, setWhiteListOpen] = useState(false);
+    const [blackListOpen, setBlackListOpen] = useState(false);
 
     const fetchSpeakers = useCallback(async () => {
         try {
@@ -206,6 +211,7 @@ export const TTSPage = () => {
                             state={whiteListOn}
                             onSwitch={() => {
                                 dispatch(toggleWhiteList());
+                                dispatch(setBlackListOn(false));
                             }}
                         />
                     </div>
@@ -219,6 +225,47 @@ export const TTSPage = () => {
                             padding={"0"}
                         >
                             <TTSWhiteList />
+                        </DefaultModalWindow>
+                    )}
+                </DefaultOption>
+
+                <DefaultOption
+                    name={"Черный список озвучки"}
+                    position={"relative"}
+                    disabled={whiteListOn}
+                >
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                        }}
+                    >
+                        <DefaultButton
+                            title={"Редактировать"}
+                            height={"24px"}
+                            width={"144px"}
+                            onClick={() => {
+                                setBlackListOpen((prev) => !prev);
+                            }}
+                        />
+                        <DefaultSwitch
+                            state={blackListOn}
+                            onSwitch={() => {
+                                dispatch(toggleBlackList());
+                            }}
+                        />
+                    </div>
+
+                    {blackListOpen && (
+                        <DefaultModalWindow
+                            onClose={() => {
+                                setBlackListOpen(false);
+                            }}
+                            title={"Черный список озвучки"}
+                            padding={"0"}
+                        >
+                            <TTSWhiteList black />
                         </DefaultModalWindow>
                     )}
                 </DefaultOption>

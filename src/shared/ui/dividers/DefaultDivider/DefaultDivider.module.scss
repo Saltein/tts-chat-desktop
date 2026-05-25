@@ -1,8 +1,7 @@
 @use "../../../styles/variables.scss" as *;
 
 .wrapper {
-    display: block;
-    background-color: var(--color-border);
+    display: flex;
     flex-shrink: 0;
 
     &.h {
@@ -14,4 +13,10 @@
         width: 1px;
         height: 100%;
     }
+}
+
+.line {
+    height: 100%;
+    width: 100%;
+    background-color: var(--color-border);
 }

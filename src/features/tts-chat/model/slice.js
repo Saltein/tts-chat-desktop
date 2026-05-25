@@ -20,6 +20,8 @@ const loadSettings = () => {
                 ownVoice: parsed.ownVoice ?? false,
                 whiteListOn: parsed.whiteListOn ?? false,
                 whiteList: parsed.whiteList ?? [],
+                blackListOn: parsed.blackListOn ?? false,
+                blackList: parsed.blackList ?? [],
             };
         }
     } catch (error) {
@@ -39,6 +41,8 @@ const loadSettings = () => {
         ownVoice: false,
         whiteListOn: false,
         whiteList: [],
+        blackListOn: false,
+        blackList: [],
     };
 };
 
@@ -60,6 +64,8 @@ const saveToLocalStorage = (state) => {
                 ownVoice: state.ownVoice,
                 whiteListOn: state.whiteListOn,
                 whiteList: state.whiteList,
+                blackListOn: state.blackListOn,
+                blackList: state.blackList,
             }),
         );
     } catch (error) {
@@ -91,6 +97,12 @@ const ttsSettingsSlice = createSlice({
             state.ownVoice = !state.ownVoice;
             saveToLocalStorage(state);
         },
+
+        // white list
+        setWhiteListOn: (state, action) => {
+            state.whiteListOn = action.payload;
+            saveToLocalStorage(state);
+        },
         toggleWhiteList: (state) => {
             state.whiteListOn = !state.whiteListOn;
             saveToLocalStorage(state);
@@ -111,13 +123,43 @@ const ttsSettingsSlice = createSlice({
             state.whiteList = [];
             saveToLocalStorage(state);
         },
+
+        // black list
+        setBlackListOn: (state, action) => {
+            state.blackListOn = action.payload;
+            saveToLocalStorage(state);
+        },
+        toggleBlackList: (state) => {
+            state.blackListOn = !state.blackListOn;
+            saveToLocalStorage(state);
+        },
+        addBlackListItem: (state, action) => {
+            if (state.blackList.some((item) => item.name === action.payload))
+                return;
+            state.blackList.push({ name: action.payload, id: genRandStr() });
+            saveToLocalStorage(state);
+        },
+        removeFromBlackList: (state, action) => {
+            state.blackList = state.blackList.filter(
+                (item) => item.name !== action.payload,
+            );
+            saveToLocalStorage(state);
+        },
+        clearBlackList: (state) => {
+            state.blackList = [];
+            saveToLocalStorage(state);
+        },
+
         resetSettings: () => {
             const defaultState = {
                 common: { speechVolume: 50 },
                 twitch: { ttsOn: true, voice: "random" },
                 clearTrigger: "random string",
                 ownVoice: false,
+                whiteListOn: false,
                 whiteList: [],
+                blackListOn: false,
+                blackList: [],
             };
             saveToLocalStorage(defaultState);
             return defaultState;
@@ -131,10 +173,19 @@ export const {
     setTwitchVoice,
     setClearTrigger,
     toggleOwnVoice,
+
+    setWhiteListOn,
     toggleWhiteList,
     addWhiteListItem,
     removeFromWhiteList,
     clearWhiteList,
+    
+    setBlackListOn,
+    toggleBlackList,
+    addBlackListItem,
+    removeFromBlackList,
+    clearBlackList,
+
     resetSettings,
 } = ttsSettingsSlice.actions;
 
@@ -148,3 +199,5 @@ export const selectClearTrigger = (state) => state.ttsSettings.clearTrigger;
 export const selectOwnVoice = (state) => state.ttsSettings.ownVoice;
 export const selectWhiteListOn = (state) => state.ttsSettings.whiteListOn;
 export const selectWhiteList = (state) => state.ttsSettings.whiteList;
+export const selectBlackListOn = (state) => state.ttsSettings.blackListOn;
+export const selectBlackList = (state) => state.ttsSettings.blackList;

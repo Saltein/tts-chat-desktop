@@ -7,25 +7,37 @@ import {
 } from "../../../shared/ui";
 import s from "./TTSWhiteList.module.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { addWhiteListItem, selectWhiteList } from "../model/slice";
+import {
+    addBlackListItem,
+    addWhiteListItem,
+    selectBlackList,
+    selectWhiteList,
+} from "../model/slice";
 import { WhiteListItem } from "./WhiteListItem/WhiteListItem";
 import { genRandStr } from "../../../shared/lib/genRandStr";
 import { addNotice } from "../../in-app-notices/model/slice";
 
-export const TTSWhiteList = () => {
+export const TTSWhiteList = ({ black = false }) => {
     const dispatch = useDispatch();
     const inputRef = useRef(null);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [nickname, setNickname] = useState("");
     const whiteList = useSelector(selectWhiteList);
+    const blackList = useSelector(selectBlackList);
+
+    const blackListFiltered = blackList.filter((item) => {
+        return item.name.toLowerCase().includes(searchQuery.toLowerCase());
+    });
 
     const whiteListFiltered = whiteList.filter((item) => {
         return item.name.toLowerCase().includes(searchQuery.toLowerCase());
     });
 
+    const list = black ? blackListFiltered : whiteListFiltered;
+
     const handleAdd = () => {
-        if (whiteList.find((item) => item.name === nickname.trim())) {
+        if (list.find((item) => item.name === nickname.trim())) {
             dispatch(
                 addNotice({
                     id: genRandStr(),
@@ -39,10 +51,19 @@ export const TTSWhiteList = () => {
 
         if (nickname.trim()) {
             // Проверка на пустое значение
-            dispatch(addWhiteListItem(nickname.trim()));
+            dispatch(
+                black
+                    ? addBlackListItem(nickname.trim())
+                    : addWhiteListItem(nickname.trim()),
+            );
             setNickname("");
             inputRef.current?.focus();
-            console.log("[TTSWhiteList] Пользователь добавлен", nickname);
+            console.log(
+                "[TTSWhiteList] Пользователь добавлен",
+                nickname,
+                "black:",
+                black,
+            );
         }
     };
 
@@ -61,7 +82,9 @@ export const TTSWhiteList = () => {
                     info={
                         <>
                             <span>Никнейм пользователя, которому</span>
-                            <span>будут озвучиваться сообщения.</span>
+                            <span>
+                                {black ? "НЕ" : ""}будут озвучиваться сообщения.
+                            </span>
                             <br />
                             <span>
                                 Для Youtube - <b>@username</b>
@@ -90,14 +113,21 @@ export const TTSWhiteList = () => {
                 query={searchQuery}
                 setQuery={setSearchQuery}
             />
+            {list.length !== 0 && <DefaultDivider margin="128px" />}
             <div className={s.whiteListContainer}>
-                {whiteListFiltered.length === 0 && (
+                {list.length === 0 && (
                     <span style={{ alignSelf: "center" }}>
                         {searchQuery ? "Ничего не нашлось" : "Список пуст"}
                     </span>
                 )}
-                {whiteListFiltered.map((item) => {
-                    return <WhiteListItem item={item} key={item.id} />;
+                {list.map((item) => {
+                    return (
+                        <WhiteListItem
+                            item={item}
+                            key={item.id}
+                            black={black}
+                        />
+                    );
                 })}
             </div>
         </div>

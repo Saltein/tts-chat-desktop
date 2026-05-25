@@ -2,6 +2,8 @@
 /* eslint-disable react-hooks/immutability */
 import { useDispatch, useSelector } from "react-redux";
 import {
+    selectBlackList,
+    selectBlackListOn,
     selectClearTrigger,
     selectOwnVoice,
     selectSpeechVolume,
@@ -33,6 +35,8 @@ export const TTSChat = () => {
     const ownVoice = useSelector(selectOwnVoice);
     const whiteListOn = useSelector(selectWhiteListOn);
     const whiteList = useSelector(selectWhiteList);
+    const blackListOn = useSelector(selectBlackListOn);
+    const blackList = useSelector(selectBlackList);
 
     const dispatch = useDispatch();
 
@@ -227,16 +231,15 @@ export const TTSChat = () => {
     // Обработка обычных сообщений
     useEffect(() => {
         const { userName } = getMessageAndName(message);
+        const shouldSkip =
+            (whiteListOn &&
+                !whiteList.some((user) => user.name === userName)) ||
+            (blackListOn && blackList.some((user) => user.name === userName));
         if (message) {
-            if (
-                whiteListOn &&
-                !whiteList.some((user) => user.name === userName)
-            ) {
-                return;
-            }
+            if (shouldSkip) return;
             handleSpeak(message, false);
         }
-    }, [message, handleSpeak, whiteListOn, whiteList]);
+    }, [message, handleSpeak, whiteListOn, whiteList, blackListOn, blackList]);
 
     // Обработка следующего голоса
     useEffect(() => {

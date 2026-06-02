@@ -1,10 +1,1 @@
 @use "../../../shared/styles/variables.scss" as *;
-
-.hotkeys {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: $spacing-xs;
-    width: "fit-content";
-    font-weight: 700;
-}

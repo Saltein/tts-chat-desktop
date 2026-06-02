@@ -7,6 +7,7 @@ import {
 import { ThemeSwitch } from "../../../shared/ui/switches/ThemeSwitch/ThemeSwitch";
 import { DefaultWidgetShape } from "../../../shared/widgets/DefaultWidgetShape/DefaultWidgetShape";
 import s from "./SettingsPage.module.scss";
+import { ShortcutOption } from "./ShortcutOption/ShortcutOption";
 import { ClearStorageButton } from "./ui/ClearStorageButton";
 
 export const SettingsPage = () => {
@@ -40,20 +41,14 @@ export const SettingsPage = () => {
                 display={"flex"}
                 flexDirection={"column"}
             >
-                <DefaultOption name={"Пропуск аудио"}>
-                    <div className={s.hotkeys}>
-                        <KeyboardKey keyName={"Ctrl"} /> +{" "}
-                        <KeyboardKey keyName={"Shift"} /> +{" "}
-                        <KeyboardKey keyName={"."} />
-                    </div>
-                </DefaultOption>
-                <DefaultOption name={"Озвучить последнее сообщение"}>
-                    <div className={s.hotkeys}>
-                        <KeyboardKey keyName={"Ctrl"} /> +{" "}
-                        <KeyboardKey keyName={"Shift"} /> +{" "}
-                        <KeyboardKey keyName={","} />
-                    </div>
-                </DefaultOption>
+                <ShortcutOption
+                    title={"Пропуск аудио"}
+                    shortcutKeyList={["Control", "Shift", "."]}
+                />
+                <ShortcutOption
+                    title={"Озвучить последнее сообщение"}
+                    shortcutKeyList={["Control", "Shift", ","]}
+                />
             </DefaultWidgetShape>
         </div>
     );

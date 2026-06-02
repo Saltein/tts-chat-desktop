@@ -4,6 +4,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 console.log("PRELOAD LOADED");
 
 contextBridge.exposeInMainWorld("electronAPI", {
+    // window
     close: () => ipcRenderer.send("window-close"),
     minimize: () => ipcRenderer.send("window-minimize"),
     maximize: () => ipcRenderer.send("window-maximize"),
@@ -11,7 +12,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
     removeAllListeners: (channel) => {
         ipcRenderer.removeAllListeners(channel);
     },
+    onWindowActive: (callback) => {
+        const handler = (_, isActive) => callback(isActive);
+        ipcRenderer.on("window-active", handler);
+        return () => ipcRenderer.removeListener("window-active", handler);
+    },
 
+    // tts
     startTTSServer: () => ipcRenderer.invoke("tts-start"),
     stopTTSServer: () => ipcRenderer.invoke("tts-stop"),
     onTTSError: (callback) => {
@@ -20,18 +27,19 @@ contextBridge.exposeInMainWorld("electronAPI", {
         return () => ipcRenderer.removeListener("tts-server-error", handler);
     },
 
+    // shortcuts
     onSkipAudio: (callback) => {
         const handler = () => callback();
         ipcRenderer.on("skip-audio", handler);
         return () => ipcRenderer.removeListener("skip-audio", handler);
     },
-
-    onWindowActive: (callback) => {
-        const handler = (_, isActive) => callback(isActive);
-        ipcRenderer.on("window-active", handler);
-        return () => ipcRenderer.removeListener("window-active", handler);
+    onPlayLastMessage: (callback) => {
+        const handler = () => callback();
+        ipcRenderer.on("play-last-message", handler);
+        return () => ipcRenderer.removeListener("play-last-message", handler);
     },
 
+    // notice
     onNotice: (callback) => {
         const handler = (_, data) => callback(data);
         ipcRenderer.on("notice", handler);

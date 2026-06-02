@@ -37,6 +37,7 @@ const __dirname = path.dirname(__filename);
 // ============= SHORTCUT KEYS ==============
 const SHORTCUTS = {
     "skip-audio": "CommandOrControl+Shift+.",
+    "play-last-message": "CommandOrControl+Shift+,",
 };
 
 // ================= WINDOW =================
@@ -534,7 +535,10 @@ async function getTwitchAccessToken(twitchAppId, twitchAppSecret) {
 // Обработчик для получения информации о стриме Twitch
 ipcMain.handle("twitch-get-stream-info", async (_, connectObj) => {
     try {
-        const token = await getTwitchAccessToken(connectObj.twitchAppId, connectObj.twitchAppSecret);
+        const token = await getTwitchAccessToken(
+            connectObj.twitchAppId,
+            connectObj.twitchAppSecret,
+        );
         if (!token) {
             console.error("[TWITCH] Нет токена доступа");
             return null;
@@ -817,6 +821,8 @@ app.whenReady().then(() => {
         });
     });
 
+    // // Горячие клавиши ==============================================================
+    // Пропуск аудио
     const shortcutSkip = globalShortcut.register(
         SHORTCUTS["skip-audio"],
         handleSkipAudio,
@@ -830,6 +836,23 @@ app.whenReady().then(() => {
             id: genRandStr(),
             type: "error",
             message: `Ошибка регистрации горячей клавиши для пропуска аудио: ${SHORTCUTS["skip-audio"]}`,
+        });
+    }
+
+    // Озвучка последнего сообщения
+    const shortcutPlayLast = globalShortcut.register(
+        SHORTCUTS["play-last-message"],
+        handlePlayLastMessage,
+    );
+
+    if (!shortcutPlayLast) {
+        console.error(
+            `Failed to register shortcut to play last message: ${SHORTCUTS["play-last-message"]}`,
+        );
+        mainWindow?.webContents.send("notice", {
+            id: genRandStr(),
+            type: "error",
+            message: `Ошибка регистрации горячей клавиши для озвучки последнего сообщения: ${SHORTCUTS["play-last-message"]}`,
         });
     }
 
@@ -904,5 +927,14 @@ function handleSkipAudio() {
         id: genRandStr(),
         type: "info",
         message: `Пропуск аудио`,
+    });
+}
+
+function handlePlayLastMessage() {
+    mainWindow?.webContents.send("play-last-message");
+    mainWindow?.webContents.send("notice", {
+        id: genRandStr(),
+        type: "info",
+        message: `Воспроизведение последнего сообщения`,
     });
 }

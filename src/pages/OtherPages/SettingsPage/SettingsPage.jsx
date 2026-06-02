@@ -30,13 +30,28 @@ export const SettingsPage = () => {
                 >
                     <ClearStorageButton />
                 </DefaultOption>
-                <DefaultDivider />
-                <DefaultTitle title={"Горячие клавиши"} padding={"0"} />
+            </DefaultWidgetShape>
+            <DefaultWidgetShape
+                marginLeft={"0"}
+                backgroundColor={"transparent"}
+                padding={"0"}
+                paddingBlock={"16px"}
+                title="Горячие клавиши"
+                display={"flex"}
+                flexDirection={"column"}
+            >
                 <DefaultOption name={"Пропуск аудио"}>
                     <div className={s.hotkeys}>
                         <KeyboardKey keyName={"Ctrl"} /> +{" "}
                         <KeyboardKey keyName={"Shift"} /> +{" "}
                         <KeyboardKey keyName={"."} />
+                    </div>
+                </DefaultOption>
+                <DefaultOption name={"Озвучить последнее сообщение"}>
+                    <div className={s.hotkeys}>
+                        <KeyboardKey keyName={"Ctrl"} /> +{" "}
+                        <KeyboardKey keyName={"Shift"} /> +{" "}
+                        <KeyboardKey keyName={","} />
                     </div>
                 </DefaultOption>
             </DefaultWidgetShape>

@@ -51,6 +51,7 @@ export const TTSChat = () => {
     const pausedUrlRef = useRef(null); // Сохраняем URL при паузе
     const pausedTimeRef = useRef(0); // Сохраняем время паузы
     const lastProcessedMessageIdRef = useRef(null);
+    const lastMessageRef = useRef(null);
 
     const playNext = useCallback(() => {
         if (isPlayingRef.current) return;
@@ -248,19 +249,16 @@ export const TTSChat = () => {
 
         if (shouldSkip) return;
 
-        // Получаем ID текущего сообщения
         const currentMessageId = getMessageId(message);
 
-        // Если это сообщение уже было озвучено - пропускаем
         if (lastProcessedMessageIdRef.current === currentMessageId) {
             console.log("[TTS] Сообщение уже озвучено, пропускаем");
             return;
         }
 
-        // Озвучиваем новое сообщение
+        lastMessageRef.current = message;
         handleSpeak(message, false);
 
-        // Запоминаем ID озвученного сообщения
         lastProcessedMessageIdRef.current = currentMessageId;
     }, [message, handleSpeak, whiteListOn, whiteList, blackListOn, blackList]);
 
@@ -314,6 +312,37 @@ export const TTSChat = () => {
             return skip;
         }
     }, []);
+
+    const handlePlayLastMessage = useCallback(() => {
+        if (lastMessageRef.current) {
+            // Останавливаем текущее воспроизведение
+            if (audioRef.current && !audioRef.current.paused) {
+                audioRef.current.pause();
+                isPlayingRef.current = false;
+
+                // Очищаем очереди от текущего сообщения
+                if (audioRef.current.src) {
+                    URL.revokeObjectURL(audioRef.current.src);
+                }
+            }
+
+            // Очищаем очереди
+            normalQueueRef.current = [];
+            priorityQueueRef.current = [];
+
+            // Озвучиваем последнее сообщение с приоритетом
+            handleSpeak(lastMessageRef.current, true);
+        }
+    }, [handleSpeak]);
+
+    useEffect(() => {
+        if (window.electronAPI?.onPlayLastMessage) {
+            const cleanup = window.electronAPI.onPlayLastMessage(() => {
+                handlePlayLastMessage();
+            });
+            return cleanup;
+        }
+    }, [handlePlayLastMessage]);
 
     useEffect(() => {
         if (clearTrigger) {

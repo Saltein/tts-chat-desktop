@@ -1,0 +1,62 @@
+@use "../../../shared/styles/variables.scss" as *;
+
+.wrapper {
+	padding: $spacing-sm;
+	zoom: 2;
+}
+
+.block {
+	display: flex;
+	gap: $spacing-sm;
+	background-color: rgb(18, 18, 24, 0.8);
+	align-items: center;
+	padding: $spacing-xs $spacing-sm;
+	border-radius: 8px;
+	width: fit-content;
+	position: relative;
+}
+
+.iconWrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: heartbeat var(--beat-duration, 1s) ease-in-out infinite;
+}
+
+.icon {
+	width: 24px;
+	height: 24px;
+	filter: var(--heart-filter, saturate(0.3) brightness(1.5)) 
+	        drop-shadow(0 0 4px var(--shadow-color, rgba(255, 33, 33, 0.3)));
+	transition: filter 0.3s ease;
+}
+
+.title {
+	color: white;
+	font-size: 20px;
+	font-weight: 500;
+}
+
+.debug {
+	color: rgba(255, 255, 255, 0.5);
+	font-size: 10px;
+	margin-left: $spacing-xs;
+	font-family: monospace;
+}
+
+@keyframes heartbeat {
+	0%,
+	30%,
+	100% {
+		transform: scale(1);
+	}
+	44% {
+		transform: scale(1.3);
+	}
+	58% {
+		transform: scale(1);
+	}
+	72% {
+		transform: scale(1.3);
+	}
+}

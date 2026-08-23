@@ -15,92 +15,94 @@ import { initYoutubeChatListener } from "../features/live-chat/lib/youtube/youtu
 import { useEffect } from "react";
 import { useStartsWith } from "../shared/hooks/useStartsWith";
 import {
-    initTwitchListener,
-    stopTwitchPolling,
+	initTwitchListener,
+	stopTwitchPolling,
 } from "../features/live-chat/lib/twitch/twitchListener";
 import { useSelector } from "react-redux";
 import {
-    selectTwitchConnectionData,
-    selectTwitchConnectionStatus,
+	selectTwitchConnectionData,
+	selectTwitchConnectionStatus,
 } from "../entities/connection/model/slice";
 import { getTwitchChannelName } from "../shared/lib/getTwitchChannelName";
 import { StatisticsWidget } from "../pages/Widgets/StatisticsWidget/StatisticsWidget";
+import { HeartRateWidget } from "../pages/Widgets/HeartRateWidget/HeartRateWidget";
 
 function App() {
-    const { starts, isWidget } = useStartsWith();
+	const { starts, isWidget } = useStartsWith();
 
-    const twitchChannelNameRaw = useSelector(selectTwitchConnectionData);
-    const twitchChannelName = getTwitchChannelName(
-        twitchChannelNameRaw.chatChannelName,
-    );
-    const twitchConnected = useSelector(selectTwitchConnectionStatus);
+	const twitchChannelNameRaw = useSelector(selectTwitchConnectionData);
+	const twitchChannelName = getTwitchChannelName(
+		twitchChannelNameRaw.chatChannelName,
+	);
+	const twitchConnected = useSelector(selectTwitchConnectionStatus);
 
-    useTTSServer(isWidget);
+	useTTSServer(isWidget);
 
-    const text = (
-        <div>
-            <h3>Подпишись</h3>
-            <p>Не пропускай стримы</p>
-            <h2>@SALTEIN</h2>
-        </div>
-    );
+	const text = (
+		<div>
+			<h3>Подпишись</h3>
+			<p>Не пропускай стримы</p>
+			<h2>@SALTEIN</h2>
+		</div>
+	);
 
-    useEffect(() => {
-        if (!isWidget) {
-            initVkChatListener();
-            initYoutubeChatListener();
-            initTTSConsoleListener();
-        }
-    }, [isWidget]);
+	useEffect(() => {
+		if (!isWidget) {
+			initVkChatListener();
+			initYoutubeChatListener();
+			initTTSConsoleListener();
+		}
+	}, [isWidget]);
 
-    useEffect(() => {
-        if (!isWidget && twitchChannelName && twitchConnected) {
-            initTwitchListener(twitchChannelName);
-        } else if (!twitchChannelName || !twitchConnected) {
-            stopTwitchPolling();
-        }
+	useEffect(() => {
+		if (!isWidget && twitchChannelName && twitchConnected) {
+			initTwitchListener(twitchChannelName);
+		} else if (!twitchChannelName || !twitchConnected) {
+			stopTwitchPolling();
+		}
 
-        return () => {
-            stopTwitchPolling();
-        };
-    }, [twitchChannelName, isWidget, twitchConnected]);
+		return () => {
+			stopTwitchPolling();
+		};
+	}, [twitchChannelName, isWidget, twitchConnected]);
 
-    if (isWidget) {
-        if (starts("/widget/chat")) {
-            return (
-                <EmoteProvider>
-                    <ChatWidget />
-                </EmoteProvider>
-            );
-        }
-        if (starts("/widget/qrcode")) {
-            return (
-                <QRWidget
-                    value={"https://t.me/saltein"}
-                    logoImage={TgLogo}
-                    text={text}
-                    frequency={300}
-                    showTime={30}
-                />
-            );
-        }
-        if (starts("/widget/statistics")) {
-            return (
-                <StatisticsWidget />
-            );
-        }
-    }
+	if (isWidget) {
+		if (starts("/widget/chat")) {
+			return (
+				<EmoteProvider>
+					<ChatWidget />
+				</EmoteProvider>
+			);
+		}
+		if (starts("/widget/qrcode")) {
+			return (
+				<QRWidget
+					value={"https://t.me/saltein"}
+					logoImage={TgLogo}
+					text={text}
+					frequency={300}
+					showTime={30}
+				/>
+			);
+		}
+		if (starts("/widget/statistics")) {
+			return <StatisticsWidget />;
+		}
+		if (starts("/widget/heart_rate")) {
+			return <HeartRateWidget />;
+		}
+	}
 
-    return (
-        <EmoteProvider>
-            <div className={s.App}>
-                {!isWidget && <SendToWidget />}
-                <UpdateNotice />
-                <NoticeStack />
-                <GlobalPage />
-            </div>
-        </EmoteProvider>
-    );
+	return (
+		<EmoteProvider>
+			<div className={s.App}>
+				{!isWidget && <SendToWidget />}
+				<UpdateNotice />
+				<NoticeStack />
+				<GlobalPage />
+			</div>
+		</EmoteProvider>
+	);
 }
 
 export default App;

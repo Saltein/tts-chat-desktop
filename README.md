@@ -64,7 +64,7 @@
 
 ### 🧑‍💻 Для разработчиков
 
-1. `git clone https://github.com/Saltein/tts-electron-version.git`
+1. `git clone https://github.com/Saltein/tts-chat-desktop.git`
 2. `cd tts-chat-desktop`
 3. `npm install`
 4. ▶️ Запуск
